@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-satoshi: "Satoshi", system-ui, sans-serif;
+  --font-heading: "General Sans", system-ui, sans-serif;
+
+  /* jet_black */
+  --color-jet-black: #022b3a;
+  --color-jet-black-100: #00090c;
+  --color-jet-black-200: #011218;
+  --color-jet-black-300: #011a23;
+  --color-jet-black-400: #02232f;
+  --color-jet-black-500: #022b3a;
+  --color-jet-black-600: #056c92;
+  --color-jet-black-700: #08ade8;
+  --color-jet-black-800: #52ccf9;
+  --color-jet-black-900: #a8e6fc;
+
+  /* teal */
+  --color-teal: #1f7a8c;
+  --color-teal-100: #06191c;
+  --color-teal-200: #0c3139;
+  --color-teal-300: #134a55;
+  --color-teal-400: #196372;
+  --color-teal-500: #1f7a8c;
+  --color-teal-600: #2bacc5;
+  --color-teal-700: #59c5db;
+  --color-teal-800: #91d8e7;
+  --color-teal-900: #c8ecf3;
+
+  /* pale_sky */
+  --color-pale-sky: #bfdbf7;
+  --color-pale-sky-100: #0a2c4e;
+  --color-pale-sky-200: #13589c;
+  --color-pale-sky-300: #2384e4;
+  --color-pale-sky-400: #71afed;
+  --color-pale-sky-500: #bfdbf7;
+  --color-pale-sky-600: #cce2f9;
+  --color-pale-sky-700: #d9eafa;
+  --color-pale-sky-800: #e6f1fc;
+  --color-pale-sky-900: #f2f8fd;
+
+  /* lavender */
+  --color-lavender: #e1e5f2;
+  --color-lavender-100: #1c2542;
+  --color-lavender-200: #384a83;
+  --color-lavender-300: #5f74ba;
+  --color-lavender-400: #a1add7;
+  --color-lavender-500: #e1e5f2;
+  --color-lavender-600: #e8ebf5;
+  --color-lavender-700: #eef0f8;
+  --color-lavender-800: #f4f5fa;
+  --color-lavender-900: #f9fafd;
+
+  /* white (neutrals) */
+  --color-neutral: #ffffff;
+  --color-neutral-100: #333333;
+  --color-neutral-200: #666666;
+  --color-neutral-300: #999999;
+  --color-neutral-400: #cccccc;
+  --color-neutral-500: #ffffff;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-satoshi);
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
