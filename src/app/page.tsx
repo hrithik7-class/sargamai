@@ -93,17 +93,20 @@ export default function HomePage() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden min-w-0">
-      {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden pt-20 pb-24">
-        {/* Full-viewport video layer (behind hero content) */}
-        <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+      {/* Hero Section - video fills viewport on mobile, no white gap */}
+      <section
+        ref={heroRef}
+        className="relative min-h-screen min-h-[100dvh] flex items-center overflow-hidden pt-20 pb-24"
+      >
+        {/* Full-viewport video layer - dark fallback, video covers full area on mobile */}
+        <div className="absolute inset-0 z-0 overflow-hidden bg-jet-black" aria-hidden="true">
           <video
             ref={videoRef}
             autoPlay
             muted
             loop
             playsInline
-            className="absolute left-1/2 top-1/2 w-[100vh] h-[100vw] min-w-[100vw] min-h-[100vh] -translate-x-1/2 -translate-y-1/2 -rotate-90 object-cover"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-90 object-cover w-[max(100vw,100vh)] h-[max(100vw,100vh)] min-w-[max(100vw,100vh)] min-h-[max(100vw,100vh)]"
           >
             <source src="/hero.mp4" type="video/mp4" />
           </video>
