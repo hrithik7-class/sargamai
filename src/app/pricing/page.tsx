@@ -23,7 +23,7 @@ const plans: Plan[] = [
     name: "Starter",
     price: "$0",
     period: "forever",
-    description: "Perfect for trying out Sargam",
+    description: "Perfect for trying out SargamAI",
     gradient: "from-jet-black-400 to-jet-black-500",
     icon: <Sparkles className="w-6 h-6" />,
     features: [

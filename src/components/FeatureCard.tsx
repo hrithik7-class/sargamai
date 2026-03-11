@@ -30,22 +30,22 @@ export default function FeatureCard({
       viewport={{ once: true }}
       transition={{ delay }}
     >
-      <div className="bg-neutral-500 rounded-3xl p-6 shadow-sm border border-lavender-600 hover:shadow-lg transition-all duration-300 h-full">
+      <div className="bg-neutral-500 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm border border-lavender-600 hover:shadow-lg transition-all duration-300 h-full min-w-0">
         {/* Icon */}
-        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-5 text-white shadow-lg`}>
-          <Icon className="w-7 h-7" />
+        <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-4 sm:mb-5 text-white shadow-lg shrink-0`}>
+          <Icon className="w-6 h-6 sm:w-7 sm:h-7" />
         </div>
 
         {/* Title */}
-        <h3 className="text-xl font-bold text-jet-black mb-3 font-heading">{title}</h3>
+        <h3 className="text-lg sm:text-xl font-bold text-jet-black mb-2 sm:mb-3 font-heading">{title}</h3>
         
         {/* Description */}
-        <p className="text-jet-black-600 leading-relaxed mb-4">{description}</p>
+        <p className="text-jet-black-600 text-sm sm:text-base leading-relaxed mb-3 sm:mb-4">{description}</p>
 
         {/* Mini Analytics Chart */}
         {chart && chartData && (
-          <div className="mt-4 pt-4 border-t border-lavender-600">
-            <div className="flex items-end gap-1 h-16">
+          <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-lavender-600 min-w-0">
+            <div className="flex items-end gap-0.5 sm:gap-1 h-12 sm:h-16">
               {chartData.map((item, index) => (
                 <motion.div
                   key={index}
@@ -63,7 +63,7 @@ export default function FeatureCard({
                 />
               ))}
             </div>
-            <div className="flex justify-between mt-2 text-xs text-neutral-300">
+            <div className="flex justify-between mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-neutral-300">
               <span>Jan</span>
               <span>Feb</span>
               <span>Mar</span>

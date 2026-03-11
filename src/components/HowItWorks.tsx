@@ -1,249 +1,248 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import gsap from "gsap";
-import { MessageSquare, Sparkles, CheckCircle, ArrowRight, Lightbulb, Wand2, Zap } from "lucide-react";
 
 const steps = [
   {
-    number: "01",
-    title: "Describe",
-    subtitle: "Your Vision",
-    desc: "Tell us your idea, feeling, or story in plain words. Our AI understands natural language and captures your emotion.",
-    icon: Lightbulb,
-    color: "from-jet-black-600 to-teal",
-    accentColor: "#056c92"
+    label: "Describe your idea",
+    description: "Share your mood, story, or feeling in plain words. Our AI understands nuance and captures the emotion behind your words.",
+    illustration: "describe",
   },
   {
-    number: "02",
-    title: "Generate",
-    subtitle: "Magic Happens",
-    desc: "AI creates unique, meaningful lyrics in seconds. Experience the power of advanced neural networks.",
-    icon: Wand2,
-    color: "from-teal to-teal-700",
-    accentColor: "#2bacc5"
+    label: "Generate lyrics",
+    description: "Get unique, meaningful lyrics powered by advanced AI. No generic lines—every output is tailored to your input.",
+    illustration: "generate",
   },
   {
-    number: "03",
-    title: "Perfect",
-    subtitle: "Your Masterpiece",
-    desc: "Edit, refine, and export your masterpiece. Make it truly yours with smart editing tools.",
-    icon: Zap,
-    color: "from-teal-600 to-teal",
-    accentColor: "#59c5db"
-  }
+    label: "Edit & export",
+    description: "Refine with simple prompts, then export. Your lyrics are ready for music-making or sharing.",
+    illustration: "perfect",
+  },
 ];
 
-const animatedWords = ["Describe", "Generate", "Perfect"];
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15, delayChildren: 0.1 },
+  },
+};
 
-export default function HowItWorks() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const textRefs = useRef<HTMLSpanElement[]>([]);
-  const lineRef = useRef<HTMLDivElement>(null);
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" },
+  },
+};
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const ctx = gsap.context(() => {
-      // Animate each word in the heading
-      textRefs.current.forEach((word, i) => {
-        if (!word) return;
-        
-        gsap.fromTo(word, 
-          { 
-            opacity: 0, 
-            y: 30,
-            rotationX: -90
-          },
-          {
-            opacity: 1,
-            y: 0,
-            rotationX: 0,
-            duration: 0.8,
-            delay: i * 0.15,
-            ease: "back.out(1.7)"
-          }
-        );
-      });
-
-      // Animate the connecting line
-      gsap.fromTo(lineRef.current,
-        { scaleX: 0, opacity: 0 },
-        {
-          scaleX: 1,
-          opacity: 1,
-          duration: 1.5,
-          delay: 0.8,
-          ease: "power2.inOut"
-        }
-      );
-
-      // Floating animation for the whole section
-      gsap.to(".how-it-works-float", {
-        y: -15,
-        duration: 3,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        stagger: 0.2
-      });
-
-    }, containerRef.current);
-
-    return () => ctx.revert();
-  }, []);
-
+/* Step 1: Single card, dark header + teal square, gray/teal content lines. Dotted circle partially around top-left. */
+function IllustrateDescribe() {
   return (
-    <section ref={containerRef} className="relative py-40 bg-neutral-500 overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-10 w-64 h-64 bg-pale-sky-600/50 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-10 w-80 h-80 bg-teal-900/50 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-pale-sky-800 rounded-full blur-3xl opacity-50" />
+    <div className="relative w-full max-w-[180px] mx-auto">
+      <div className="absolute -top-2 -left-2 w-24 h-24 rounded-full border-2 border-dashed border-teal-500 opacity-90 pointer-events-none" aria-hidden />
+      <div className="relative bg-white rounded-md shadow-md border border-lavender-600 overflow-hidden">
+        <div className="h-7 bg-jet-black flex items-center pl-2">
+          <div className="w-2 h-2 rounded-sm bg-teal shrink-0" />
+        </div>
+        <div className="p-2.5 space-y-1.5">
+          <div className="h-1.5 bg-lavender-600 rounded w-full" />
+          <div className="h-1.5 bg-lavender-600 rounded w-[85%]" />
+          <div className="h-1.5 bg-teal-300 rounded w-[70%]" />
+          <div className="h-1.5 bg-lavender-600 rounded w-full" />
+        </div>
       </div>
+    </div>
+  );
+}
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header with Animated Text */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-20"
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 text-blue-700 text-sm font-semibold mb-6"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>Simple Process</span>
-          </motion.div>
-          
-          <h2 className="text-5xl sm:text-6xl font-bold mb-6 text-gray-900 leading-tight">
-            <span className="block text-gray-600 text-3xl sm:text-4xl mb-4">How It Works</span>
-            <div className="flex items-center justify-center gap-4 flex-wrap">
-              {animatedWords.map((word, index) => (
-                <span
-                  key={index}
-                  ref={(el) => { if (el) textRefs.current[index] = el }}
-                  className="bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent inline-block"
-                  style={{ perspective: "1000px" }}
-                >
-                  {word}
-                </span>
-              ))}
-            </div>
-          </h2>
-          
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">
-            Three simple steps to transform your ideas into beautiful lyrics
-          </p>
-
-          {/* Animated Connecting Line */}
-          <div className="flex items-center justify-center gap-2 mt-8">
-            <div ref={lineRef} className="w-32 h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-purple-500 rounded-full origin-left" />
+/* Step 2: Three overlapping cards, staggered. Each: teal square left, prominent teal bar on RIGHT. */
+function IllustrateGenerate() {
+  return (
+    <div className="relative w-full max-w-[200px] mx-auto flex justify-center items-end">
+      <div className="absolute w-[72%] left-[8%] bottom-0 rounded-md shadow border border-lavender-600 bg-white overflow-hidden transform -rotate-3">
+        <div className="h-5 bg-jet-black flex items-center pl-1.5">
+          <div className="w-1.5 h-1.5 rounded-sm bg-teal shrink-0" />
+        </div>
+        <div className="p-1.5 flex items-center justify-between gap-1">
+          <div className="flex-1 space-y-1">
+            <div className="h-1 bg-lavender-600 rounded w-full" />
+            <div className="h-1 bg-lavender-600 rounded w-4/5" />
           </div>
-        </motion.div>
-
-        {/* Steps */}
-        <div className="relative">
-          {/* Connection Line */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 via-blue-500 to-purple-500 -translate-y-1/2 z-0">
-            <div className="absolute inset-0 bg-gradient-to-r from-amber-500 via-blue-500 to-purple-500 animate-pulse opacity-50" />
+          <div className="w-3 h-6 bg-teal rounded-sm shrink-0" />
+        </div>
+      </div>
+      <div className="absolute w-[72%] left-[18%] bottom-1 rounded-md shadow-md border border-lavender-600 bg-white overflow-hidden transform rotate-1 z-10">
+        <div className="h-5 bg-jet-black flex items-center pl-1.5">
+          <div className="w-1.5 h-1.5 rounded-sm bg-teal shrink-0" />
+        </div>
+        <div className="p-1.5 flex items-center justify-between gap-1">
+          <div className="flex-1 space-y-1">
+            <div className="h-1 bg-lavender-600 rounded w-full" />
+            <div className="h-1 bg-lavender-600 rounded w-4/5" />
           </div>
+          <div className="w-3 h-6 bg-teal rounded-sm shrink-0" />
+        </div>
+      </div>
+      <div className="relative w-[72%] rounded-md shadow-lg border border-lavender-600 bg-white overflow-hidden transform rotate-2 z-20">
+        <div className="h-5 bg-jet-black flex items-center pl-1.5">
+          <div className="w-1.5 h-1.5 rounded-sm bg-teal shrink-0" />
+        </div>
+        <div className="p-1.5 flex items-center justify-between gap-1">
+          <div className="flex-1 space-y-1">
+            <div className="h-1 bg-lavender-600 rounded w-full" />
+            <div className="h-1 bg-lavender-600 rounded w-4/5" />
+          </div>
+          <div className="w-3 h-6 bg-teal rounded-sm shrink-0" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-          <div className="grid md:grid-cols-3 gap-8 lg:gap-12 relative z-10">
-            {steps.map((step, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ 
-                  delay: index * 0.2,
-                  duration: 0.6,
-                  ease: "easeOut"
-                }}
-                className="relative group"
-              >
-                {/* Card */}
-                <div className="how-it-works-float bg-neutral-500 rounded-3xl p-8 shadow-lg border border-lavender-600 hover:shadow-2xl transition-all duration-500 h-full relative overflow-hidden">
-                  {/* Background Glow */}
-                  <div 
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                    style={{
-                      background: `radial-gradient(circle at 50% 0%, ${step.accentColor}15 0%, transparent 50%)`
-                    }}
-                  />
-
-                  <div className="relative z-10">
-                    {/* Icon Container */}
-                    <div className="relative mb-8">
-                      <div className={`w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br ${step.color} flex items-center justify-center text-white shadow-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-                        <step.icon className="w-10 h-10" />
-                      </div>
-                      
-                      {/* Number Badge */}
-                      <div className="absolute -top-2 -right-2 w-10 h-10 bg-neutral-500 rounded-full shadow-lg flex items-center justify-center">
-                        <span className="text-lg font-bold text-jet-black">{step.number}</span>
-                      </div>
-
-                      {/* Floating particles effect */}
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${step.color} opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-500`} />
-                      </div>
-                    </div>
-
-                    {/* Title */}
-                    <div className="text-center mb-4">
-                      <h3 className="text-2xl font-bold text-jet-black mb-1 font-heading">{step.title}</h3>
-                      <p className="text-sm font-medium" style={{ color: step.accentColor }}>{step.subtitle}</p>
-                    </div>
-
-                    {/* Description */}
-                    <p className="text-neutral-300 text-center leading-relaxed">
-                      {step.desc}
-                    </p>
-
-                    {/* Arrow Connector (hidden on last item) */}
-                    {index < 2 && (
-                      <div className="hidden md:block absolute top-1/2 -right-6 transform -translate-y-1/2 z-20">
-                        <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center text-white shadow-lg group-hover:translate-x-2 transition-transform duration-300`}>
-                          <ArrowRight className="w-5 h-5" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Bottom Indicator */}
-                <motion.div
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 + 0.3 }}
-                  className="absolute -bottom-4 left-1/2 -translate-x-1/2"
-                >
-                  <div className={`w-3 h-3 rounded-full bg-gradient-to-br ${step.color} shadow-lg`} />
-                </motion.div>
-              </motion.div>
-            ))}
+/* Step 3: Three overlapping cards. Center card: teal bar graph (4 bars), teal line, checkmark circle top-right. */
+function IllustratePerfect() {
+  return (
+    <div className="relative w-full max-w-[200px] mx-auto flex justify-center items-end">
+      <div className="absolute w-[60%] left-[18%] bottom-0 rounded-md shadow border border-lavender-600 bg-white overflow-hidden transform -rotate-2">
+        <div className="h-5 bg-jet-black/90 flex items-center pl-1.5" />
+        <div className="p-1.5 space-y-1">
+          <div className="h-1 bg-lavender-600 rounded w-full" />
+          <div className="h-1 bg-lavender-600 rounded w-3/4" />
+        </div>
+      </div>
+      <div className="absolute w-[60%] left-[22%] bottom-1 rounded-md shadow border border-lavender-600 bg-white overflow-hidden transform rotate-1">
+        <div className="h-5 bg-jet-black/90 flex items-center pl-1.5" />
+        <div className="p-1.5 space-y-1">
+          <div className="h-1 bg-lavender-600 rounded w-4/5" />
+          <div className="h-1 bg-lavender-600 rounded w-2/3" />
+        </div>
+      </div>
+      <div className="relative w-[70%] rounded-md shadow-lg border border-lavender-600 bg-white overflow-hidden z-20">
+        <div className="h-6 bg-jet-black flex items-center justify-between pl-2 pr-1.5">
+          <div className="w-2 h-2 rounded-sm bg-teal shrink-0" />
+          <div className="w-5 h-5 rounded-full bg-teal flex items-center justify-center shrink-0">
+            <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
           </div>
         </div>
+        <div className="p-2 space-y-1.5">
+          <div className="flex items-end gap-0.5 h-6">
+            <div className="w-2 bg-teal rounded-t flex-1 self-end" style={{ height: "40%" }} />
+            <div className="w-2 bg-teal rounded-t flex-1 self-end" style={{ height: "65%" }} />
+            <div className="w-2 bg-teal rounded-t flex-1 self-end" style={{ height: "85%" }} />
+            <div className="w-2 bg-teal rounded-t flex-1 self-end" style={{ height: "100%" }} />
+          </div>
+          <div className="h-1 bg-teal-300 rounded w-full" />
+          <div className="h-1 bg-lavender-600 rounded w-full" />
+          <div className="h-1 bg-lavender-600 rounded w-4/5" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-        {/* Bottom CTA */}
+function StepIllustration({ type }: { type: string }) {
+  if (type === "describe") return <IllustrateDescribe />;
+  if (type === "generate") return <IllustrateGenerate />;
+  if (type === "perfect") return <IllustratePerfect />;
+  return null;
+}
+
+export default function HowItWorks() {
+  return (
+    <section className="relative z-10 py-12 sm:py-24 lg:py-32 bg-neutral-500 overflow-hidden min-w-0">
+      <div className="relative z-10 max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 min-w-0">
+        {/* Header: thin accent line, title, 2-line description (like reference) */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-          className="text-center mt-20"
+          transition={{ duration: 0.5 }}
+          className="text-center mb-10 sm:mb-14 lg:mb-16"
         >
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-lavender-700 border border-lavender-500">
-            <CheckCircle className="w-5 h-5 text-teal" />
-            <span className="text-jet-black font-medium">No credit card required • Start free trial</span>
+          <div className="w-10 h-0.5 bg-teal rounded-full mx-auto mb-4 sm:mb-5" aria-hidden />
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-jet-black font-heading mb-2 sm:mb-3">
+            How it works
+          </h2>
+          <p className="text-neutral-300 text-xs sm:text-sm lg:text-base max-w-xl mx-auto leading-relaxed px-1">
+            Describe your mood or story in plain words. Our AI turns it into song-ready lyrics—then you edit and export.
+          </p>
+        </motion.div>
+
+        {/* Flow: SVG dashed path (circle around step 1 + curves with arrowheads) + 3 steps */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-30px" }}
+          className="relative pt-4"
+        >
+          {/* SVG: dashed path with arrowheads - circle around first, then curves to step 2 and 3 */}
+          <svg
+            className="hidden lg:block absolute inset-0 w-full h-[180px] pointer-events-none"
+            viewBox="0 0 1000 180"
+            preserveAspectRatio="xMidYMid meet"
+            aria-hidden
+          >
+            <defs>
+              <marker id="arrow-teal" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="var(--color-teal)" />
+              </marker>
+              <marker id="arrow-teal-2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="var(--color-teal)" />
+              </marker>
+            </defs>
+            {/* Circle around first step (left column center) */}
+            <circle
+              cx="165"
+              cy="88"
+              r="52"
+              fill="none"
+              stroke="var(--color-teal)"
+              strokeWidth="2"
+              strokeDasharray="6 4"
+            />
+            {/* Curve from step 1 to step 2 */}
+            <path
+              d="M 218 88 C 320 88 400 88 500 88"
+              fill="none"
+              stroke="var(--color-teal)"
+              strokeWidth="2"
+              strokeDasharray="6 4"
+              markerEnd="url(#arrow-teal)"
+            />
+            {/* Curve from step 2 to step 3 */}
+            <path
+              d="M 500 88 C 600 88 700 88 835 88"
+              fill="none"
+              stroke="var(--color-teal)"
+              strokeWidth="2"
+              strokeDasharray="6 4"
+              markerEnd="url(#arrow-teal-2)"
+            />
+          </svg>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-6 relative z-10 min-w-0">
+            {steps.map((step) => (
+              <motion.div
+                key={step.label}
+                variants={itemVariants}
+                className="flex flex-col items-center text-center min-w-0"
+              >
+                <div className="flex justify-center mb-4 min-h-[80px] sm:min-h-[100px] lg:min-h-[140px] w-full">
+                  <StepIllustration type={step.illustration} />
+                </div>
+                <h3 className="text-sm font-semibold text-jet-black font-heading mb-2">
+                  {step.label}
+                </h3>
+                <p className="text-neutral-300 text-xs sm:text-sm leading-relaxed max-w-[260px]">
+                  {step.description}
+                </p>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       </div>

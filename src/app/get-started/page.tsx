@@ -3,10 +3,41 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Mail, Lock, User, Check, Eye, EyeOff
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
+
+// Left-side content and image for Sign In
+const signInContent = {
+  image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+  imageAlt: "Person listening to music",
+  title: "Welcome back to your studio",
+  description: "Pick up where you left off. Your projects, lyrics, and ideas are waiting for you.",
+  proofLabel: "Trusted by musicians worldwide",
+  benefits: [
+    "Access your saved lyrics",
+    "Continue your projects",
+    "Sync across devices",
+    "Export anytime"
+  ],
+};
+
+// Left-side content and image for Sign Up
+const signUpContent = {
+  image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+  imageAlt: "Musician creating music",
+  title: "Create music with the power of AI",
+  description: "Join 10,000+ musicians who use SargamAI to compose, arrange, and produce music faster than ever before.",
+  proofLabel: "Trusted by musicians worldwide",
+  benefits: [
+    "Generate melodies in seconds",
+    "Professional arrangements",
+    "Export to any format",
+    "Free to get started"
+  ],
+};
 
 export default function GetStartedPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -55,17 +86,28 @@ export default function GetStartedPage() {
         </div>
       )}
 
-      {/* LEFT SIDE - Info with palette + Man listening to music */}
+      {/* LEFT SIDE - Content and image switch by Sign in / Sign up */}
       <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-jet-black via-jet-black-400 to-teal text-white p-12 flex-col justify-between relative overflow-hidden">
-        {/* Background Image */}
+        {/* Background Image - changes with tab (Framer Motion) */}
         <div className="absolute inset-0">
-          <img 
-            src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Person listening to music"
-            className="w-full h-full object-cover"
-          />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={isLogin ? "signin" : "signup"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="absolute inset-0"
+            >
+              <img 
+                src={isLogin ? signInContent.image : signUpContent.image}
+                alt={isLogin ? signInContent.imageAlt : signUpContent.imageAlt}
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+          </AnimatePresence>
           {/* Dark overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-jet-black/90 via-jet-black-400/85 to-teal/90" />
+          <div className="absolute inset-0 bg-gradient-to-br from-jet-black/90 via-jet-black-400/85 to-teal/90 pointer-events-none" />
         </div>
 
         {/* Gradient orbs for extra depth */}
@@ -78,52 +120,57 @@ export default function GetStartedPage() {
             <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center border border-white/30">
               <span className="text-white font-bold text-sm">S</span>
             </div>
-            <span className="text-lg font-medium">Sargam</span>
+            <span className="text-lg font-medium">SargamAI</span>
           </Link>
         </div>
 
-        <div className="relative z-10 max-w-md">
-          <h1 className="text-3xl font-semibold leading-tight mb-4 font-heading">
-            Create music with the power of AI
-          </h1>
-          <p className="text-pale-sky-600 text-base leading-relaxed mb-8">
-            Join 10,000+ musicians who use Sargam to compose, arrange, and produce music faster than ever before.
-          </p>
+        <div className="relative z-10 max-w-md overflow-hidden min-h-[320px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={isLogin ? "signin" : "signup"}
+              initial={{ opacity: 0, x: 28 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -28 }}
+              transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
+            >
+              <h1 className="text-3xl font-semibold leading-tight mb-4 font-heading">
+                {isLogin ? signInContent.title : signUpContent.title}
+              </h1>
+              <p className="text-pale-sky-600 text-base leading-relaxed mb-8">
+                {isLogin ? signInContent.description : signUpContent.description}
+              </p>
 
-          {/* Social proof */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex -space-x-2">
-              {[{ name: 'Arjun', color: 'bg-red-500' }, { name: 'Priya', color: 'bg-green-500' }, { name: 'Kumar', color: 'bg-yellow-500' }, { name: 'Sarah', color: 'bg-purple-500' }].map((person, i) => (
-                <div key={i} className={`w-8 h-8 rounded-full ${person.color} border-2 border-jet-black flex items-center justify-center text-white text-xs font-medium`}>
-                  {person.name.charAt(0)}
+              {/* Social proof */}
+              <div className="flex items-center gap-4 mb-8">
+                <div className="flex -space-x-2">
+                  {[{ name: 'Arjun', color: 'bg-red-500' }, { name: 'Priya', color: 'bg-green-500' }, { name: 'Kumar', color: 'bg-yellow-500' }, { name: 'Sarah', color: 'bg-purple-500' }].map((person, i) => (
+                    <div key={i} className={`w-8 h-8 rounded-full ${person.color} border-2 border-jet-black flex items-center justify-center text-white text-xs font-medium`}>
+                      {person.name.charAt(0)}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <span className="text-sm text-pale-sky-500">Trusted by musicians worldwide</span>
-          </div>
+                <span className="text-sm text-pale-sky-500">{isLogin ? signInContent.proofLabel : signUpContent.proofLabel}</span>
+              </div>
 
-          {/* Benefits */}
-          <ul className="space-y-3">
-            {[
-              "Generate melodies in seconds",
-              "Professional arrangements", 
-              "Export to any format",
-              "Free to get started"
-            ].map((benefit, i) => (
-              <li key={i} className="flex items-center gap-3 text-pale-sky-600 text-sm">
-                <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                  <Check className="w-3 h-3 text-white" />
-                </div>
-                {benefit}
-              </li>
-            ))}
-          </ul>
+              {/* Benefits - different for Sign in vs Sign up */}
+              <ul className="space-y-3">
+                {(isLogin ? signInContent.benefits : signUpContent.benefits).map((benefit, i) => (
+                  <li key={i} className="flex items-center gap-3 text-pale-sky-600 text-sm">
+                    <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                      <Check className="w-3 h-3 text-white" />
+                    </div>
+                    {benefit}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Bottom */}
         <div className="relative z-10">
           <p className="text-xs text-pale-sky-600/60">
-            © 2024 Sargam. All rights reserved.
+            © 2024 SargamAI. All rights reserved.
           </p>
         </div>
       </div>
@@ -137,7 +184,7 @@ export default function GetStartedPage() {
               <div className="w-8 h-8 rounded-lg bg-teal flex items-center justify-center">
                 <span className="text-white font-bold text-sm">S</span>
               </div>
-              <span className="text-lg font-medium text-jet-black">Sargam</span>
+              <span className="text-lg font-medium text-jet-black">SargamAI</span>
             </Link>
           </div>
 

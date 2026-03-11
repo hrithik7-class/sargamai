@@ -66,11 +66,11 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-neutral-500">
-      {/* Hero Section - video fills whole window, content below navbar */}
-      {/* Full-viewport video layer (behind navbar) */}
-      <section className="fixed inset-0 z-0" aria-hidden>
-        <div className="absolute inset-0 overflow-hidden">
+    <div className="relative min-h-screen overflow-x-hidden min-w-0">
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex items-center overflow-hidden pt-20 pb-24">
+        {/* Full-viewport video layer (behind hero content) */}
+        <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
           <video
             ref={videoRef}
             autoPlay
@@ -82,21 +82,19 @@ export default function HomePage() {
             <source src="/hero.mp4" type="video/mp4" />
           </video>
         </div>
-      </section>
 
-      {/* Hero content - sits in flow, one full screen height */}
-      <section className="relative z-10 min-h-screen flex items-center overflow-hidden pt-20 pb-24">
+        {/* Hero content - sits in flow */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full"
+          className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full min-w-0"
         >
           <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] text-center max-w-3xl mx-auto w-full">
             <div className="w-full flex flex-col items-center">
               {/* Badge */}
               <motion.div variants={itemVariants} className="mb-2 flex justify-center">
-                <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pale-sky-700 border border-pale-sky-400 text-teal text-sm font-semibold shadow-sm">
+                <div className="inline-flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-2.5 rounded-full bg-pale-sky-700 border border-pale-sky-400 text-teal text-xs sm:text-sm font-semibold shadow-sm max-w-[calc(100vw-1.5rem)]">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-600 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-teal"></span>
@@ -106,15 +104,15 @@ export default function HomePage() {
               </motion.div>
 
               {/* Main Heading */}
-              <motion.div variants={itemVariants} className="text-center w-full">
-                <h1 className="text-4xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight text-jet-black font-heading text-center">
+              <motion.div variants={itemVariants} className="text-center w-full min-w-0">
+                <h1 className="text-2xl min-[400px]:text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight text-jet-black font-heading text-center">
                   <span className="text-teal">
                     Transform Your Ideas
                   </span>
                   <br />
                   <span className="text-jet-black">
                     Into{" "}
-                    <span className="relative inline-flex min-w-[180px] pb-1">
+                    <span className="relative inline-flex min-w-[120px] sm:min-w-[180px] pb-1">
                       <AnimatePresence mode="wait">
                         <motion.span
                           key={currentWordIndex}
@@ -139,18 +137,18 @@ export default function HomePage() {
               </motion.div>
 
               {/* Subheading */}
-              <motion.p variants={itemVariants} className="text-xl sm:text-2xl text-jet-black-600 max-w-xl mx-auto mb-10 leading-relaxed text-center">
+              <motion.p variants={itemVariants} className="text-base sm:text-xl text-jet-black-600 max-w-xl mx-auto mb-6 sm:mb-10 leading-relaxed text-center px-1 min-w-0">
                 Describe your mood, story, or feeling in plain words. 
-                <span className="text-teal font-semibold"> Sargam</span> crafts 
+                <span className="text-teal font-semibold"> SargamAI</span> crafts 
                 meaningful lyrics that touch hearts.
               </motion.p>
 
               {/* CTA Buttons */}
-              <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-10">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+              <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 mb-6 sm:mb-10 w-full max-w-[min(100%,320px)] sm:max-w-none">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
                   <Link
                     href="/get-started"
-                    className="group relative px-10 py-5 rounded-2xl bg-teal text-white font-bold text-lg shadow-lg shadow-teal-800/30 overflow-hidden flex items-center gap-2 hover:bg-teal-600 transition-colors"
+                    className="group relative w-full sm:w-auto inline-flex justify-center items-center px-6 sm:px-10 py-4 sm:py-5 rounded-2xl bg-teal text-white font-bold text-base sm:text-lg shadow-lg shadow-teal-800/30 overflow-hidden gap-2 hover:bg-teal-600 transition-colors"
                   >
                     <span className="relative flex items-center gap-2">
                       Start Creating Free
@@ -159,10 +157,10 @@ export default function HomePage() {
                   </Link>
                 </motion.div>
                 
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
                   <Link
                     href="/logic"
-                    className="group px-10 py-5 rounded-2xl bg-neutral-500 border-2 border-pale-sky-400 text-teal font-bold text-lg hover:border-teal hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+                    className="group w-full sm:w-auto inline-flex justify-center items-center px-6 sm:px-10 py-4 sm:py-5 rounded-2xl bg-neutral-500 border-2 border-pale-sky-400 text-teal font-bold text-base sm:text-lg hover:border-teal hover:shadow-lg transition-all duration-300 gap-2"
                   >
                     <span className="w-8 h-8 rounded-full bg-teal flex items-center justify-center">
                       <Play className="w-4 h-4 text-white" />
@@ -173,17 +171,15 @@ export default function HomePage() {
               </motion.div>
 
               {/* Stats */}
-              <motion.div variants={itemVariants} className="grid grid-cols-3 gap-8 max-w-md mx-auto">
+              <motion.div variants={itemVariants} className="grid grid-cols-3 gap-3 sm:gap-8 max-w-md mx-auto">
                 {[
                   { value: "50K+", label: "Songs Created" },
                   { value: "100+", label: "Genres" },
                   { value: "4.9", label: "User Rating" },
                 ].map((stat, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-3xl sm:text-4xl font-bold text-teal">
-                      {stat.value}
-                    </div>
-                    <div className="text-neutral-300 text-sm">{stat.label}</div>
+                  <div key={index} className="text-center min-w-0">
+                    <div className="text-2xl sm:text-4xl font-bold text-teal truncate">{stat.value}</div>
+                    <div className="text-neutral-300 text-xs sm:text-sm truncate">{stat.label}</div>
                   </div>
                 ))}
               </motion.div>
@@ -214,26 +210,26 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="relative py-32 bg-gradient-to-b from-neutral-500 via-pale-sky-900 to-neutral-500">
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="features" className="relative z-10 py-16 sm:py-32 bg-gradient-to-b from-neutral-500 via-pale-sky-900 to-neutral-500 overflow-hidden">
+        <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-w-0">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center mb-10 sm:mb-16"
           >
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-jet-black font-heading">
+            <h2 className="text-2xl sm:text-4xl min-[400px]:text-3xl font-bold mb-3 sm:mb-4 text-jet-black font-heading">
               <span className="text-teal">
                 Powerful Features
               </span>
             </h2>
-            <p className="text-jet-black-600 text-lg max-w-2xl mx-auto">
+            <p className="text-jet-black-600 text-sm sm:text-lg max-w-2xl mx-auto">
               Everything you need to create professional lyrics that resonate
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-4 sm:gap-8 min-w-0">
             <FeatureCard
               title="Instant Generation"
               description="Get unique, meaningful lyrics in seconds. Just describe your idea and watch the magic happen."

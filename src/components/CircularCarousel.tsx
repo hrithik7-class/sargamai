@@ -35,7 +35,7 @@ export default function CircularCarousel() {
       <div className="absolute w-32 h-32 rounded-full bg-teal flex items-center justify-center z-20 shadow-2xl">
         <div className="text-white text-center">
           <div className="text-3xl font-bold font-heading">S</div>
-          <div className="text-xs opacity-80">Sargam</div>
+          <div className="text-xs opacity-80">SargamAI</div>
         </div>
       </div>
 

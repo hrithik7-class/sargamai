@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
+import NavbarWrapper from "@/components/NavbarWrapper";
 import FooterWrapper from "@/components/FooterWrapper";
 import LoadingScreen from "@/components/LoadingScreen";
 import { AuthProvider } from "@/components/AuthContext";
 
 export const metadata: Metadata = {
-  title: "Sargam - AI-Powered Music Lyrics Generator",
+  title: "SargamAI - AI-Powered Music Lyrics Generator",
   description: "Transform your ideas into meaningful music lyrics with AI. Create beautiful songs with our intelligent lyrics generator.",
 };
 
@@ -30,8 +30,8 @@ export default function RootLayout({
       <body className="antialiased">
         <AuthProvider>
           <LoadingScreen />
-          <Navbar />
-          <main className="min-h-screen pt-16">
+          <NavbarWrapper />
+          <main className="min-h-screen overflow-x-hidden min-w-0">
             <FooterWrapper>{children}</FooterWrapper>
           </main>
         </AuthProvider>

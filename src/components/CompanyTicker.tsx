@@ -48,11 +48,11 @@ export default function CompanyTicker() {
   }, []);
 
   return (
-    <div className="w-full bg-neutral-500 border-t border-lavender-600">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="w-full bg-neutral-500 border-t border-lavender-600 overflow-hidden min-w-0">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 min-w-0">
         {/* Title */}
-        <div className="text-center mb-6">
-          <p className="text-neutral-300 text-xs font-semibold uppercase tracking-widest">
+        <div className="text-center mb-4 sm:mb-6">
+          <p className="text-neutral-300 text-[10px] sm:text-xs font-semibold uppercase tracking-widest">
             Trusted by Leading Platforms
           </p>
         </div>
@@ -60,24 +60,24 @@ export default function CompanyTicker() {
         {/* Ticker Container */}
         <div 
           ref={containerRef}
-          className="relative overflow-hidden"
+          className="relative overflow-hidden min-w-0"
         >
           {/* Gradient Masks */}
-          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-neutral-500 to-transparent z-10" />
-          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-neutral-500 to-transparent z-10" />
+          <div className="absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-r from-neutral-500 to-transparent z-10" />
+          <div className="absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-l from-neutral-500 to-transparent z-10" />
 
           {/* Moving Ticker */}
           <div 
             ref={tickerRef}
-            className="flex items-center gap-8"
+            className="flex items-center gap-4 sm:gap-8"
           >
             {[...companies, ...companies].map((company, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 shrink-0 bg-lavender-700 px-4 py-2 rounded-full hover:bg-lavender-600 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 sm:gap-2 shrink-0 bg-lavender-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-lavender-600 transition-colors cursor-pointer"
               >
-                <company.icon className="w-5 h-5" style={{ color: company.color }} />
-                <span className="text-jet-black font-medium text-sm whitespace-nowrap">
+                <company.icon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" style={{ color: company.color }} />
+                <span className="text-jet-black font-medium text-xs sm:text-sm whitespace-nowrap">
                   {company.name}
                 </span>
               </div>

@@ -6,8 +6,9 @@ import Footer from "./Footer";
 export default function FooterWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard");
-  
-  if (isDashboard) {
+  const isGetStarted = pathname === "/get-started";
+
+  if (isDashboard || isGetStarted) {
     return <>{children}</>;
   }
   

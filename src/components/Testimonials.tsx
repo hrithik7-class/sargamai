@@ -1,23 +1,34 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import gsap from "gsap";
-import { Star, Quote, User, Music, Mic, Headphones, Play, ArrowRight, BadgeCheck, Crown } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 
-// Testimonial data
-const testimonials = [
+/** Single testimonial: portrait, quote, rating, and words to highlight in teal */
+type Testimonial = {
+  id: number;
+  name: string;
+  role: string;
+  company: string;
+  avatar: string;
+  image: string;
+  comment: string;
+  highlightWords: string[];
+  rating: number;
+};
+
+// Testimonial data with image URLs (Unsplash portraits)
+const testimonials: Testimonial[] = [
   {
     id: 1,
     name: "Sarah Johnson",
     role: "Senior Music Producer",
     company: "Studio 92 Productions",
     avatar: "SJ",
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+    comment: "SargamAI has completely transformed our songwriting workflow. The AI generates studio-quality lyrics that actually make sense and sound professional. It's like having a world-class co-writer available 24/7.",
+    highlightWords: ["Thank you", "professional"],
     rating: 5,
-    comment: "Sargam has completely transformed our songwriting workflow. The AI generates studio-quality lyrics that actually make sense and sound professional. It's like having a world-class co-writer available 24/7.",
-    icon: Music,
-    color: "#1f7a8c",
-    tier: "Pro"
   },
   {
     id: 2,
@@ -25,11 +36,10 @@ const testimonials = [
     role: "Platinum Artist",
     company: "Independent",
     avatar: "MC",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+    comment: "After using SargamAI for 6 months, I've landed 3 record deals. The lyrics are incredibly meaningful and emotionally resonant. This is a game-changer for independent artists!",
+    highlightWords: ["meaningful", "game-changer"],
     rating: 5,
-    comment: "After using Sargam for 6 months, I've landed 3 record deals. The lyrics are incredibly meaningful and emotionally resonant. This is a game-changer for independent artists!",
-    icon: Mic,
-    color: "#2bacc5",
-    tier: "Enterprise"
   },
   {
     id: 3,
@@ -37,192 +47,220 @@ const testimonials = [
     role: "Content Director",
     company: "Viral Hits Media",
     avatar: "ED",
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+    comment: "We create 50+ videos weekly and SargamAI helps us generate unique lyrics in seconds. The quality is consistently outstanding and our engagement has increased by 340%.",
+    highlightWords: ["outstanding", "340%"],
     rating: 5,
-    comment: "We create 50+ videos weekly and Sargam helps us generate unique lyrics in seconds. The quality is consistently outstanding and our engagement has increased by 340%.",
-    icon: Headphones,
-    color: "#5f74ba",
-    tier: "Business"
-  }
+  },
+  {
+    id: 4,
+    name: "James Wilson",
+    role: "Songwriter",
+    company: "Harmony Records",
+    avatar: "JW",
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+    comment: "I would like to say a big Thank you for your immense effort and support. In addition, I have a feeling that our further events are going to be Great as well, good luck to the team.",
+    highlightWords: ["Thank you", "Great"],
+    rating: 5,
+  },
+  {
+    id: 5,
+    name: "Priya Sharma",
+    role: "Music Director",
+    company: "Bollywood Studios",
+    avatar: "PS",
+    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
+    comment: "SargamAI delivers exactly what we need—lyrics that feel authentic and versatile across genres. Our team uses it daily. Highly recommend.",
+    highlightWords: ["authentic", "Highly recommend"],
+    rating: 5,
+  },
 ];
 
-// Star rating
-function StarRating({ rating }: { rating: number }) {
+const ROTATE_INTERVAL_MS = 5000; // 5 seconds — loop: 1→2→3→4→5→1…
+
+/** Renders quote text with given phrases highlighted in teal (first occurrence of each). */
+function QuoteWithHighlights({ text, highlightWords }: { text: string; highlightWords: string[] }) {
+  let remaining = text;
+  const parts: { str: string; highlight: boolean }[] = [];
+
+  for (const word of highlightWords) {
+    const idx = remaining.toLowerCase().indexOf(word.toLowerCase());
+    if (idx === -1) continue;
+    if (idx > 0) {
+      parts.push({ str: remaining.slice(0, idx), highlight: false });
+    }
+    parts.push({ str: remaining.slice(idx, idx + word.length), highlight: true });
+    remaining = remaining.slice(idx + word.length);
+  }
+  if (remaining) parts.push({ str: remaining, highlight: false });
+
   return (
-    <div className="flex gap-1">
-      {[...Array(5)].map((_, i) => (
-        <Star 
-          key={i} 
-          className={`w-4 h-4 ${i < rating ? 'text-teal-700' : 'text-lavender-500'}`}
-          fill={i < rating ? 'currentColor' : 'none'}
-        />
-      ))}
-    </div>
+    <p className="text-jet-black-600 leading-relaxed text-xs sm:text-sm">
+      {parts.map((p, i) =>
+        p.highlight ? (
+          <span key={i} className="font-semibold text-teal">
+            {p.str}
+          </span>
+        ) : (
+          <span key={i}>{p.str}</span>
+        )
+      )}
+    </p>
   );
 }
 
 export default function Testimonials() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const total = testimonials.length;
 
+  const goNext = useCallback(() => {
+    setActiveIndex((i) => (i + 1) % total);
+  }, [total]);
+
+  const goPrev = useCallback(() => {
+    setActiveIndex((i) => (i - 1 + total) % total);
+  }, [total]);
+
+  // Auto-rotate every 4–5 seconds: first goes to last, second comes to first, loop
   useEffect(() => {
-    if (!containerRef.current) return;
+    const timer = setInterval(goNext, ROTATE_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [goNext]);
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(".testimonial-header",
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }
-      );
-
-      gsap.fromTo(".review-card",
-        { opacity: 0, y: 40, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.15, ease: "power3.out" }
-      );
-
-      gsap.fromTo(".testimonial-stat",
-        { opacity: 0, y: 20, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: "back.out(1.2)", delay: 0.3 }
-      );
-    }, containerRef.current);
-
-    return () => ctx.revert();
-  }, []);
+  const current = testimonials[activeIndex];
 
   return (
-    <section ref={containerRef} className="relative py-24 bg-neutral-500 overflow-hidden">
-      {/* Background */}
+    <section className="relative z-10 py-8 sm:py-14 bg-neutral-500 overflow-hidden min-w-0">
+      {/* Background: dotted pattern top-right, soft lavender glow */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-lavender-500 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-lavender-500 to-transparent" />
-        <div className="absolute top-20 left-10 w-72 h-72 bg-pale-sky-700/50 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-teal-900/50 rounded-full blur-3xl" />
+        <div
+          className="absolute top-0 right-0 w-40 h-40 sm:w-52 sm:h-52 opacity-30"
+          style={{
+            backgroundImage: `radial-gradient(circle, var(--color-lavender-400) 1.5px, transparent 1.5px)`,
+            backgroundSize: "10px 10px",
+          }}
+          aria-hidden
+        />
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-56 h-56 bg-lavender-700/50 rounded-full blur-3xl -translate-x-1/2" />
+        <div className="absolute bottom-0 right-0 w-72 h-48 bg-teal-900/20 rounded-full blur-3xl translate-x-1/3" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
-        {/* Header */}
-        <div className="testimonial-header text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lavender-700 text-jet-black-600 text-sm font-medium mb-6">
-            <Star className="w-4 h-4 text-teal-700" fill="currentColor" />
-            <span>Rated 4.9/5 from 10,000+ reviews</span>
-          </div>
-         
-          <h2 className="text-4xl md:text-5xl font-bold text-jet-black mb-4 font-heading">
-            Loved by{" "}
-            <span className="text-teal">
-              creative professionals
-            </span>
-          </h2>
-         
-          <p className="text-neutral-300 text-lg max-w-2xl mx-auto">
-            See why leading music industry professionals trust Sargam for their creative workflow
-          </p>
-        </div>
+      <div className="relative z-10 max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 min-w-0">
+        {/* Title top-left — uppercase per reference */}
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-jet-black font-heading mb-5 sm:mb-6 uppercase tracking-tight">
+          What they say about us
+        </h2>
 
-        {/* Stats */}
-        <div className="testimonial-header grid grid-cols-2 md:grid-cols-4 gap-4 mb-16 max-w-4xl mx-auto">
-          {[
-            { value: "50K+", label: "Active Users" },
-            { value: "4.9", label: "App Rating" },
-            { value: "1M+", label: "Songs Generated" },
-            { value: "98%", label: "Satisfaction" },
-          ].map((stat, index) => (
-            <div 
-              key={index}
-              className="testimonial-stat bg-lavender-700 rounded-2xl border border-lavender-600 p-6 text-center hover:border-teal-800 hover:shadow-md transition-all"
-            >
-              <div className="text-2xl font-bold text-jet-black">{stat.value}</div>
-              <div className="text-sm text-neutral-300">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Reviews - Clean SaaS Grid */}
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={testimonial.id}
-              className="review-card group"
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <div className="relative h-full bg-neutral-500 rounded-2xl border border-lavender-500 p-8 hover:shadow-xl hover:border-teal-800 transition-all duration-300">
-                {/* Top section with icon and rating */}
-                <div className="flex items-start justify-between mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-lavender-600 to-lavender-700 flex items-center justify-center group-hover:from-pale-sky-700 group-hover:to-pale-sky-600 transition-all">
-                    <Quote className="w-6 h-6 text-jet-black-600 group-hover:text-teal transition-colors" />
+        {/* Layout from image: left = tall image; right = description on top + nav (pill, thumbnails, arrows) below — right column height matches left */}
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch min-w-0">
+          {/* Left column: large tall image block only */}
+          <div className="w-full lg:w-auto lg:shrink-0 lg:self-start">
+            <div className="rounded-xl border-2 border-lavender-400 bg-gradient-to-b from-lavender-700 to-neutral-500 p-1.5 sm:p-2 shadow-md overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={current.id}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.35 }}
+                  className="rounded-lg overflow-hidden"
+                >
+                  <div className="aspect-[3/4] w-full max-w-[180px] mx-auto lg:max-w-none lg:w-[200px] lg:h-[300px] relative bg-lavender-600 rounded-lg overflow-hidden">
+                    <img
+                      src={current.image}
+                      alt=""
+                      className="w-full h-full object-cover rounded-lg"
+                    />
                   </div>
-                  <StarRating rating={testimonial.rating} />
-                </div>
-
-                {/* Comment */}
-                <p className="text-jet-black-600 leading-relaxed mb-8 text-sm">
-                  {testimonial.comment}
-                </p>
-
-                {/* Author section */}
-                <div className="flex items-center gap-4 pt-6 border-t border-lavender-600">
-                  <div 
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md"
-                    style={{ backgroundColor: testimonial.color }}
-                  >
-                    {testimonial.avatar}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-jet-black truncate">{testimonial.name}</span>
-                      <BadgeCheck className="w-4 h-4 text-teal flex-shrink-0" />
-                    </div>
-                    <p className="text-neutral-300 text-sm truncate">
-                      {testimonial.role}
+                  <div className="pt-2 pb-0.5">
+                    <p className="font-bold text-jet-black text-sm sm:text-base truncate">{current.name}</p>
+                    <p className="text-neutral-300 text-[10px] sm:text-xs truncate">
+                      {current.role}, {current.company}
                     </p>
                   </div>
-                </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
 
-                {/* Corner accent */}
-                <div className="absolute top-0 right-0 w-20 h-20 overflow-hidden">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-lavender-700 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity" />
+          {/* Right column: description (top) + testimonial nav below — aligns with lower half of image */}
+          <div className="flex-1 min-w-0 flex flex-col gap-4 lg:min-h-[320px]">
+            {/* Description block — short height, top-aligned with image */}
+            <div className="w-full rounded-xl border border-lavender-600 bg-neutral-500 shadow-lg p-3 sm:p-4 h-[120px] sm:h-[140px] overflow-y-auto shrink-0">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={current.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.35 }}
+                >
+                  <QuoteWithHighlights
+                    text={current.comment}
+                    highlightWords={current.highlightWords}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Testimonial nav: pill + thumbnails + arrows — below description, in right column */}
+            <div className="flex flex-col gap-3 flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full border-2 border-teal text-jet-black text-xs font-medium shrink-0">
+                  {activeIndex + 1}/{total}
+                </span>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  {testimonials.map((t, i) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setActiveIndex(i)}
+                      className={`shrink-0 rounded-lg overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-teal focus:ring-offset-2 ${
+                        i === activeIndex
+                          ? "w-10 h-10 sm:w-11 sm:h-11 border-teal ring-2 ring-teal/30"
+                          : "w-7 h-7 sm:w-8 sm:h-8 border-transparent opacity-70 hover:opacity-100"
+                      }`}
+                      aria-label={`Go to testimonial ${i + 1}`}
+                    >
+                      <img
+                        src={t.image}
+                        alt=""
+                        className={`w-full h-full object-cover ${i === activeIndex ? "" : "grayscale"}`}
+                      />
+                    </button>
+                  ))}
                 </div>
               </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Bottom CTA */}
-        <motion.div 
-          className="mt-16 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <div className="inline-flex items-center gap-6 bg-jet-black rounded-2xl p-2 pr-4 text-white overflow-hidden hover:bg-jet-black-400 transition-colors">
-            <div className="flex -space-x-2">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-teal to-teal-700 border-2 border-jet-black flex items-center justify-center text-xs font-bold">
-                  {String.fromCharCode(65 + i)}
-                </div>
-              ))}
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={goPrev}
+                  className="w-9 h-9 rounded-full border-2 border-lavender-400 bg-neutral-500 text-neutral-300 hover:text-jet-black hover:border-teal flex items-center justify-center transition-colors"
+                  aria-label="Previous testimonial"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={goNext}
+                  className="w-9 h-9 rounded-full bg-teal text-white flex items-center justify-center hover:bg-teal-600 transition-colors shadow-md"
+                  aria-label="Next testimonial"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+              {/* Star rating below left/right buttons */}
+              <div className="flex items-center gap-0.5" aria-label={`${current.rating} out of 5 stars`}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                      star <= current.rating ? "fill-teal text-teal" : "fill-neutral-400 text-neutral-400"
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
-            <span className="font-medium">Join 50,000+ creators today</span>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-5 py-2.5 bg-neutral-500 text-jet-black font-semibold rounded-xl text-sm hover:bg-lavender-700"
-            >
-              Start Free Trial
-              <ArrowRight className="w-4 h-4 inline-block ml-1" />
-            </motion.button>
-          </div>
-        </motion.div>
-
-        {/* Logo Cloud */}
-        <div className="mt-16 pt-8 border-t border-lavender-600">
-          <p className="text-center text-neutral-300 text-sm mb-8">Trusted by leading music companies worldwide</p>
-          <div className="flex items-center justify-center gap-12 flex-wrap opacity-40">
-            {["Warner", "Sony", "Universal", "Atlantic", "Capitol", "Def Jam"].map((company, i) => (
-              <span key={i} className="text-xl font-bold text-neutral-300 hover:text-jet-black transition-colors tracking-wider">
-                {company}
-              </span>
-            ))}
           </div>
         </div>
       </div>

@@ -124,31 +124,31 @@ export default function DashboardPreview() {
   }, []);
 
   return (
-    <section className="relative py-32 bg-gradient-to-b from-pale-sky-900 to-neutral-500 overflow-hidden">
+    <section className="relative z-10 py-16 sm:py-32 bg-gradient-to-b from-pale-sky-900 to-neutral-500 overflow-hidden min-w-0">
       {/* Background decorations */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-pale-sky-400/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-teal-800/20 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-4 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-pale-sky-400/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-4 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-teal-800/20 rounded-full blur-3xl" />
       </div>
 
-      <div ref={containerRef} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div ref={containerRef} className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-w-0">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pale-sky-700 border border-pale-sky-400 text-teal text-sm font-semibold mb-6">
-            <Sparkles className="w-4 h-4" />
-            <span>See Sargam in Action</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-pale-sky-700 border border-pale-sky-400 text-teal text-xs sm:text-sm font-semibold mb-4 sm:mb-6">
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span>See SargamAI in Action</span>
           </div>
-          <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-jet-black font-heading">
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-jet-black font-heading">
             <span className="text-teal">
               Your Creative Dashboard
             </span>
           </h2>
-          <p className="text-jet-black-600 text-lg max-w-2xl mx-auto">
+          <p className="text-jet-black-600 text-sm sm:text-lg max-w-2xl mx-auto">
             Experience the power of AI-driven lyrics generation with our intuitive dashboard
           </p>
         </motion.div>
@@ -158,13 +158,13 @@ export default function DashboardPreview() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
-          <div className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-neutral-500 border border-lavender-500 shadow-sm">
-            <Wand2 className="w-5 h-5 text-teal" />
-            <span className="text-xl font-medium text-jet-black">
+          <div className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-neutral-500 border border-lavender-500 shadow-sm max-w-[calc(100vw-1.5rem)] min-w-0">
+            <Wand2 className="w-4 h-4 sm:w-5 sm:h-5 text-teal shrink-0" />
+            <span className="text-sm sm:text-xl font-medium text-jet-black truncate min-w-0">
               {displayText}
-              <span className="inline-block w-0.5 h-6 bg-teal ml-1 animate-pulse" />
+              <span className="inline-block w-0.5 h-4 sm:h-6 bg-teal ml-1 animate-pulse shrink-0" />
             </span>
           </div>
         </motion.div>
@@ -173,62 +173,62 @@ export default function DashboardPreview() {
         <div ref={dashboardRef} className="relative">
           {/* Main Dashboard Card */}
           <div
-            className="bg-neutral-500 rounded-3xl shadow-2xl border border-lavender-500 overflow-hidden"
+            className="bg-neutral-500 rounded-2xl sm:rounded-3xl shadow-2xl border border-lavender-500 overflow-hidden min-w-0"
           >
             {/* Dashboard Header */}
             <motion.div
-              className="bg-gradient-to-r from-jet-black to-teal px-8 py-6"
+              className="bg-gradient-to-r from-jet-black to-teal px-4 sm:px-8 py-4 sm:py-6"
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
-                    <Music className="w-6 h-6 text-white" />
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0">
+                    <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-                  <div>
-                    <h3 className="text-white font-bold text-xl">Sargam Studio</h3>
-                    <p className="text-white/80 text-sm">AI Lyrics Generator</p>
+                  <div className="min-w-0">
+                    <h3 className="text-white font-bold text-lg sm:text-xl truncate">SargamAI Studio</h3>
+                    <p className="text-white/80 text-xs sm:text-sm">AI Lyrics Generator</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur text-white text-sm">
-                    <Clock className="w-4 h-4" />
-                    <span>Last used: 2 min ago</span>
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/20 backdrop-blur text-white text-xs sm:text-sm">
+                    <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="truncate">Last used: 2 min ago</span>
                   </div>
                 </div>
               </div>
             </motion.div>
 
             {/* Dashboard Body */}
-            <div className="p-8">
-              <div className="grid lg:grid-cols-3 gap-8">
+            <div className="p-4 sm:p-8 min-w-0">
+              <div className="grid lg:grid-cols-3 gap-4 sm:gap-8 min-w-0">
                 {/* Main Generator Panel */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 space-y-4 sm:space-y-6 min-w-0">
                   {/* Prompt Input */}
-                  <div className="bg-lavender-700 rounded-2xl p-6 border border-lavender-600">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-xl bg-teal flex items-center justify-center">
-                        <Wand2 className="w-5 h-5 text-white" />
+                  <div className="bg-lavender-700 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-lavender-600 min-w-0">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-teal flex items-center justify-center shrink-0">
+                        <Wand2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                       </div>
-                      <h4 className="font-semibold text-jet-black">Create New Lyrics</h4>
+                      <h4 className="font-semibold text-jet-black text-sm sm:text-base">Create New Lyrics</h4>
                     </div>
                     <textarea
-                      className="w-full h-32 p-4 rounded-xl border border-lavender-500 bg-neutral-500 focus:ring-2 focus:ring-teal focus:border-transparent resize-none text-jet-black placeholder-neutral-300"
+                      className="w-full min-w-0 h-24 sm:h-32 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-lavender-500 bg-neutral-500 focus:ring-2 focus:ring-teal focus:border-transparent resize-none text-jet-black text-xs sm:text-base placeholder-neutral-300"
                       placeholder="Describe your song idea... e.g., 'A heartbreak song about losing someone you love, with pop influence and emotional lyrics'"
                     />
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="flex items-center gap-3">
-                        <select className="px-4 py-2 rounded-lg border border-lavender-500 bg-neutral-500 text-jet-black text-sm focus:ring-2 focus:ring-teal">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mt-3 sm:mt-4 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
+                        <select className="flex-1 min-w-0 max-w-[140px] sm:max-w-none px-3 py-2 rounded-lg border border-lavender-500 bg-neutral-500 text-jet-black text-xs sm:text-sm focus:ring-2 focus:ring-teal">
                           <option>Pop</option>
                           <option>Rock</option>
                           <option>R&B</option>
                           <option>Hip-Hop</option>
                           <option>Country</option>
                         </select>
-                        <select className="px-4 py-2 rounded-lg border border-lavender-500 bg-neutral-500 text-jet-black text-sm focus:ring-2 focus:ring-teal">
+                        <select className="flex-1 min-w-0 max-w-[140px] sm:max-w-none px-3 py-2 rounded-lg border border-lavender-500 bg-neutral-500 text-jet-black text-xs sm:text-sm focus:ring-2 focus:ring-teal">
                           <option>Happy</option>
                           <option>Sad</option>
                           <option>Energetic</option>
@@ -238,24 +238,24 @@ export default function DashboardPreview() {
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="generate-btn px-6 py-3 rounded-xl bg-teal text-white font-semibold flex items-center gap-2 shadow-lg shadow-teal-800/30"
+                        className="generate-btn w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-teal text-white text-sm sm:text-base font-semibold flex items-center justify-center gap-2 shadow-lg shadow-teal-800/30"
                       >
-                        <Sparkles className="w-4 h-4" />
+                        <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         Generate Lyrics
                       </motion.button>
                     </div>
                   </div>
 
                   {/* Generated Lyrics Preview */}
-                  <div className="bg-gradient-to-br from-pale-sky-700 to-pale-sky-600 rounded-2xl p-6 border border-pale-sky-400">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-teal flex items-center justify-center">
-                          <Sparkles className="w-5 h-5 text-white" />
+                  <div className="bg-gradient-to-br from-pale-sky-700 to-pale-sky-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-pale-sky-400 min-w-0">
+                    <div className="flex flex-wrap items-start justify-between gap-2 mb-3 sm:mb-4 min-w-0">
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-teal flex items-center justify-center shrink-0">
+                          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                         </div>
-                        <h4 className="font-semibold text-jet-black">Generated Lyrics</h4>
+                        <h4 className="font-semibold text-jet-black text-sm sm:text-base">Generated Lyrics</h4>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                         <motion.button
                           whileHover={{ scale: 1.1, rotate: 5 }}
                           whileTap={{ scale: 0.95 }}
@@ -286,21 +286,21 @@ export default function DashboardPreview() {
                         </motion.button>
                       </div>
                     </div>
-                    <div className="bg-neutral-500 rounded-xl p-6 border border-lavender-600">
-                      <p className="text-jet-black-600 leading-relaxed">
+                    <div className="bg-neutral-500 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-lavender-600 min-w-0">
+                      <p className="text-jet-black-600 leading-relaxed text-xs sm:text-base">
                         [Verse 1]<br/>
                         In the darkness of the night,<br/>
                         I see your face in the moonlight,<br/>
                         Every memory we shared,<br/>
                         Now it&apos;s just me who cared...
                       </p>
-                      <div className="mt-4 pt-4 border-t border-lavender-600 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="px-3 py-1 rounded-full bg-pale-sky-700 text-teal text-xs font-medium">Pop</span>
-                          <span className="px-3 py-1 rounded-full bg-teal-900 text-teal-700 text-xs font-medium">Romantic</span>
+                      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-lavender-600 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <span className="px-2.5 py-1 rounded-full bg-pale-sky-700 text-teal text-[10px] sm:text-xs font-medium">Pop</span>
+                          <span className="px-2.5 py-1 rounded-full bg-teal-900 text-teal-700 text-[10px] sm:text-xs font-medium">Romantic</span>
                         </div>
-                        <button className="text-teal text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                          View Full Lyrics <ChevronRight className="w-4 h-4" />
+                        <button className="text-teal text-xs sm:text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all w-full sm:w-auto justify-center sm:justify-start">
+                          View Full Lyrics <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </button>
                       </div>
                     </div>
@@ -309,36 +309,36 @@ export default function DashboardPreview() {
 
                 {/* Sidebar Stats */}
                 <motion.div 
-                  className="space-y-6"
+                  className="space-y-4 sm:space-y-6 min-w-0"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.3 }}
                 >
                   {/* Quick Stats */}
-                  <div className="grid gap-4">
+                  <div className="grid gap-3 sm:gap-4 min-w-0">
                     {dashboardStats.map((stat, index) => (
                       <motion.div
                         key={index}
-                        className="stat-card bg-lavender-700 rounded-2xl p-5 border border-lavender-600 hover:shadow-md transition-shadow cursor-pointer"
+                        className="stat-card bg-lavender-700 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-lavender-600 hover:shadow-md transition-shadow cursor-pointer min-w-0"
                         whileHover={{ scale: 1.02, backgroundColor: "#e6f1fc" }}
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: index * 0.1 + 0.4 }}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-teal flex items-center justify-center">
-                              <stat.icon className="w-5 h-5 text-white" />
+                        <div className="flex items-center justify-between gap-2 min-w-0">
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-teal flex items-center justify-center shrink-0">
+                              <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                             </div>
-                            <div>
-                              <p className="text-neutral-300 text-sm">{stat.label}</p>
-                              <p className="text-jet-black font-bold text-xl">{stat.value}</p>
+                            <div className="min-w-0">
+                              <p className="text-neutral-300 text-xs sm:text-sm truncate">{stat.label}</p>
+                              <p className="text-jet-black font-bold text-lg sm:text-xl truncate">{stat.value}</p>
                             </div>
                           </div>
-                          <span className="text-green-600 text-sm font-medium flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3" />
+                          <span className="text-green-600 text-xs sm:text-sm font-medium flex items-center gap-1 shrink-0">
+                            <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                             {stat.change}
                           </span>
                         </div>
@@ -347,29 +347,29 @@ export default function DashboardPreview() {
                   </div>
 
                   {/* Recent Songs */}
-                  <div className="bg-lavender-700 rounded-2xl p-5 border border-lavender-600">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-semibold text-jet-black">Recent Creations</h4>
-                      <button className="text-teal text-sm font-medium">View All</button>
+                  <div className="bg-lavender-700 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-lavender-600 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4">
+                      <h4 className="font-semibold text-jet-black text-sm sm:text-base">Recent Creations</h4>
+                      <button className="text-teal text-xs sm:text-sm font-medium shrink-0">View All</button>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {recentSongs.map((song, index) => (
                         <motion.div
                           key={index}
-                          className="flex items-center justify-between p-3 rounded-xl bg-neutral-500 border border-lavender-600 hover:border-teal-800 cursor-pointer transition-colors"
+                          className="flex items-center justify-between gap-2 p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-neutral-500 border border-lavender-600 hover:border-teal-800 cursor-pointer transition-colors min-w-0"
                           whileHover={{ scale: 1.02 }}
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-pale-sky-700 flex items-center justify-center">
-                              <Music className="w-5 h-5 text-teal" />
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-pale-sky-700 flex items-center justify-center shrink-0">
+                              <Music className="w-4 h-4 sm:w-5 sm:h-5 text-teal" />
                             </div>
-                            <div>
-                              <p className="font-medium text-jet-black text-sm">{song.title}</p>
-                              <p className="text-neutral-300 text-xs">{song.genre} • {song.date}</p>
+                            <div className="min-w-0">
+                              <p className="font-medium text-jet-black text-xs sm:text-sm truncate">{song.title}</p>
+                              <p className="text-neutral-300 text-[10px] sm:text-xs truncate">{song.genre} • {song.date}</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1 text-neutral-300 text-xs">
-                            <Play className="w-3 h-3" />
+                          <div className="flex items-center gap-1 text-neutral-300 text-[10px] sm:text-xs shrink-0">
+                            <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                             {song.plays}
                           </div>
                         </motion.div>
@@ -378,9 +378,9 @@ export default function DashboardPreview() {
                   </div>
 
                   {/* Quick Actions */}
-                  <div className="bg-gradient-to-br from-jet-black to-teal rounded-2xl p-5 text-white">
-                    <h4 className="font-semibold mb-4">Quick Actions</h4>
-                    <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gradient-to-br from-jet-black to-teal rounded-xl sm:rounded-2xl p-4 sm:p-5 text-white min-w-0">
+                    <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Quick Actions</h4>
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
                       {[
                         { icon: Layers, label: "New Project" },
                         { icon: Palette, label: "Templates" },
@@ -389,12 +389,12 @@ export default function DashboardPreview() {
                       ].map((action, index) => (
                         <motion.button
                           key={index}
-                          className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/20 backdrop-blur hover:bg-white/30 transition-colors"
+                          className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-white/20 backdrop-blur hover:bg-white/30 transition-colors min-w-0"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
-                          <action.icon className="w-5 h-5" />
-                          <span className="text-xs font-medium">{action.label}</span>
+                          <action.icon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                          <span className="text-[10px] sm:text-xs font-medium text-center">{action.label}</span>
                         </motion.button>
                       ))}
                     </div>
@@ -406,15 +406,15 @@ export default function DashboardPreview() {
 
           {/* Floating Elements */}
           <motion.div 
-            className="dashboard-float absolute -top-6 -left-6 w-20 h-20 bg-teal rounded-2xl shadow-xl flex items-center justify-center"
+            className="dashboard-float absolute -top-4 -left-4 sm:-top-6 sm:-left-6 w-14 h-14 sm:w-20 sm:h-20 bg-teal rounded-xl sm:rounded-2xl shadow-xl flex items-center justify-center"
           >
-            <Sparkles className="w-8 h-8 text-white" />
+            <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </motion.div>
           <motion.div 
-            className="dashboard-float absolute -bottom-6 -right-6 w-16 h-16 bg-teal-600 rounded-2xl shadow-xl flex items-center justify-center"
+            className="dashboard-float absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 w-12 h-12 sm:w-16 sm:h-16 bg-teal-600 rounded-xl sm:rounded-2xl shadow-xl flex items-center justify-center"
             style={{ animationDelay: "0.5s" }}
           >
-            <Music className="w-7 h-7 text-white" />
+            <Music className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
           </motion.div>
         </div>
 
@@ -423,7 +423,7 @@ export default function DashboardPreview() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="grid md:grid-cols-4 gap-6 mt-12"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-8 sm:mt-12 min-w-0"
         >
           {[
             { title: "Smart Generation", desc: "AI-powered lyrics that match your vision", icon: Sparkles },
@@ -437,13 +437,13 @@ export default function DashboardPreview() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="text-center p-6"
+              className="text-center p-4 sm:p-6 min-w-0"
             >
-              <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-pale-sky-700 flex items-center justify-center">
-                <feature.icon className="w-7 h-7 text-teal" />
+              <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl sm:rounded-2xl bg-pale-sky-700 flex items-center justify-center">
+                <feature.icon className="w-6 h-6 sm:w-7 sm:h-7 text-teal" />
               </div>
-              <h5 className="font-semibold text-jet-black mb-2 font-heading">{feature.title}</h5>
-              <p className="text-neutral-300 text-sm">{feature.desc}</p>
+              <h5 className="font-semibold text-jet-black mb-1.5 sm:mb-2 font-heading text-sm sm:text-base">{feature.title}</h5>
+              <p className="text-neutral-300 text-xs sm:text-sm">{feature.desc}</p>
             </motion.div>
           ))}
         </motion.div>
