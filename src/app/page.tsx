@@ -16,6 +16,8 @@ const rotatingWords = ["lyrics", "music", "singing", "composing", "playing"];
 export default function HomePage() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const userHasUnmutedRef = useRef(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -24,11 +26,35 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
+  // Pause video when hero scrolls out of view, play when back in view
+  useEffect(() => {
+    const video = videoRef.current;
+    const hero = heroRef.current;
+    if (!video || !hero) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (!entry.isIntersecting) {
+          video.pause();
+          video.muted = true;
+        } else {
+          video.play().catch(() => {});
+          if (userHasUnmutedRef.current) video.muted = false;
+        }
+      },
+      { threshold: 0.25, rootMargin: "0px" }
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, []);
+
   // Enable video audio on first user interaction (browsers block autoplay with sound)
   useEffect(() => {
     const enableVideoAudio = () => {
       const video = videoRef.current;
       if (video) {
+        userHasUnmutedRef.current = true;
         video.muted = false;
         video.play().catch(() => {});
       }
@@ -68,7 +94,7 @@ export default function HomePage() {
   return (
     <div className="relative min-h-screen overflow-x-hidden min-w-0">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden pt-20 pb-24">
+      <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden pt-20 pb-24">
         {/* Full-viewport video layer (behind hero content) */}
         <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
           <video

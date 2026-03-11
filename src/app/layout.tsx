@@ -4,6 +4,7 @@ import NavbarWrapper from "@/components/NavbarWrapper";
 import FooterWrapper from "@/components/FooterWrapper";
 import LoadingScreen from "@/components/LoadingScreen";
 import { AuthProvider } from "@/components/AuthContext";
+import { IntroProvider } from "@/components/IntroContext";
 
 export const metadata: Metadata = {
   title: "SargamAI - AI-Powered Music Lyrics Generator",
@@ -29,11 +30,13 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <AuthProvider>
-          <LoadingScreen />
-          <NavbarWrapper />
-          <main className="min-h-screen overflow-x-hidden min-w-0">
-            <FooterWrapper>{children}</FooterWrapper>
-          </main>
+          <IntroProvider>
+            <LoadingScreen />
+            <NavbarWrapper />
+            <main className="min-h-screen overflow-x-hidden min-w-0">
+              <FooterWrapper>{children}</FooterWrapper>
+            </main>
+          </IntroProvider>
         </AuthProvider>
       </body>
     </html>

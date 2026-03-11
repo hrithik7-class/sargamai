@@ -2,18 +2,21 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useIntro } from "@/components/IntroContext";
 
 export default function LoadingScreen() {
   const [isLoading, setIsLoading] = useState(true);
+  const { setIntroVisible } = useIntro();
 
   useEffect(() => {
     // Show loading screen for 1.5 seconds (between 1-2 seconds as requested)
     const timer = setTimeout(() => {
       setIsLoading(false);
+      setIntroVisible(false);
     }, 1800);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [setIntroVisible]);
 
   return (
     <AnimatePresence>
