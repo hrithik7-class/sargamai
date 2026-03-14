@@ -124,10 +124,10 @@ export default function DashboardPreview() {
   }, []);
 
   return (
-    <section className="relative z-10 py-16 sm:py-32 bg-gradient-to-b from-pale-sky-900 to-neutral-500 overflow-hidden min-w-0">
+    <section className="relative z-10 py-16 sm:py-32 bg-gradient-to-b from-lavender-800 to-neutral-500 overflow-hidden min-w-0">
       {/* Background decorations */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-4 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-pale-sky-400/20 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-4 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-teal-400/20 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-4 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-teal-800/20 rounded-full blur-3xl" />
       </div>
 
@@ -139,7 +139,7 @@ export default function DashboardPreview() {
           viewport={{ once: true }}
           className="text-center mb-10 sm:mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-pale-sky-700 border border-pale-sky-400 text-teal text-xs sm:text-sm font-semibold mb-4 sm:mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-teal/20 border border-teal-600 text-teal text-xs sm:text-sm font-semibold mb-4 sm:mb-6">
             <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span>See SargamAI in Action</span>
           </div>
@@ -247,7 +247,7 @@ export default function DashboardPreview() {
                   </div>
 
                   {/* Generated Lyrics Preview */}
-                  <div className="bg-gradient-to-br from-pale-sky-700 to-pale-sky-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-pale-sky-400 min-w-0">
+                  <div className="bg-gradient-to-br from-lavender-600 to-lavender-500 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-teal-600/50 min-w-0">
                     <div className="flex flex-wrap items-start justify-between gap-2 mb-3 sm:mb-4 min-w-0">
                       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                         <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-teal flex items-center justify-center shrink-0">
@@ -296,7 +296,7 @@ export default function DashboardPreview() {
                       </p>
                       <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-lavender-600 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 min-w-0">
                         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                          <span className="px-2.5 py-1 rounded-full bg-pale-sky-700 text-teal text-[10px] sm:text-xs font-medium">Pop</span>
+                          <span className="px-2.5 py-1 rounded-full bg-teal/20 border border-teal-600/50 text-teal text-[10px] sm:text-xs font-medium">Pop</span>
                           <span className="px-2.5 py-1 rounded-full bg-teal-900 text-teal-700 text-[10px] sm:text-xs font-medium">Romantic</span>
                         </div>
                         <button className="text-teal text-xs sm:text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all w-full sm:w-auto justify-center sm:justify-start">
@@ -321,7 +321,7 @@ export default function DashboardPreview() {
                       <motion.div
                         key={index}
                         className="stat-card bg-lavender-700 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-lavender-600 hover:shadow-md transition-shadow cursor-pointer min-w-0"
-                        whileHover={{ scale: 1.02, backgroundColor: "#e6f1fc" }}
+                        whileHover={{ scale: 1.02, backgroundColor: "#1e293b" }}
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
@@ -360,7 +360,7 @@ export default function DashboardPreview() {
                           whileHover={{ scale: 1.02 }}
                         >
                           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-pale-sky-700 flex items-center justify-center shrink-0">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-teal/20 border border-teal-600/50 flex items-center justify-center shrink-0">
                               <Music className="w-4 h-4 sm:w-5 sm:h-5 text-teal" />
                             </div>
                             <div className="min-w-0">
@@ -439,7 +439,7 @@ export default function DashboardPreview() {
               transition={{ delay: index * 0.1 }}
               className="text-center p-4 sm:p-6 min-w-0"
             >
-              <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl sm:rounded-2xl bg-pale-sky-700 flex items-center justify-center">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl sm:rounded-2xl bg-teal/20 border border-teal-600/50 flex items-center justify-center">
                 <feature.icon className="w-6 h-6 sm:w-7 sm:h-7 text-teal" />
               </div>
               <h5 className="font-semibold text-jet-black mb-1.5 sm:mb-2 font-heading text-sm sm:text-base">{feature.title}</h5>

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import GlassCard from "@/components/GlassCard";
-import { Check, BadgeCheck, Sparkles, Crown, Zap, Plus, Minus } from "lucide-react";
+import { Check, BadgeCheck, Sparkles, Crown, Zap, Plus, Minus, X, Loader2 } from "lucide-react";
+import { createLemonSqueezyCheckout, createRazorpayOrder, ApiError } from "@/lib/api";
 
 type Plan = {
   name: string;
@@ -16,6 +18,7 @@ type Plan = {
   cta: string;
   gradient: string;
   icon: React.ReactNode;
+  planSlug?: "pro" | "studio";
 };
 
 const plans: Plan[] = [
@@ -53,6 +56,7 @@ const plans: Plan[] = [
       "Priority email support",
     ],
     cta: "Start Free Trial",
+    planSlug: "pro",
   },
   {
     name: "Studio",
@@ -71,7 +75,8 @@ const plans: Plan[] = [
       "Dedicated account manager",
       "24/7 priority support",
     ],
-    cta: "Contact Sales",
+    cta: "Select Plan",
+    planSlug: "studio",
   },
 ];
 
@@ -88,18 +93,230 @@ const faqs = [
   { q: "Can I upgrade or downgrade?", a: "Absolutely! You can change your plan at any time. Changes take effect immediately, and we'll prorate the difference." },
 ];
 
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
+  }
+}
+
+function loadRazorpayScript(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  if (window.Razorpay) return Promise.resolve();
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+    script.onload = () => resolve();
+  });
+}
+
 export default function PricingPage() {
   const [openIndex, setOpenIndex] = useState(0);
+  const [checkoutPlan, setCheckoutPlan] = useState<Plan | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [banner, setBanner] = useState<"success" | "cancelled" | null>(null);
+  const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
+  const accessToken = (session as { accessToken?: string } | null)?.accessToken ?? null;
+
+  useEffect(() => {
+    const success = searchParams.get("success");
+    const cancelled = searchParams.get("cancelled");
+    if (success) setBanner("success");
+    else if (cancelled) setBanner("cancelled");
+  }, [searchParams]);
 
   const toggleFAQ = (index: number) => {
     setOpenIndex(openIndex === index ? -1 : index);
   };
 
+  const openCheckoutModal = useCallback((plan: Plan) => {
+    if (!plan.planSlug) return;
+    setCheckoutPlan(plan);
+    setCheckoutError(null);
+  }, []);
+
+  const closeCheckoutModal = useCallback(() => {
+    setCheckoutPlan(null);
+    setCheckoutLoading(null);
+    setCheckoutError(null);
+  }, []);
+
+  const handleLemonSqueezy = useCallback(async () => {
+    if (!checkoutPlan?.planSlug || !accessToken) return;
+    setCheckoutLoading("lemonsqueezy");
+    setCheckoutError(null);
+    try {
+      const { checkout_url } = await createLemonSqueezyCheckout(checkoutPlan.planSlug, accessToken);
+      window.location.href = checkout_url;
+    } catch (e) {
+      setCheckoutLoading(null);
+      setCheckoutError(e instanceof ApiError ? e.message : "Failed to create checkout");
+    }
+  }, [checkoutPlan?.planSlug, accessToken]);
+
+  const handleRazorpay = useCallback(async () => {
+    if (!checkoutPlan?.planSlug || !accessToken) return;
+    setCheckoutLoading("razorpay");
+    setCheckoutError(null);
+    try {
+      const order = await createRazorpayOrder(checkoutPlan.planSlug, accessToken);
+      await loadRazorpayScript();
+      const Razorpay = window.Razorpay;
+      if (!Razorpay) {
+        setCheckoutError("Payment script failed to load");
+        setCheckoutLoading(null);
+        return;
+      }
+      const frontendUrl = typeof window !== "undefined" ? window.location.origin : "";
+      const rzp = new Razorpay({
+        key: order.key_id,
+        amount: order.amount,
+        currency: order.currency,
+        order_id: order.order_id,
+        name: "SargamAI",
+        description: `${checkoutPlan.name} plan`,
+        handler: () => {
+          window.location.href = `${frontendUrl}/pricing?success=razorpay`;
+        },
+      });
+      rzp.on("payment.failed", () => {
+        setCheckoutError("Payment failed or was cancelled");
+        setCheckoutLoading(null);
+      });
+      rzp.open();
+      setCheckoutLoading(null);
+    } catch (e) {
+      setCheckoutLoading(null);
+      setCheckoutError(e instanceof ApiError ? e.message : "Failed to create order");
+    }
+  }, [checkoutPlan, accessToken]);
+
   return (
-    <div className="min-h-screen relative pt-24 pb-12 bg-gradient-to-b from-neutral-500 via-pale-sky-900 to-neutral-500">
+    <div className="min-h-screen relative pt-24 pb-12 bg-gradient-to-b from-neutral-500 via-lavender-800 to-neutral-500">
+      {/* Success / Cancelled banner */}
+      <AnimatePresence>
+        {banner && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4"
+          >
+            <div
+              className={`rounded-lg px-4 py-3 shadow-lg flex items-center gap-3 ${
+                banner === "success"
+                  ? "bg-teal/20 text-teal border border-teal/40"
+                  : "bg-jet-black-700 text-white border border-jet-black-500"
+              }`}
+            >
+              <span>
+                {banner === "success" ? "Payment successful. Thank you!" : "Checkout cancelled."}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setBanner(null);
+                  if (typeof window !== "undefined") {
+                    const u = new URL(window.location.href);
+                    u.searchParams.delete("success");
+                    u.searchParams.delete("cancelled");
+                    window.history.replaceState({}, "", u.pathname + u.search);
+                  }
+                }}
+                className="p-1 hover:opacity-80"
+                aria-label="Dismiss"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Checkout modal */}
+      <AnimatePresence>
+        {checkoutPlan && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+            onClick={closeCheckoutModal}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-jet-black-800 border border-jet-black-600 rounded-xl p-6 w-full max-w-md shadow-xl"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">
+                  Subscribe to {checkoutPlan.name}
+                </h3>
+                <button
+                  type="button"
+                  onClick={closeCheckoutModal}
+                  className="p-1 hover:opacity-80"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              {status === "unauthenticated" || !accessToken ? (
+                <p className="text-jet-black-300 mb-4">
+                  Sign in to subscribe to {checkoutPlan.name}.
+                </p>
+              ) : (
+                <>
+                  {checkoutError && (
+                    <p className="text-red-400 text-sm mb-4">{checkoutError}</p>
+                  )}
+                  <div className="flex flex-col gap-3">
+                    <button
+                      type="button"
+                      onClick={handleLemonSqueezy}
+                      disabled={!!checkoutLoading}
+                      className="w-full py-3 px-4 rounded-lg bg-teal text-white font-medium hover:bg-teal-600 disabled:opacity-60 flex items-center justify-center gap-2"
+                    >
+                      {checkoutLoading === "lemonsqueezy" ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : null}
+                      Pay with Lemon Squeezy
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRazorpay}
+                      disabled={!!checkoutLoading}
+                      className="w-full py-3 px-4 rounded-lg bg-jet-black-600 hover:bg-jet-black-500 text-white font-medium disabled:opacity-60 flex items-center justify-center gap-2"
+                    >
+                      {checkoutLoading === "razorpay" ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : null}
+                      Pay with Razorpay
+                    </button>
+                  </div>
+                </>
+              )}
+              {status === "unauthenticated" && (
+                <Link
+                  href="/get-started?redirect=/pricing"
+                  className="mt-4 inline-block text-teal hover:underline"
+                >
+                  Sign in to subscribe →
+                </Link>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-pale-sky-400/30 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-teal-400/30 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-10 w-72 h-72 bg-teal-800/30 rounded-full blur-3xl" />
       </div>
       
@@ -110,7 +327,7 @@ export default function PricingPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pale-sky-700 border border-pale-sky-400 text-teal text-sm font-semibold mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal/20 border border-teal-600 text-teal text-sm font-semibold mb-6">
             <Sparkles className="w-4 h-4" />
             Simple, Transparent Pricing
           </div>
@@ -134,8 +351,17 @@ export default function PricingPage() {
               key={index}
               className="flex items-center gap-2 bg-neutral-500 px-4 py-2 rounded-full shadow-sm border border-lavender-600"
             >
-              <span className="w-2 h-2 rounded-full bg-teal-700"></span>
-              <span className="text-sm font-medium text-jet-black">{offer.text}</span>
+              <span className="w-2 h-2 rounded-full bg-teal"></span>
+              <span className="text-sm font-medium text-jet-black">
+                {index === 1 ? (
+                  <>
+                    <span className="text-teal font-semibold">Save 20%</span>
+                    <span> with annual billing</span>
+                  </>
+                ) : (
+                  offer.text
+                )}
+              </span>
               <span className="text-xs text-neutral-300">• {offer.discount}</span>
             </div>
           ))}
@@ -162,7 +388,7 @@ export default function PricingPage() {
 
               <div className={`h-full bg-neutral-500 rounded-3xl shadow-xl overflow-hidden ${plan.popular ? 'ring-2 ring-teal' : 'border border-lavender-600'}`}>
                 {/* Card Header */}
-                <div className={`p-8 bg-gradient-to-br ${plan.popular ? 'from-pale-sky-700 to-pale-sky-600' : 'from-lavender-700 to-neutral-500'}`}>
+                <div className={`p-8 bg-gradient-to-br ${plan.popular ? 'from-teal-400/30 to-teal-600/20' : 'from-lavender-700 to-neutral-500'}`}>
                   <div className="flex items-center gap-3 mb-4">
                     <div className={`w-12 h-12 rounded-2xl bg-gradient-to-r ${plan.gradient} flex items-center justify-center text-white`}>
                       {plan.icon}
@@ -190,16 +416,30 @@ export default function PricingPage() {
                     ))}
                   </ul>
 
-                  <Link
-                    href="/get-started"
-                    className={`block w-full py-4 rounded-2xl text-center font-semibold transition-all duration-300 ${
-                      plan.popular
-                        ? "bg-teal text-white shadow-lg shadow-teal-800/30 hover:bg-teal-600 hover:shadow-xl hover:shadow-teal-800/30"
-                        : "bg-lavender-600 text-jet-black hover:bg-lavender-500"
-                    }`}
-                  >
-                    {plan.cta}
-                  </Link>
+                  {plan.planSlug ? (
+                    <button
+                      type="button"
+                      onClick={() => openCheckoutModal(plan)}
+                      className={`block w-full py-4 rounded-2xl text-center font-semibold transition-all duration-300 ${
+                        plan.popular
+                          ? "bg-teal text-white shadow-lg shadow-teal-800/30 hover:bg-teal-600 hover:shadow-xl hover:shadow-teal-800/30"
+                          : "bg-lavender-600 text-jet-black hover:bg-lavender-500"
+                      }`}
+                    >
+                      {plan.cta}
+                    </button>
+                  ) : (
+                    <Link
+                      href="/get-started"
+                      className={`block w-full py-4 rounded-2xl text-center font-semibold transition-all duration-300 ${
+                        plan.popular
+                          ? "bg-teal text-white shadow-lg shadow-teal-800/30 hover:bg-teal-600 hover:shadow-xl hover:shadow-teal-800/30"
+                          : "bg-lavender-600 text-jet-black hover:bg-lavender-500"
+                      }`}
+                    >
+                      {plan.cta}
+                    </Link>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -263,7 +503,7 @@ export default function PricingPage() {
           viewport={{ once: true }}
           className="mt-16 text-center"
         >
-          <div className="inline-flex items-center gap-3 bg-pale-sky-700 rounded-2xl px-8 py-6 shadow-sm border border-pale-sky-400">
+          <div className="inline-flex items-center gap-3 bg-teal/20 rounded-2xl px-8 py-6 shadow-sm border border-teal-600">
             <BadgeCheck className="w-10 h-10 text-teal" />
             <div className="text-left">
               <p className="font-bold text-jet-black">30-Day Money-Back Guarantee</p>

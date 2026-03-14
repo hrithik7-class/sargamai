@@ -1,36 +1,23 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, ReactNode } from "react";
+import { useAuthStore, type AuthUser } from "@/store/useAuthStore";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: () => void;
-  logout: () => void;
+  isLoading: boolean;
+  user: AuthUser | null;
+  accessToken: string | null;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    // Check localStorage for auth status on initial render
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("isAuthenticated") === "true";
-    }
-    return false;
-  });
-
-  const login = () => {
-    setIsAuthenticated(true);
-    localStorage.setItem("isAuthenticated", "true");
-  };
-
-  const logout = () => {
-    setIsAuthenticated(false);
-    localStorage.setItem("isAuthenticated", "false");
-  };
+  const { isAuthenticated, isLoading, user, accessToken, logout } = useAuthStore();
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, user, accessToken, logout }}>
       {children}
     </AuthContext.Provider>
   );

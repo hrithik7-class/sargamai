@@ -99,7 +99,7 @@ export default function HomePage() {
         className="relative min-h-screen min-h-[100dvh] flex items-center overflow-hidden pt-20 pb-24"
       >
         {/* Full-viewport video layer - dark fallback, video covers full area on mobile */}
-        <div className="absolute inset-0 z-0 overflow-hidden bg-jet-black" aria-hidden="true">
+        <div className="absolute inset-0 z-0 overflow-hidden bg-lavender-900" aria-hidden="true">
           <video
             ref={videoRef}
             autoPlay
@@ -112,68 +112,120 @@ export default function HomePage() {
           </video>
         </div>
 
-        {/* Hero content - sits in flow */}
+        {/* Floating musical symbols - fill left/right corners, do not affect text */}
+        <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden" aria-hidden="true">
+          {/* Left side */}
+          {[
+            { char: "♪", top: "18%", left: "8%", size: "text-2xl", delay: 0 },
+            { char: "♫", top: "35%", left: "4%", size: "text-xl", delay: 0.4 },
+            { char: "♭", top: "55%", left: "10%", size: "text-3xl", delay: 0.8 },
+            { char: "♯", top: "72%", left: "6%", size: "text-xl", delay: 0.2 },
+            { char: "♪", top: "85%", left: "12%", size: "text-lg", delay: 0.6 },
+            { char: "♬", top: "42%", left: "2%", size: "text-lg", delay: 1 },
+          ].map((item, i) => (
+            <motion.span
+              key={`left-${i}`}
+              className={`absolute text-teal/20 font-serif ${item.size}`}
+              style={{ top: item.top, left: item.left }}
+              animate={{ y: [0, -12, 0], opacity: [0.15, 0.3, 0.15] }}
+              transition={{
+                duration: 4 + i * 0.5,
+                repeat: Infinity,
+                delay: item.delay,
+                ease: "easeInOut",
+              }}
+            >
+              {item.char}
+            </motion.span>
+          ))}
+          {/* Right side */}
+          {[
+            { char: "♯", top: "22%", right: "8%", size: "text-xl", delay: 0.3 },
+            { char: "♫", top: "38%", right: "5%", size: "text-2xl", delay: 0.7 },
+            { char: "♪", top: "58%", right: "10%", size: "text-3xl", delay: 0.1 },
+            { char: "♭", top: "75%", right: "6%", size: "text-xl", delay: 0.5 },
+            { char: "♬", top: "88%", right: "11%", size: "text-lg", delay: 0.9 },
+            { char: "♪", top: "48%", right: "3%", size: "text-lg", delay: 0.2 },
+          ].map((item, i) => (
+            <motion.span
+              key={`right-${i}`}
+              className={`absolute text-teal/20 font-serif ${item.size}`}
+              style={{ top: item.top, right: item.right }}
+              animate={{ y: [0, 10, 0], opacity: [0.2, 0.35, 0.2] }}
+              transition={{
+                duration: 3.5 + i * 0.6,
+                repeat: Infinity,
+                delay: item.delay,
+                ease: "easeInOut",
+              }}
+            >
+              {item.char}
+            </motion.span>
+          ))}
+        </div>
+
+        {/* Hero content - centered, clear hierarchy, SaaS-style alignment */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full min-w-0"
+          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full min-w-0"
         >
-          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] text-center max-w-3xl mx-auto w-full">
-            <div className="w-full flex flex-col items-center">
-              {/* Badge */}
-              <motion.div variants={itemVariants} className="mb-2 flex justify-center">
-                <div className="inline-flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-2.5 rounded-full bg-pale-sky-700 border border-pale-sky-400 text-teal text-xs sm:text-sm font-semibold shadow-sm max-w-[calc(100vw-1.5rem)]">
+          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] py-8 sm:py-12">
+            <div className="w-full max-w-3xl mx-auto flex flex-col items-center text-center">
+              {/* Badge - compact, clear */}
+              <motion.div variants={itemVariants} className="mb-5 sm:mb-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-teal-200/90 border border-teal-400/80 text-teal text-xs sm:text-sm font-semibold shadow-sm backdrop-blur-sm">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-600 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-teal"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-600 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-teal" />
                   </span>
                   AI-Powered Lyrics Generator
                 </div>
               </motion.div>
 
-              {/* Main Heading */}
-              <motion.div variants={itemVariants} className="text-center w-full min-w-0">
-                <h1 className="text-2xl min-[400px]:text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight text-jet-black font-heading text-center">
-                  <span className="text-teal">
-                    Transform Your Ideas
-                  </span>
-                  <br />
-                  <span className="text-jet-black">
+              {/* Main Heading - balanced line breaks, comfortable reading width */}
+              <motion.div variants={itemVariants} className="w-full mb-5 sm:mb-6">
+                <h1 className="text-3xl min-[400px]:text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] sm:leading-[1.12] text-jet-black font-heading tracking-tight">
+                  <span className="block text-teal">Transform Your Ideas</span>
+                  <span className="block mt-1 sm:mt-1.5 text-jet-black">
                     Into{" "}
-                    <span className="relative inline-flex min-w-[120px] sm:min-w-[180px] pb-1">
+                    <span className="relative inline-flex justify-center min-w-[140px] sm:min-w-[200px] pb-1 text-teal">
                       <AnimatePresence mode="wait">
                         <motion.span
                           key={currentWordIndex}
-                          initial={{ opacity: 0, y: 15 }}
+                          initial={{ opacity: 0, y: 12 }}
                           animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -15 }}
+                          exit={{ opacity: 0, y: -12 }}
                           transition={{ duration: 0.3 }}
-                          className="text-teal"
+                          className="inline-block"
                         >
                           {rotatingWords[currentWordIndex]}
                         </motion.span>
                       </AnimatePresence>
                       <motion.span
-                        className="absolute bottom-0 left-0 w-full h-0.5 bg-teal"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal origin-left"
                         initial={{ scaleX: 0 }}
                         animate={{ scaleX: 1 }}
-                        transition={{ delay: 0.3, duration: 0.3 }}
+                        transition={{ delay: 0.25, duration: 0.3 }}
                       />
                     </span>
                   </span>
                 </h1>
               </motion.div>
 
-              {/* Subheading */}
-              <motion.p variants={itemVariants} className="text-base sm:text-xl text-jet-black-600 max-w-xl mx-auto mb-6 sm:mb-10 leading-relaxed text-center px-1 min-w-0">
-                Describe your mood, story, or feeling in plain words. 
-                <span className="text-teal font-semibold"> SargamAI</span> crafts 
-                meaningful lyrics that touch hearts.
+              {/* Subheading - optimal line length, relaxed leading */}
+              <motion.p
+                variants={itemVariants}
+                className="text-base sm:text-lg lg:text-xl text-jet-black-600 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed sm:leading-loose"
+              >
+                Describe your mood, story, or feeling in plain words.{" "}
+                <span className="text-teal font-semibold">SargamAI</span> crafts meaningful
+                lyrics that touch hearts.
               </motion.p>
 
-              {/* CTA Buttons */}
-              <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 mb-6 sm:mb-10 w-full max-w-[min(100%,320px)] sm:max-w-none">
+              {/* CTA Buttons - clear primary/secondary hierarchy */}
+              <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto mb-10 sm:mb-12">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
                   <Link
                     href="/get-started"
@@ -199,16 +251,19 @@ export default function HomePage() {
                 </motion.div>
               </motion.div>
 
-              {/* Stats */}
-              <motion.div variants={itemVariants} className="grid grid-cols-3 gap-3 sm:gap-8 max-w-md mx-auto">
+              {/* Stats - social proof, clear separation from CTAs */}
+              <motion.div
+                variants={itemVariants}
+                className="grid grid-cols-3 gap-6 sm:gap-10 max-w-md mx-auto pt-2 border-t border-lavender-600/50"
+              >
                 {[
                   { value: "50K+", label: "Songs Created" },
                   { value: "100+", label: "Genres" },
                   { value: "4.9", label: "User Rating" },
                 ].map((stat, index) => (
-                  <div key={index} className="text-center min-w-0">
-                    <div className="text-2xl sm:text-4xl font-bold text-teal truncate">{stat.value}</div>
-                    <div className="text-neutral-300 text-xs sm:text-sm truncate">{stat.label}</div>
+                  <div key={index} className="text-center">
+                    <div className="text-2xl sm:text-4xl font-bold text-teal tabular-nums">{stat.value}</div>
+                    <div className="text-neutral-300 text-xs sm:text-sm mt-0.5">{stat.label}</div>
                   </div>
                 ))}
               </motion.div>
@@ -239,26 +294,39 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="relative z-10 py-16 sm:py-32 bg-gradient-to-b from-neutral-500 via-pale-sky-900 to-neutral-500 overflow-hidden">
+      <section id="features" className="relative z-10 py-20 sm:py-36 overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-neutral-500 via-pale-sky-900 to-neutral-500" />
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 50% 30%, var(--color-teal) 1px, transparent 1px)", backgroundSize: "24px 24px" }} aria-hidden />
+        <div className="absolute top-1/4 left-0 w-72 h-72 bg-teal-500/10 rounded-full blur-3xl -translate-x-1/2" aria-hidden />
+        <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-teal-700/10 rounded-full blur-3xl translate-x-1/3" aria-hidden />
+
         <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-w-0">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-10 sm:mb-16"
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+            className="text-center mb-12 sm:mb-20"
           >
-            <h2 className="text-2xl sm:text-4xl min-[400px]:text-3xl font-bold mb-3 sm:mb-4 text-jet-black font-heading">
-              <span className="text-teal">
-                Powerful Features
-              </span>
+            <motion.span
+              initial={{ opacity: 0, y: 8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="inline-block px-3 py-1.5 rounded-full bg-teal-900/20 border border-teal-800/40 text-teal text-xs font-semibold uppercase tracking-wider mb-4"
+            >
+              Why SargamAI
+            </motion.span>
+            <h2 className="text-2xl sm:text-4xl min-[400px]:text-3xl font-bold mb-4 sm:mb-5 text-jet-black font-heading">
+              <span className="text-teal">Powerful Features</span>
             </h2>
-            <p className="text-jet-black-600 text-sm sm:text-lg max-w-2xl mx-auto">
+            <p className="text-jet-black-600 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
               Everything you need to create professional lyrics that resonate
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-4 sm:gap-8 min-w-0">
+          <div className="grid md:grid-cols-3 gap-6 sm:gap-8 min-w-0">
             <FeatureCard
               title="Instant Generation"
               description="Get unique, meaningful lyrics in seconds. Just describe your idea and watch the magic happen."

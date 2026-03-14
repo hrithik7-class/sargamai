@@ -42,8 +42,8 @@ function IllustrateDescribe() {
   return (
     <div className="relative w-full max-w-[180px] mx-auto">
       <div className="absolute -top-2 -left-2 w-24 h-24 rounded-full border-2 border-dashed border-teal-500 opacity-90 pointer-events-none" aria-hidden />
-      <div className="relative bg-white rounded-md shadow-md border border-lavender-600 overflow-hidden">
-        <div className="h-7 bg-jet-black flex items-center pl-2">
+      <div className="relative bg-lavender-700 rounded-md shadow-md border border-lavender-600 overflow-hidden">
+        <div className="h-7 bg-lavender-900 flex items-center pl-2">
           <div className="w-2 h-2 rounded-sm bg-teal shrink-0" />
         </div>
         <div className="p-2.5 space-y-1.5">
@@ -61,8 +61,8 @@ function IllustrateDescribe() {
 function IllustrateGenerate() {
   return (
     <div className="relative w-full max-w-[200px] mx-auto flex justify-center items-end">
-      <div className="absolute w-[72%] left-[8%] bottom-0 rounded-md shadow border border-lavender-600 bg-white overflow-hidden transform -rotate-3">
-        <div className="h-5 bg-jet-black flex items-center pl-1.5">
+      <div className="absolute w-[72%] left-[8%] bottom-0 rounded-md shadow border border-lavender-600 bg-lavender-700 overflow-hidden transform -rotate-3">
+        <div className="h-5 bg-lavender-900 flex items-center pl-1.5">
           <div className="w-1.5 h-1.5 rounded-sm bg-teal shrink-0" />
         </div>
         <div className="p-1.5 flex items-center justify-between gap-1">
@@ -73,8 +73,8 @@ function IllustrateGenerate() {
           <div className="w-3 h-6 bg-teal rounded-sm shrink-0" />
         </div>
       </div>
-      <div className="absolute w-[72%] left-[18%] bottom-1 rounded-md shadow-md border border-lavender-600 bg-white overflow-hidden transform rotate-1 z-10">
-        <div className="h-5 bg-jet-black flex items-center pl-1.5">
+      <div className="absolute w-[72%] left-[18%] bottom-1 rounded-md shadow-md border border-lavender-600 bg-lavender-700 overflow-hidden transform rotate-1 z-10">
+        <div className="h-5 bg-lavender-900 flex items-center pl-1.5">
           <div className="w-1.5 h-1.5 rounded-sm bg-teal shrink-0" />
         </div>
         <div className="p-1.5 flex items-center justify-between gap-1">
@@ -85,8 +85,8 @@ function IllustrateGenerate() {
           <div className="w-3 h-6 bg-teal rounded-sm shrink-0" />
         </div>
       </div>
-      <div className="relative w-[72%] rounded-md shadow-lg border border-lavender-600 bg-white overflow-hidden transform rotate-2 z-20">
-        <div className="h-5 bg-jet-black flex items-center pl-1.5">
+      <div className="relative w-[72%] rounded-md shadow-lg border border-lavender-600 bg-lavender-700 overflow-hidden transform rotate-2 z-20">
+        <div className="h-5 bg-lavender-900 flex items-center pl-1.5">
           <div className="w-1.5 h-1.5 rounded-sm bg-teal shrink-0" />
         </div>
         <div className="p-1.5 flex items-center justify-between gap-1">
@@ -105,22 +105,22 @@ function IllustrateGenerate() {
 function IllustratePerfect() {
   return (
     <div className="relative w-full max-w-[200px] mx-auto flex justify-center items-end">
-      <div className="absolute w-[60%] left-[18%] bottom-0 rounded-md shadow border border-lavender-600 bg-white overflow-hidden transform -rotate-2">
-        <div className="h-5 bg-jet-black/90 flex items-center pl-1.5" />
+      <div className="absolute w-[60%] left-[18%] bottom-0 rounded-md shadow border border-lavender-600 bg-lavender-700 overflow-hidden transform -rotate-2">
+        <div className="h-5 bg-lavender-900/90 flex items-center pl-1.5" />
         <div className="p-1.5 space-y-1">
           <div className="h-1 bg-lavender-600 rounded w-full" />
           <div className="h-1 bg-lavender-600 rounded w-3/4" />
         </div>
       </div>
-      <div className="absolute w-[60%] left-[22%] bottom-1 rounded-md shadow border border-lavender-600 bg-white overflow-hidden transform rotate-1">
-        <div className="h-5 bg-jet-black/90 flex items-center pl-1.5" />
+      <div className="absolute w-[60%] left-[22%] bottom-1 rounded-md shadow border border-lavender-600 bg-lavender-700 overflow-hidden transform rotate-1">
+        <div className="h-5 bg-lavender-900/90 flex items-center pl-1.5" />
         <div className="p-1.5 space-y-1">
           <div className="h-1 bg-lavender-600 rounded w-4/5" />
           <div className="h-1 bg-lavender-600 rounded w-2/3" />
         </div>
       </div>
-      <div className="relative w-[70%] rounded-md shadow-lg border border-lavender-600 bg-white overflow-hidden z-20">
-        <div className="h-6 bg-jet-black flex items-center justify-between pl-2 pr-1.5">
+      <div className="relative w-[70%] rounded-md shadow-lg border border-lavender-600 bg-lavender-700 overflow-hidden z-20">
+        <div className="h-6 bg-lavender-900 flex items-center justify-between pl-2 pr-1.5">
           <div className="w-2 h-2 rounded-sm bg-teal shrink-0" />
           <div className="w-5 h-5 rounded-full bg-teal flex items-center justify-center shrink-0">
             <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>

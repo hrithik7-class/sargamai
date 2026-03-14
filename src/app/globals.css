@@ -6,61 +6,67 @@
   --font-satoshi: "Satoshi", system-ui, sans-serif;
   --font-heading: "General Sans", system-ui, sans-serif;
 
-  /* jet_black */
-  --color-jet-black: #022b3a;
-  --color-jet-black-100: #00090c;
-  --color-jet-black-200: #011218;
-  --color-jet-black-300: #011a23;
-  --color-jet-black-400: #02232f;
-  --color-jet-black-500: #022b3a;
-  --color-jet-black-600: #056c92;
-  --color-jet-black-700: #08ade8;
-  --color-jet-black-800: #52ccf9;
-  --color-jet-black-900: #a8e6fc;
+  /* ─── Option 3: Electric Blue + Gold (Premium / Trust) ── */
 
-  /* teal */
-  --color-teal: #1f7a8c;
-  --color-teal-100: #06191c;
-  --color-teal-200: #0c3139;
-  --color-teal-300: #134a55;
-  --color-teal-400: #196372;
-  --color-teal-500: #1f7a8c;
-  --color-teal-600: #2bacc5;
-  --color-teal-700: #59c5db;
-  --color-teal-800: #91d8e7;
-  --color-teal-900: #c8ecf3;
+  /* jet-black → primary TEXT */
+  --color-jet-black:     #e8edf5;
+  --color-jet-black-100: #e8edf5;
+  --color-jet-black-200: #d1dceb;
+  --color-jet-black-300: #b8c8e0;
+  --color-jet-black-400: #94a3b8;
+  --color-jet-black-500: #e8edf5;
+  --color-jet-black-600: #94a3b8;
+  --color-jet-black-700: #64748b;
+  --color-jet-black-800: #1e293b;
+  --color-jet-black-900: #111827;
 
-  /* pale_sky */
-  --color-pale-sky: #bfdbf7;
-  --color-pale-sky-100: #0a2c4e;
-  --color-pale-sky-200: #13589c;
-  --color-pale-sky-300: #2384e4;
-  --color-pale-sky-400: #71afed;
-  --color-pale-sky-500: #bfdbf7;
-  --color-pale-sky-600: #cce2f9;
-  --color-pale-sky-700: #d9eafa;
-  --color-pale-sky-800: #e6f1fc;
-  --color-pale-sky-900: #f2f8fd;
+  /* teal → brand ACCENT (electric blue) */
+  --color-teal:     #00d4ff;
+  --color-teal-100: #0a0f1a;
+  --color-teal-200: #001a22;
+  --color-teal-300: #002633;
+  --color-teal-400: #00a8cc;
+  --color-teal-500: #00d4ff;
+  --color-teal-600: #38e0ff;
+  --color-teal-700: #66e6ff;
+  --color-teal-800: #99eeff;
+  --color-teal-900: #e8edf5;
 
-  /* lavender */
-  --color-lavender: #e1e5f2;
-  --color-lavender-100: #1c2542;
-  --color-lavender-200: #384a83;
-  --color-lavender-300: #5f74ba;
-  --color-lavender-400: #a1add7;
-  --color-lavender-500: #e1e5f2;
-  --color-lavender-600: #e8ebf5;
-  --color-lavender-700: #eef0f8;
-  --color-lavender-800: #f4f5fa;
-  --color-lavender-900: #f9fafd;
+  /* pale-sky → secondary accent (light blue) */
+  --color-pale-sky:     #38e0ff;
+  --color-pale-sky-100: #0a0f1a;
+  --color-pale-sky-200: #111827;
+  --color-pale-sky-300: #1e293b;
+  --color-pale-sky-400: #002633;
+  --color-pale-sky-500: #38e0ff;
+  --color-pale-sky-600: #66e6ff;
+  --color-pale-sky-700: #99eeff;
+  --color-pale-sky-800: #ccf6ff;
+  --color-pale-sky-900: #e6fbff;
 
-  /* white (neutrals) */
-  --color-neutral: #ffffff;
-  --color-neutral-100: #333333;
-  --color-neutral-200: #666666;
-  --color-neutral-300: #999999;
-  --color-neutral-400: #cccccc;
-  --color-neutral-500: #ffffff;
+  /* lavender → dark surfaces + borders */
+  --color-lavender:     #111827;
+  --color-lavender-100: #0a0f1a;
+  --color-lavender-200: #0d1320;
+  --color-lavender-300: #111827;
+  --color-lavender-400: #151d2e;
+  --color-lavender-500: #111827;
+  --color-lavender-600: #1e293b;
+  --color-lavender-700: #111827;
+  --color-lavender-800: #0d1320;
+  --color-lavender-900: #0a0f1a;
+
+  /* neutral → card / topbar / sidebar + muted text */
+  --color-neutral:     #e8edf5;
+  --color-neutral-100: #e8edf5;
+  --color-neutral-200: #d1dceb;
+  --color-neutral-300: #94a3b8;
+  --color-neutral-400: #64748b;
+  --color-neutral-500: #111827;
+
+  /* page background and text (for theme transition) */
+  --page-bg: #0a0f1a;
+  --page-text: #e8edf5;
 }
 
 html {
@@ -70,8 +76,74 @@ html {
 
 body {
   font-family: var(--font-satoshi);
+  background-color: var(--page-bg);
+  color: var(--page-text);
   overflow-x: hidden;
   min-width: 0;
+  transition: background-color 0.28s ease, color 0.28s ease;
+}
+
+/* ─── Light theme overrides (html.light from next-themes) ── */
+/* White background; dark text and light cards for contrast */
+html.light {
+  --page-bg: #ffffff;
+  --page-text: #0f172a;
+
+  /* jet-black → primary text (dark on white) */
+  --color-jet-black:     #0f172a;
+  --color-jet-black-100: #1e293b;
+  --color-jet-black-200: #334155;
+  --color-jet-black-300: #475569;
+  --color-jet-black-400: #64748b;
+  --color-jet-black-500: #0f172a;
+  --color-jet-black-600: #64748b;
+  --color-jet-black-700: #475569;
+  --color-jet-black-800: #e2e8f0;
+  --color-jet-black-900: #f1f5f9;
+
+  /* teal → brand accent (visible on white) */
+  --color-teal:     #0891b2;
+  --color-teal-100: #ecfeff;
+  --color-teal-200: #cffafe;
+  --color-teal-300: #a5f3fc;
+  --color-teal-400: #00a8cc;
+  --color-teal-500: #06b6d4;
+  --color-teal-600: #0891b2;
+  --color-teal-700: #0e7490;
+  --color-teal-800: #155e75;
+  --color-teal-900: #164e63;
+
+  /* pale-sky */
+  --color-pale-sky:     #0891b2;
+  --color-pale-sky-100: #ecfeff;
+  --color-pale-sky-200: #f1f5f9;
+  --color-pale-sky-300: #e2e8f0;
+  --color-pale-sky-400: #a5f3fc;
+  --color-pale-sky-500: #22d3ee;
+  --color-pale-sky-600: #06b6d4;
+  --color-pale-sky-700: #0891b2;
+  --color-pale-sky-800: #0e7490;
+  --color-pale-sky-900: #155e75;
+
+  /* lavender → cards/surfaces (light gray on white) */
+  --color-lavender:     #f1f5f9;
+  --color-lavender-100: #ffffff;
+  --color-lavender-200: #f8fafc;
+  --color-lavender-300: #f1f5f9;
+  --color-lavender-400: #e2e8f0;
+  --color-lavender-500: #f1f5f9;
+  --color-lavender-600: #cbd5e1;
+  --color-lavender-700: #e2e8f0;
+  --color-lavender-800: #f8fafc;
+  --color-lavender-900: #ffffff;
+
+  /* neutral → card/topbar text and muted (dark text, light surfaces) */
+  --color-neutral:     #0f172a;
+  --color-neutral-100: #1e293b;
+  --color-neutral-200: #334155;
+  --color-neutral-300: #64748b;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #f8fafc;
 }
 
 .font-heading {

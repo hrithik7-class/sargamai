@@ -57,7 +57,7 @@ export default function LoadingScreen() {
                 {[...Array(28)].map((_, i) => (
                   <motion.div
                     key={i}
-                    className="w-1.5 bg-white rounded-full"
+                    className="w-1.5 bg-teal rounded-full"
                     initial={{ height: 10 }}
                     animate={{ 
                       height: [10, 60, 35, 70, 15, 50, 10],
@@ -105,7 +105,7 @@ export default function LoadingScreen() {
               {[0, 1, 2].map((i) => (
                 <motion.span
                   key={i}
-                  className="w-1.5 h-1.5 bg-white rounded-full"
+                  className="w-1.5 h-1.5 bg-teal rounded-full"
                   animate={{ y: [0, -4, 0] }}
                   transition={{ 
                     duration: 0.4, 

@@ -182,7 +182,7 @@ export default function TrustSection() {
                       whileHover={{ scale: 1.2 }}
                     >
                       <Star
-                        className="w-5 h-5 text-amber-400"
+                        className="w-5 h-5 text-teal"
                         fill="currentColor"
                       />
                     </motion.div>

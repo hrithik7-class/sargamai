@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "next-themes";
 import NavbarWrapper from "@/components/NavbarWrapper";
 import FooterWrapper from "@/components/FooterWrapper";
 import LoadingScreen from "@/components/LoadingScreen";
+import ThemeToggleFixed from "@/components/ThemeToggleFixed";
 import { AuthProvider } from "@/components/AuthContext";
 import { IntroProvider } from "@/components/IntroContext";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
+import AuthStoreSync from "@/components/AuthStoreSync";
 
 export const metadata: Metadata = {
   title: "SargamAI - AI-Powered Music Lyrics Generator",
@@ -17,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link
           href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap"
@@ -29,15 +33,21 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <AuthProvider>
-          <IntroProvider>
-            <LoadingScreen />
-            <NavbarWrapper />
-            <main className="min-h-screen overflow-x-hidden min-w-0">
-              <FooterWrapper>{children}</FooterWrapper>
-            </main>
-          </IntroProvider>
-        </AuthProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange={false} storageKey="sargam-theme">
+          <SessionProviderWrapper>
+          <AuthStoreSync />
+          <AuthProvider>
+            <IntroProvider>
+              <LoadingScreen />
+              <NavbarWrapper />
+              <ThemeToggleFixed />
+              <main className="min-h-screen overflow-x-hidden min-w-0">
+                <FooterWrapper>{children}</FooterWrapper>
+              </main>
+            </IntroProvider>
+          </AuthProvider>
+          </SessionProviderWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

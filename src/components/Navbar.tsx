@@ -12,7 +12,7 @@ const navLinks = [
   { name: "Pricing", href: "/pricing" },
 ];
 
-const demoLink = { name: "Try Demo", href: "/dashboard" };
+const demoLink = { name: "Demo", href: "/dashboard" };
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,10 +21,7 @@ export default function Navbar() {
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    // Only react to scroll events — do not read scrollY on mount so first load stays transparent
+    const handleScroll = () => setScrolled(window.scrollY > 16);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -32,38 +29,51 @@ export default function Navbar() {
   const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
   if (isDashboard) return null;
 
+  const navBg = scrolled
+    ? "bg-neutral-500/95 backdrop-blur-md border-b border-lavender-600/80 shadow-sm"
+    : "!bg-transparent border-b border-transparent";
+
+  // Force transparent background when not scrolled (fixes mobile blue/teal tint)
+  const transparentStyle = !scrolled
+    ? {
+        background: "transparent",
+        backgroundColor: "transparent",
+        borderColor: "transparent",
+      }
+    : undefined;
+
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-white shadow-sm" : ""
-      }`}
-      style={scrolled ? undefined : { backgroundColor: "transparent" }}
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navBg}`}
+      style={transparentStyle}
     >
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-w-0">
-        <div className="flex justify-between items-center h-14 sm:h-16 min-w-0">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center h-16 sm:h-[4.25rem]">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-heading shrink-0 min-w-0">
-            <span className="text-lg sm:text-2xl font-bold text-teal truncate">
-              SargamAI
+          <Link
+            href="/"
+            className="flex items-center gap-2 shrink-0 font-heading md:mr-8"
+            aria-label="SargamAI Home"
+          >
+            <span className="text-xl sm:text-2xl font-bold text-jet-black">
+              Sargam<span className="text-teal">AI</span>
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Desktop: center nav links */}
+          <nav className="hidden md:flex items-center justify-center flex-1 gap-0.5" aria-label="Main">
             {navLinks.map((link) => {
-              const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href.split("#")[0]));
+              const isActive =
+                pathname === link.href ||
+                (link.href !== "/" && pathname.startsWith(link.href.split("#")[0]));
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    scrolled
-                      ? isActive
-                        ? "text-teal bg-lavender-200/30"
-                        : "text-jet-black hover:text-teal hover:bg-lavender-200/20"
-                      : isActive
-                        ? "text-teal bg-transparent"
-                        : "text-jet-black hover:text-teal bg-transparent hover:bg-transparent"
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                    isActive
+                      ? "text-teal"
+                      : "text-jet-black/70 hover:text-jet-black"
                   }`}
                 >
                   {link.name}
@@ -73,66 +83,57 @@ export default function Navbar() {
             {isAuthenticated && (
               <Link
                 href={demoLink.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  scrolled
-                    ? pathname === demoLink.href || pathname.startsWith(demoLink.href.split("#")[0])
-                      ? "text-teal bg-lavender-200/30"
-                      : "text-jet-black hover:text-teal hover:bg-lavender-200/20"
-                    : pathname === demoLink.href || pathname.startsWith(demoLink.href.split("#")[0])
-                      ? "text-teal bg-transparent"
-                      : "text-jet-black hover:text-teal bg-transparent hover:bg-transparent"
-                }`}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 text-jet-black/70 hover:text-jet-black"
               >
                 {demoLink.name}
               </Link>
             )}
-          </div>
+          </nav>
 
-          {/* CTA Button */}
-          <div className="hidden md:flex items-center gap-4">
+          {/* Desktop: right side — Sign in + CTA */}
+          <div className="hidden md:flex items-center gap-3 ml-auto shrink-0">
             <Link
               href="/get-started"
-              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                scrolled
-                  ? "bg-jet-black text-white hover:bg-jet-black-400"
-                  : "bg-transparent text-jet-black border-2 border-jet-black hover:bg-jet-black hover:text-white"
-              }`}
+              className="text-sm font-medium transition-colors text-jet-black/70 hover:text-jet-black"
             >
-              Get Started
+              Sign in
+            </Link>
+            <Link
+              href="/get-started"
+              className="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-teal hover:bg-teal-600 shadow-md shadow-teal-100/10 hover:shadow-teal-100/20 transition-all duration-200"
+            >
+              Get started
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile: menu button */}
           <button
-            className="md:hidden p-2 text-jet-black"
+            type="button"
+            className="md:hidden p-2.5 rounded-lg text-jet-black hover:bg-lavender-700/50 transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-expanded={isMenuOpen}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile menu */}
         {isMenuOpen && (
-          <div className={`md:hidden py-4 transition-all duration-300 ${
-            scrolled
-              ? "border-t border-lavender-600 bg-white"
-              : "border-t border-white/20 bg-white/5 backdrop-blur-sm"
-          }`}>
-            <div className="flex flex-col gap-2">
+          <div
+            className="md:hidden overflow-hidden border-t border-lavender-600 bg-neutral-500/95 backdrop-blur-md transition-all duration-300"
+          >
+            <nav className="py-4 px-2 flex flex-col gap-0.5" aria-label="Mobile">
               {navLinks.map((link) => {
-                const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href.split("#")[0]));
+                const isActive =
+                  pathname === link.href ||
+                  (link.href !== "/" && pathname.startsWith(link.href.split("#")[0]));
                 return (
                   <Link
                     key={link.name}
                     href={link.href}
-                    className={`px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                      scrolled
-                        ? isActive
-                          ? "text-teal bg-lavender-200/30"
-                          : "text-jet-black hover:bg-lavender-200/20"
-                        : isActive
-                          ? "text-teal bg-white/20"
-                          : "text-jet-black hover:bg-white/10"
+                    className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      isActive ? "text-teal bg-teal/10" : "text-jet-black hover:bg-lavender-700"
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -143,31 +144,32 @@ export default function Navbar() {
               {isAuthenticated && (
                 <Link
                   href={demoLink.href}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                    scrolled
-                      ? pathname === demoLink.href || pathname.startsWith(demoLink.href.split("#")[0])
-                        ? "text-teal bg-lavender-200/30"
-                        : "text-jet-black hover:bg-lavender-200/20"
-                      : pathname === demoLink.href || pathname.startsWith(demoLink.href.split("#")[0])
-                        ? "text-teal bg-white/20"
-                        : "text-jet-black hover:bg-white/10"
-                  }`}
+                  className="px-4 py-3 rounded-lg text-sm font-medium text-jet-black hover:bg-lavender-700 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {demoLink.name}
                 </Link>
               )}
-              <Link
-                href="/get-started"
-                className="mt-2 px-5 py-3 rounded-lg bg-jet-black text-white text-sm font-semibold text-center hover:bg-jet-black-400 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Get Started
-              </Link>
-            </div>
+              <div className="mt-3 pt-3 border-t border-lavender-600 flex flex-col gap-2">
+                <Link
+                  href="/get-started"
+                  className="px-4 py-3 rounded-lg text-sm font-medium text-jet-black hover:bg-lavender-700 transition-colors text-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/get-started"
+                  className="px-4 py-3.5 rounded-full text-sm font-semibold text-white bg-teal hover:bg-teal-600 text-center shadow-md shadow-teal-100/10 transition-all"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Get started
+                </Link>
+              </div>
+            </nav>
           </div>
         )}
       </div>
-    </nav>
+    </header>
   );
 }

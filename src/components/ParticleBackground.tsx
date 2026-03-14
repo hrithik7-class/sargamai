@@ -23,11 +23,11 @@ export default function ParticleBackground() {
     }> = [];
 
     const colors = [
-      "#8b5cf6", // purple
-      "#ec4899", // pink
-      "#f97316", // orange
-      "#06b6d4", // cyan
-      "#84cc16", // lime
+      "#00d4ff", // electric blue
+      "#38e0ff", // blue hover
+      "#94a3b8", // muted slate
+      "#66e6ff", // light blue
+      "#99eeff", // pale blue
     ];
 
     const resizeCanvas = () => {
@@ -117,7 +117,7 @@ export default function ParticleBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ background: "linear-gradient(to bottom right, #faf5ff, #fce7f3, #ffedd5)" }}
+      style={{ background: "linear-gradient(to bottom right, #0a0f1a, #111827, #1e293b)" }}
     />
   );
 }
