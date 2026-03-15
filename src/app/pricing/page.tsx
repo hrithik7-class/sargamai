@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
@@ -114,7 +114,7 @@ function loadRazorpayScript(): Promise<void> {
   });
 }
 
-export default function PricingPage() {
+function PricingContent() {
   const [openIndex, setOpenIndex] = useState(0);
   const [checkoutPlan, setCheckoutPlan] = useState<Plan | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
@@ -532,5 +532,19 @@ export default function PricingPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-lavender-800">
+          <div className="text-jet-black-400">Loading…</div>
+        </div>
+      }
+    >
+      <PricingContent />
+    </Suspense>
   );
 }
