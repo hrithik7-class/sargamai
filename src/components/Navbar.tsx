@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -29,25 +31,19 @@ export default function Navbar() {
   const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
   if (isDashboard) return null;
 
-  const navBg = scrolled
-    ? "bg-neutral-500/95 backdrop-blur-md border-b border-lavender-600/80 shadow-sm"
-    : "!bg-transparent border-b border-transparent";
-
-  // Force transparent background when not scrolled (fixes mobile blue/teal tint)
-  const transparentStyle = !scrolled
-    ? {
-        background: "transparent",
-        backgroundColor: "transparent",
-        borderColor: "transparent",
-      }
+  const scrolledClasses =
+    "bg-neutral-500/95 backdrop-blur-md border-b border-lavender-600/80 shadow-sm";
+  const notScrolledClasses = "!bg-transparent border-b border-transparent";
+  const baseStyle = !scrolled
+    ? { background: "transparent", backgroundColor: "transparent", borderColor: "transparent" }
     : undefined;
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navBg}`}
-      style={transparentStyle}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? scrolledClasses : notScrolledClasses}`}
+      style={baseStyle}
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center h-16 sm:h-[4.25rem]">
           {/* Logo */}
           <Link
@@ -106,24 +102,35 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile: menu button */}
-          <button
-            type="button"
-            className="md:hidden p-2.5 rounded-lg text-jet-black hover:bg-lavender-700/50 transition-colors"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-expanded={isMenuOpen}
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          {/* Mobile: toggle before hamburger — equal alignment and tap targets */}
+          <div className="md:hidden flex items-center gap-0 ml-auto">
+            <div className="flex items-center justify-center w-10 h-10 shrink-0">
+              <ThemeToggle />
+            </div>
+            <button
+              type="button"
+              className="flex items-center justify-center w-10 h-10 rounded-lg text-jet-black hover:bg-lavender-700/50 transition-colors shrink-0"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-expanded={isMenuOpen}
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            >
+              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <div
-            className="md:hidden overflow-hidden border-t border-lavender-600 bg-neutral-500/95 backdrop-blur-md transition-all duration-300"
-          >
-            <nav className="py-4 px-2 flex flex-col gap-0.5" aria-label="Mobile">
+        {/* Mobile menu — smooth open/close with Framer Motion */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              key="mobile-menu"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="md:hidden overflow-hidden border-t border-lavender-600 bg-neutral-500/95 backdrop-blur-md"
+            >
+              <nav className="py-4 px-2 flex flex-col gap-0.5" aria-label="Mobile">
               {navLinks.map((link) => {
                 const isActive =
                   pathname === link.href ||
@@ -167,8 +174,9 @@ export default function Navbar() {
                 </Link>
               </div>
             </nav>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   );

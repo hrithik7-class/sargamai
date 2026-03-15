@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useState, useRef, useEffect } from "react";
 import {
   Music,
   Sparkles,
+  SlidersHorizontal,
   Library,
   BarChart3,
   LayoutDashboard,
@@ -13,15 +15,44 @@ import {
   Settings,
   Bell,
   Headphones,
+  Music2,
+  X,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
+export type NotificationItem = {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+};
+
 const sidebarNav = [
   { href: "/dashboard", icon: Sparkles, label: "Generate Lyrics", exact: true },
+  { href: "/dashboard/studio", icon: SlidersHorizontal, label: "Studio" },
   { href: "/dashboard/library", icon: Library, label: "My Library" },
   { href: "/dashboard/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/dashboard/overview", icon: LayoutDashboard, label: "Overview" },
   { href: "/dashboard/releases", icon: Package, label: "Releases", badge: "New" },
+];
+
+// Replace with API fetch later; shape is ready for real notifications
+const MOCK_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: "1",
+    title: "Track ready",
+    message: "Your generated track \"Summer Vibes\" is ready to play.",
+    time: "2 min ago",
+    read: false,
+  },
+  {
+    id: "2",
+    title: "Studio mix saved",
+    message: "Your voice + music mix has been saved to Library.",
+    time: "1 hour ago",
+    read: true,
+  },
 ];
 
 export default function DashboardLayout({
@@ -31,6 +62,24 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+  const markAsRead = (id: string) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  };
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
@@ -61,13 +110,70 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <button
-              type="button"
-              className="p-1.5 sm:p-2 rounded-lg text-jet-black hover:bg-lavender-700 transition-colors"
-              aria-label="Notifications"
-            >
-              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
+            <div className="relative" ref={notifRef}>
+              <button
+                type="button"
+                onClick={() => setNotificationsOpen((o) => !o)}
+                className="relative p-1.5 sm:p-2 rounded-lg text-jet-black hover:bg-lavender-700 transition-colors"
+                aria-label="Notifications"
+                aria-expanded={notificationsOpen}
+              >
+                <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-teal text-white text-[10px] font-bold flex items-center justify-center">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </button>
+              {notificationsOpen && (
+                <div className="absolute right-0 top-full mt-1 w-[320px] sm:w-[360px] max-h-[min(400px,70vh)] overflow-hidden rounded-xl border border-lavender-600 bg-neutral-500 shadow-xl z-50 flex flex-col">
+                  <div className="px-4 py-3 border-b border-lavender-600 flex items-center justify-between shrink-0">
+                    <span className="font-semibold text-jet-black">Notifications</span>
+                    <button
+                      type="button"
+                      onClick={() => setNotificationsOpen(false)}
+                      className="p-1 rounded-lg text-neutral-400 hover:text-jet-black hover:bg-lavender-700"
+                      aria-label="Close"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="overflow-y-auto flex-1 min-h-0">
+                    {notifications.length === 0 ? (
+                      <div className="p-6 text-center">
+                        <Bell className="w-10 h-10 text-neutral-400 mx-auto mb-2" />
+                        <p className="text-sm font-medium text-jet-black">No notifications yet</p>
+                        <p className="text-xs text-neutral-400 mt-1">We’ll show updates here when they come.</p>
+                      </div>
+                    ) : (
+                      <ul className="divide-y divide-lavender-600">
+                        {notifications.map((n) => (
+                          <li
+                            key={n.id}
+                            className={`px-4 py-3 hover:bg-lavender-700/50 transition-colors cursor-pointer ${!n.read ? "bg-teal/5" : ""}`}
+                            onClick={() => markAsRead(n.id)}
+                          >
+                            <div className="flex gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-teal/20 flex items-center justify-center shrink-0">
+                                <Music2 className="w-4 h-4 text-teal" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium text-jet-black">{n.title}</p>
+                                <p className="text-xs text-neutral-400 mt-0.5 line-clamp-2">{n.message}</p>
+                                <p className="text-xs text-neutral-500 mt-1">{n.time}</p>
+                              </div>
+                              {!n.read && (
+                                <span className="shrink-0 w-2 h-2 rounded-full bg-teal mt-2" aria-hidden />
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             <ThemeToggle />
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-teal flex items-center justify-center text-white text-xs sm:text-sm font-semibold shrink-0">
               {session?.user?.name?.slice(0, 2).toUpperCase() ?? "ME"}

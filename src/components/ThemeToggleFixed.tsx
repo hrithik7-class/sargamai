@@ -9,7 +9,7 @@ export default function ThemeToggleFixed() {
   const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
   if (isDashboard) return null;
   return (
-    <div className="fixed top-4 right-4 z-[100]">
+    <div className="fixed top-4 right-4 z-[100] hidden md:block">
       <ThemeToggle />
     </div>
   );

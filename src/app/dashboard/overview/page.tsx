@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   Music,
   Sparkles,
+  SlidersHorizontal,
   Library,
   BarChart3,
   Package,
@@ -69,12 +70,20 @@ export default function OverviewPage() {
       border: "border-teal/20",
     },
     {
+      href: "/dashboard/studio",
+      icon: SlidersHorizontal,
+      label: "Studio",
+      desc: "Mix your voice with music — R&B, bass, and more",
+      color: "from-indigo-500/20 to-indigo-500/5",
+      border: "border-indigo-500/20",
+    },
+    {
       href: "/dashboard/library",
       icon: Library,
       label: "My Library",
       desc: "Browse, play, and download your tracks",
-      color: "from-indigo-500/20 to-indigo-500/5",
-      border: "border-indigo-500/20",
+      color: "from-violet-500/20 to-violet-500/5",
+      border: "border-violet-500/20",
     },
     {
       href: "/dashboard/analytics",
