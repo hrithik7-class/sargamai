@@ -31,6 +31,7 @@ import {
   Legend,
 } from "recharts";
 import { fetchAnalytics, type AnalyticsResponse, ApiError } from "@/lib/api";
+import { CardSpotlight } from "@/components/ui/card-spotlight";
 
 // ── Colour palette matching the app theme ─────────────────────────────────
 const CHART_COLORS = [
@@ -85,7 +86,8 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="bg-neutral-500 rounded-xl border border-lavender-600 p-4 sm:p-5 shadow-sm">
+    <CardSpotlight color="#00d4ff">
+    <div className="bg-neutral-500 rounded-xl p-4 sm:p-5 shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-neutral-300 text-xs sm:text-sm font-medium truncate">{label}</p>
@@ -97,6 +99,7 @@ function StatCard({
         </div>
       </div>
     </div>
+    </CardSpotlight>
   );
 }
 
@@ -195,7 +198,8 @@ export default function AnalyticsPage() {
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-6">
 
             {/* Line chart — tracks per day */}
-            <div className="bg-neutral-500 rounded-xl border border-lavender-600 p-4 sm:p-5">
+            <CardSpotlight color="#00d4ff">
+            <div className="bg-neutral-500 rounded-xl p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp className="w-4 h-4 text-teal" />
                 <h2 className="text-sm font-semibold text-jet-black">Generation Activity (Last 30 Days)</h2>
@@ -231,9 +235,11 @@ export default function AnalyticsPage() {
                 </ResponsiveContainer>
               )}
             </div>
+            </CardSpotlight>
 
             {/* Bar chart — tracks by genre */}
-            <div className="bg-neutral-500 rounded-xl border border-lavender-600 p-4 sm:p-5">
+            <CardSpotlight color="#00d4ff">
+            <div className="bg-neutral-500 rounded-xl p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-4">
                 <BarChart3 className="w-4 h-4 text-teal" />
                 <h2 className="text-sm font-semibold text-jet-black">Tracks by Genre</h2>
@@ -266,13 +272,15 @@ export default function AnalyticsPage() {
                 </ResponsiveContainer>
               )}
             </div>
+            </CardSpotlight>
           </div>
 
           {/* ── Charts row 2: Language donut + status breakdown ───── */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
 
             {/* Donut chart — by language */}
-            <div className="bg-neutral-500 rounded-xl border border-lavender-600 p-4 sm:p-5">
+            <CardSpotlight color="#00d4ff">
+            <div className="bg-neutral-500 rounded-xl p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Music className="w-4 h-4 text-teal" />
                 <h2 className="text-sm font-semibold text-jet-black">Tracks by Language</h2>
@@ -317,9 +325,11 @@ export default function AnalyticsPage() {
                 </div>
               )}
             </div>
+            </CardSpotlight>
 
             {/* Status breakdown */}
-            <div className="bg-neutral-500 rounded-xl border border-lavender-600 p-4 sm:p-5">
+            <CardSpotlight color="#00d4ff">
+            <div className="bg-neutral-500 rounded-xl p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-4">
                 <ShieldCheck className="w-4 h-4 text-teal" />
                 <h2 className="text-sm font-semibold text-jet-black">Status Breakdown</h2>
@@ -353,6 +363,7 @@ export default function AnalyticsPage() {
                 </div>
               )}
             </div>
+            </CardSpotlight>
           </div>
         </>
       )}

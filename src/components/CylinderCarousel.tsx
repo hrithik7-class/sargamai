@@ -164,7 +164,7 @@ function CarouselGroup({
   return (
     <group 
       ref={groupRef}
-      onPointerDown={(e) => {
+      onPointerDown={(e: React.PointerEvent) => {
         setIsDragging(true);
         previousPointer.current = { x: e.clientX, y: e.clientY };
       }}

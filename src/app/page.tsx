@@ -9,11 +9,13 @@ import DashboardPreview from "@/components/DashboardPreview";
 import HowItWorks from "@/components/HowItWorks";
 import CompanyTicker from "@/components/CompanyTicker";
 import Testimonials from "@/components/Testimonials";
+import { useAuth } from "@/components/AuthContext";
 import { Zap, Settings, RefreshCw, ArrowRight, Play, ChevronRight, Music, MessageSquare, Sparkles, CheckCircle } from "lucide-react";
 
 const rotatingWords = ["lyrics", "music", "singing", "composing", "playing"];
 
 export default function HomePage() {
+  const { isAuthenticated } = useAuth();
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -92,14 +94,14 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden min-w-0">
-      {/* Hero Section - video fills viewport on mobile, no white gap */}
+    <div className="relative min-h-screen min-h-dvh overflow-x-hidden min-w-0">
+      {/* Hero Section - video fills viewport on mobile, extends into safe area to avoid white line */}
       <section
         ref={heroRef}
-        className="relative min-h-screen min-h-[100dvh] flex items-center overflow-hidden pt-20 pb-24"
+        className="relative min-h-screen min-h-[100dvh] flex items-center overflow-hidden pb-24 -mt-[env(safe-area-inset-top,0px)] pt-[calc(5rem+env(safe-area-inset-top,0px))]"
       >
-        {/* Full-viewport video layer - dark fallback, video covers full area on mobile */}
-        <div className="absolute inset-0 z-0 overflow-hidden bg-lavender-900" aria-hidden="true">
+        {/* Full-viewport video layer - always dark (theme-independent) so navbar stays transparent over hero */}
+        <div className="absolute inset-0 z-0 overflow-hidden bg-[#0a0f1a] top-[calc(-1*env(safe-area-inset-top,0px))] h-[calc(100%+env(safe-area-inset-top,0px))]" aria-hidden="true">
           <video
             ref={videoRef}
             autoPlay
@@ -228,11 +230,11 @@ export default function HomePage() {
               <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto mb-10 sm:mb-12">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
                   <Link
-                    href="/get-started"
+                    href={isAuthenticated ? "/dashboard" : "/get-started"}
                     className="group relative w-full sm:w-auto inline-flex justify-center items-center px-6 sm:px-10 py-4 sm:py-5 rounded-2xl bg-teal text-white font-bold text-base sm:text-lg shadow-lg shadow-teal-800/30 overflow-hidden gap-2 hover:bg-teal-600 transition-colors"
                   >
                     <span className="relative flex items-center gap-2">
-                      Start Creating Free
+                      {isAuthenticated ? "Go to Dashboard" : "Start Creating Free"}
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </Link>

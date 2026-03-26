@@ -72,7 +72,17 @@
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  padding: 0;
+  background-color: var(--page-bg);
 }
+
+/* Faster tap response on mobile */
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
 
 body {
   font-family: var(--font-satoshi);
@@ -80,6 +90,8 @@ body {
   color: var(--page-text);
   overflow-x: hidden;
   min-width: 0;
+  margin: 0;
+  padding: 0;
   transition: background-color 0.28s ease, color 0.28s ease;
 }
 
@@ -148,4 +160,13 @@ html.light {
 
 .font-heading {
   font-family: var(--font-heading);
+}
+
+@keyframes wave {
+  0%, 100% {
+    height: 20px;
+  }
+  50% {
+    height: 60px;
+  }
 }

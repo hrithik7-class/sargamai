@@ -22,6 +22,7 @@ import {
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTracksStore } from "@/store/useTracksStore";
 import type { Track } from "@/lib/api";
+import { CardSpotlight } from "@/components/ui/card-spotlight";
 
 function statusIcon(status: Track["status"]) {
   switch (status) {
@@ -61,46 +62,11 @@ export default function OverviewPage() {
   const recentTracks = tracks.slice(0, 4);
 
   const quickActions = [
-    {
-      href: "/dashboard",
-      icon: Sparkles,
-      label: "Generate a Track",
-      desc: "Turn rhymes into full AI-sung music",
-      color: "from-teal/20 to-teal/5",
-      border: "border-teal/20",
-    },
-    {
-      href: "/dashboard/studio",
-      icon: SlidersHorizontal,
-      label: "Studio",
-      desc: "Mix your voice with music — R&B, bass, and more",
-      color: "from-indigo-500/20 to-indigo-500/5",
-      border: "border-indigo-500/20",
-    },
-    {
-      href: "/dashboard/library",
-      icon: Library,
-      label: "My Library",
-      desc: "Browse, play, and download your tracks",
-      color: "from-violet-500/20 to-violet-500/5",
-      border: "border-violet-500/20",
-    },
-    {
-      href: "/dashboard/analytics",
-      icon: BarChart3,
-      label: "Analytics",
-      desc: "Insights on your generation activity",
-      color: "from-violet-500/20 to-violet-500/5",
-      border: "border-violet-500/20",
-    },
-    {
-      href: "/dashboard/releases",
-      icon: Package,
-      label: "Releases",
-      desc: "Publish your completed tracks",
-      color: "from-teal/20 to-teal/5",
-      border: "border-teal-600/50",
-    },
+    { href: "/dashboard", icon: Sparkles, label: "Generate a Track", desc: "Turn rhymes into full AI-sung music" },
+    { href: "/dashboard/studio", icon: SlidersHorizontal, label: "Studio", desc: "Mix your voice with music — R&B, bass, and more" },
+    { href: "/dashboard/library", icon: Library, label: "My Library", desc: "Browse, play, and download your tracks" },
+    { href: "/dashboard/analytics", icon: BarChart3, label: "Analytics", desc: "Insights on your generation activity" },
+    { href: "/dashboard/releases", icon: Package, label: "Releases", desc: "Publish your completed tracks" },
   ];
 
   return (
@@ -123,22 +89,21 @@ export default function OverviewPage() {
           { label: "In Progress", value: inProgressCount, icon: Loader2, color: "text-teal" },
           { label: "Copyright Safe", value: safeCount, icon: ShieldCheck, color: "text-teal" },
         ].map((card) => (
-          <div
-            key={card.label}
-            className="bg-neutral-500 rounded-xl border border-lavender-600 p-4 sm:p-5 shadow-sm"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-neutral-300 text-xs sm:text-sm font-medium truncate">{card.label}</p>
-                <p className="text-2xl sm:text-3xl font-bold text-jet-black mt-0.5 font-heading">
-                  {loading ? "—" : card.value}
-                </p>
-              </div>
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-lavender-700 flex items-center justify-center shrink-0">
-                <card.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${card.color}`} />
+          <CardSpotlight key={card.label} color="#00d4ff">
+            <div className="p-4 sm:p-5">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-neutral-300 text-xs sm:text-sm font-medium truncate">{card.label}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-jet-black mt-0.5 font-heading">
+                    {loading ? "—" : card.value}
+                  </p>
+                </div>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-lavender-700 flex items-center justify-center shrink-0">
+                  <card.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${card.color}`} />
+                </div>
               </div>
             </div>
-          </div>
+          </CardSpotlight>
         ))}
       </div>
 
@@ -149,20 +114,21 @@ export default function OverviewPage() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
           {quickActions.map((action) => (
-            <Link
-              key={action.href}
-              href={action.href}
-              className={`group flex items-start gap-3 p-4 rounded-xl border bg-gradient-to-br ${action.color} ${action.border} hover:shadow-md transition-all`}
-            >
-              <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                <action.icon className="w-4 h-4 text-jet-black" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-jet-black text-sm">{action.label}</p>
-                <p className="text-xs text-neutral-300 mt-0.5 leading-snug">{action.desc}</p>
-              </div>
-              <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-jet-black group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5" />
-            </Link>
+            <CardSpotlight key={action.href} color="#00d4ff">
+              <Link
+                href={action.href}
+                className="group flex items-start gap-3 p-4 rounded-xl bg-neutral-500 hover:shadow-sm transition-all"
+              >
+                <div className="w-9 h-9 rounded-lg bg-lavender-700 flex items-center justify-center shrink-0">
+                  <action.icon className="w-4 h-4 text-teal" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-jet-black text-sm">{action.label}</p>
+                  <p className="text-xs text-neutral-300 mt-0.5 leading-snug">{action.desc}</p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-neutral-400 group-hover:text-teal group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5" />
+              </Link>
+            </CardSpotlight>
           ))}
         </div>
       </div>
@@ -201,8 +167,8 @@ export default function OverviewPage() {
             <Loader2 className="w-6 h-6 text-teal animate-spin" />
           </div>
         ) : recentTracks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center gap-3 rounded-xl border border-lavender-600 bg-neutral-500/50">
-            <Music className="w-10 h-10 text-neutral-300" />
+          <div className="flex flex-col items-center justify-center py-12 text-center gap-3 rounded-xl border-2 border-dotted border-lavender-600 bg-neutral-500/30">
+            <Music className="w-10 h-10 text-neutral-400" />
             <div>
               <p className="font-medium text-jet-black">No tracks yet</p>
               <p className="text-sm text-neutral-300 mt-0.5 max-w-xs">
@@ -211,21 +177,27 @@ export default function OverviewPage() {
             </div>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-teal text-white text-sm font-semibold hover:bg-teal-600 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-teal text-white text-sm font-semibold hover:bg-teal-600 transition-colors border-0"
             >
               <Sparkles className="w-4 h-4" /> Generate Now
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
+          <div className="space-y-3 sm:space-y-4">
+            <Link
+              href="/dashboard"
+              className="flex items-center justify-center gap-2 py-6 rounded-xl border-2 border-dotted border-lavender-600 bg-neutral-500/30 hover:bg-neutral-500/50 hover:border-teal/40 transition-colors"
+            >
+              <span className="text-neutral-400 text-xl">+</span>
+              <span className="text-sm font-medium text-neutral-400">Create another track</span>
+            </Link>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
             {recentTracks.map((track) => (
-              <div
-                key={track.id}
-                className="bg-neutral-500 rounded-xl border border-lavender-600 p-3 sm:p-4 flex items-center gap-3"
-              >
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal to-indigo-500 flex items-center justify-center shrink-0">
-                  <Music className="w-4 h-4 text-white/80" />
-                </div>
+              <CardSpotlight key={track.id} color="#00d4ff">
+                <div className="p-3 sm:p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-teal flex items-center justify-center shrink-0">
+                    <Music className="w-4 h-4 text-white" />
+                  </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-jet-black truncate text-sm">{track.title}</p>
                   <p className="text-[11px] text-neutral-300 truncate">
@@ -235,8 +207,10 @@ export default function OverviewPage() {
                 <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-neutral-300 bg-lavender-700 border border-lavender-600 rounded-full px-2 py-0.5 shrink-0">
                   {statusIcon(track.status)} {statusLabel(track.status)}
                 </span>
-              </div>
+                </div>
+              </CardSpotlight>
             ))}
+            </div>
           </div>
         )}
       </div>

@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
 import { User, Bell, Palette, LogOut, Shield } from "lucide-react";
+import { CardSpotlight } from "@/components/ui/card-spotlight";
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -18,7 +19,8 @@ export default function SettingsPage() {
           <User className="w-4 h-4 text-teal" />
           Profile
         </h2>
-        <div className="rounded-xl border border-lavender-600 bg-neutral-500/50 p-4 space-y-3">
+        <CardSpotlight color="#00d4ff">
+        <div className="rounded-xl bg-neutral-500/50 p-4 space-y-3">
           <div>
             <label className="text-xs text-neutral-400">Name</label>
             <p className="text-jet-black font-medium">{session?.user?.name ?? "—"}</p>
@@ -28,6 +30,7 @@ export default function SettingsPage() {
             <p className="text-jet-black font-medium">{session?.user?.email ?? "—"}</p>
           </div>
         </div>
+        </CardSpotlight>
       </section>
 
       {/* Appearance */}
@@ -36,11 +39,13 @@ export default function SettingsPage() {
           <Palette className="w-4 h-4 text-teal" />
           Appearance
         </h2>
-        <div className="rounded-xl border border-lavender-600 bg-neutral-500/50 p-4">
+        <CardSpotlight color="#00d4ff">
+        <div className="rounded-xl bg-neutral-500/50 p-4">
           <p className="text-sm text-neutral-300">
             Use the theme toggle (sun/moon icon) in the top-right of the screen to switch between dark and light mode.
           </p>
         </div>
+        </CardSpotlight>
       </section>
 
       {/* Notifications */}
@@ -49,9 +54,11 @@ export default function SettingsPage() {
           <Bell className="w-4 h-4 text-teal" />
           Notifications
         </h2>
-        <div className="rounded-xl border border-lavender-600 bg-neutral-500/50 p-4">
+        <CardSpotlight color="#00d4ff">
+        <div className="rounded-xl bg-neutral-500/50 p-4">
           <p className="text-sm text-neutral-300">Notification preferences will be available here soon.</p>
         </div>
+        </CardSpotlight>
       </section>
 
       {/* Account */}
@@ -60,7 +67,8 @@ export default function SettingsPage() {
           <Shield className="w-4 h-4 text-teal" />
           Account
         </h2>
-        <div className="rounded-xl border border-lavender-600 bg-neutral-500/50 p-4">
+        <CardSpotlight color="#00d4ff">
+        <div className="rounded-xl bg-neutral-500/50 p-4">
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/" })}
@@ -70,6 +78,7 @@ export default function SettingsPage() {
             Sign out
           </button>
         </div>
+        </CardSpotlight>
       </section>
     </div>
   );

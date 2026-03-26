@@ -28,6 +28,7 @@ import {
   Library,
 } from "lucide-react";
 import AudioPlayer from "@/components/AudioPlayer";
+import { CardSpotlight } from "@/components/ui/card-spotlight";
 import { deleteTrack, audioSrc, type Track } from "@/lib/api";
 import { downloadLyricsPdf } from "@/lib/pdf";
 
@@ -152,9 +153,9 @@ function GridCard({
   };
 
   return (
-    <div className="bg-neutral-500 rounded-xl border border-lavender-600 overflow-hidden shadow-sm flex flex-col">
-      <div className={`h-28 bg-gradient-to-br ${genreGradient(track.genre)} flex items-end p-3 relative`}>
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+    <CardSpotlight color="#00d4ff">
+    <div className="bg-neutral-500 rounded-xl overflow-hidden shadow-sm flex flex-col">
+      <div className="h-28 bg-teal flex items-end p-3 relative">
         <div className="flex-1 min-w-0">
           <p className="font-bold text-white text-base leading-tight truncate drop-shadow">{track.title}</p>
           <p className="text-white/70 text-xs truncate mt-0.5">{track.genre} · {track.language}</p>
@@ -225,6 +226,7 @@ function GridCard({
         )}
       </div>
     </div>
+    </CardSpotlight>
   );
 }
 
@@ -253,9 +255,10 @@ function ListRow({
   };
 
   return (
-    <div className="bg-neutral-500 rounded-xl border border-lavender-600 overflow-hidden">
+    <CardSpotlight color="#00d4ff">
+    <div className="bg-neutral-500 rounded-xl overflow-hidden">
       <div className="flex items-center gap-3 sm:gap-4 px-4 py-3">
-        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${genreGradient(track.genre)} flex items-center justify-center shrink-0`}>
+        <div className="w-10 h-10 rounded-lg bg-teal flex items-center justify-center shrink-0">
           <Music className="w-4 h-4 text-white/80" />
         </div>
         <div className="flex-1 min-w-0">
@@ -314,6 +317,7 @@ function ListRow({
         </div>
       )}
     </div>
+    </CardSpotlight>
   );
 }
 
@@ -451,23 +455,23 @@ export default function LibraryPage() {
       {loading && tracks.length === 0 ? (
         <div className="flex items-center justify-center py-24"><Loader2 className="w-8 h-8 text-teal animate-spin" /></div>
       ) : tracks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-teal/20 to-indigo-500/20 flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center py-24 text-center gap-4 rounded-xl border-2 border-dotted border-lavender-600 bg-neutral-500/30">
+          <div className="w-20 h-20 rounded-3xl bg-lavender-700 flex items-center justify-center">
             <Music className="w-10 h-10 text-teal" />
           </div>
           <div>
             <p className="font-semibold text-jet-black text-lg font-heading">Your library is empty</p>
             <p className="text-sm text-neutral-300 max-w-xs mt-1">Head to Generate Lyrics, paste some rhymes, and create your first song.</p>
           </div>
-          <Link href="/dashboard" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal text-white text-sm font-semibold hover:bg-teal-600 transition-colors shadow-sm">
+          <Link href="/dashboard" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-teal text-white text-sm font-semibold hover:bg-teal-600 transition-colors">
             <Sparkles className="w-4 h-4" /> Generate your first track
           </Link>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
-          <Search className="w-10 h-10 text-neutral-300" />
+        <div className="flex flex-col items-center justify-center py-20 text-center gap-3 rounded-xl border-2 border-dotted border-lavender-600 bg-neutral-500/30">
+          <Search className="w-10 h-10 text-neutral-400" />
           <p className="font-medium text-jet-black">No tracks match your filters</p>
-          <button type="button" onClick={() => { setSearch(""); setStatusFilter("all"); setLangFilter("all"); setGenreFilter("all"); }} className="text-sm text-teal underline">Clear filters</button>
+          <button type="button" onClick={() => { setSearch(""); setStatusFilter("all"); setLangFilter("all"); setGenreFilter("all"); }} className="text-sm font-medium text-teal hover:text-teal-600 transition-colors">Clear filters</button>
         </div>
       ) : view === "grid" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">

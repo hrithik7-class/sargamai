@@ -5,18 +5,18 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, BadgeCheck, Sparkles, Crown, Zap, Plus, Minus, X, Loader2 } from "lucide-react";
+import { Check, BadgeCheck, Sparkles, Crown, Zap, X, Loader2, ChevronDown } from "lucide-react";
 import { createLemonSqueezyCheckout, createRazorpayOrder, ApiError } from "@/lib/api";
 
 type Plan = {
   name: string;
-  price: string;
+  priceMonthly: string;
+  priceAnnual: string;
   period: string;
   description: string;
   features: string[];
   popular?: boolean;
   cta: string;
-  gradient: string;
   icon: React.ReactNode;
   planSlug?: "pro" | "studio";
 };
@@ -24,11 +24,11 @@ type Plan = {
 const plans: Plan[] = [
   {
     name: "Starter",
-    price: "$0",
+    priceMonthly: "$0",
+    priceAnnual: "$0",
     period: "forever",
     description: "Perfect for trying out SargamAI",
-    gradient: "from-jet-black-400 to-jet-black-500",
-    icon: <Sparkles className="w-6 h-6" />,
+    icon: <Sparkles className="w-5 h-5" />,
     features: [
       "5 lyrics generations per month",
       "Basic genre selection (10 genres)",
@@ -40,12 +40,12 @@ const plans: Plan[] = [
   },
   {
     name: "Pro",
-    price: "$12",
+    priceMonthly: "$12",
+    priceAnnual: "$96",
     period: "month",
     description: "For serious songwriters & creators",
     popular: true,
-    gradient: "from-teal to-teal-700",
-    icon: <Crown className="w-6 h-6" />,
+    icon: <Crown className="w-5 h-5" />,
     features: [
       "Unlimited lyrics generations",
       "All 50+ genres & styles",
@@ -60,11 +60,11 @@ const plans: Plan[] = [
   },
   {
     name: "Studio",
-    price: "$29",
+    priceMonthly: "$29",
+    priceAnnual: "$232",
     period: "month",
     description: "For professional music creators",
-    gradient: "from-teal-600 to-teal",
-    icon: <Zap className="w-6 h-6" />,
+    icon: <Zap className="w-5 h-5" />,
     features: [
       "Everything in Pro",
       "Bulk generation (up to 50 at once)",
@@ -75,15 +75,9 @@ const plans: Plan[] = [
       "Dedicated account manager",
       "24/7 priority support",
     ],
-    cta: "Select Plan",
+    cta: "Upgrade",
     planSlug: "studio",
   },
-];
-
-const offers = [
-  { text: "7-day free trial on Pro", discount: "No credit card required" },
-  { text: "Save 20% with annual billing", discount: "Use code: SARGRAM20" },
-  { text: "30-day money-back guarantee", discount: "Risk-free" },
 ];
 
 const faqs = [
@@ -115,7 +109,8 @@ function loadRazorpayScript(): Promise<void> {
 }
 
 function PricingContent() {
-  const [openIndex, setOpenIndex] = useState(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [isAnnual, setIsAnnual] = useState(false);
   const [checkoutPlan, setCheckoutPlan] = useState<Plan | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -132,7 +127,7 @@ function PricingContent() {
   }, [searchParams]);
 
   const toggleFAQ = (index: number) => {
-    setOpenIndex(openIndex === index ? -1 : index);
+    setOpenIndex(openIndex === index ? null : index);
   };
 
   const openCheckoutModal = useCallback((plan: Plan) => {
@@ -198,7 +193,7 @@ function PricingContent() {
   }, [checkoutPlan, accessToken]);
 
   return (
-    <div className="min-h-screen relative pt-24 pb-12 bg-gradient-to-b from-neutral-500 via-lavender-800 to-neutral-500">
+    <div className="min-h-screen relative pt-24 pb-12 bg-neutral-500">
       {/* Success / Cancelled banner */}
       <AnimatePresence>
         {banner && (
@@ -317,167 +312,187 @@ function PricingContent() {
         )}
       </AnimatePresence>
 
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-teal-400/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-teal-800/30 rounded-full blur-3xl" />
-      </div>
-      
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-10"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal/20 border border-teal-600 text-teal text-sm font-semibold mb-6">
-            <Sparkles className="w-4 h-4" />
-            Simple, Transparent Pricing
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-jet-black font-heading">
-            Choose Your Perfect Plan
+          <h1 className="text-4xl md:text-5xl font-bold mb-3 text-jet-black font-heading">
+            Simple, transparent pricing
           </h1>
-          <p className="text-jet-black-600 text-lg max-w-2xl mx-auto">
-            Start free and upgrade when you&apos;re ready. No hidden fees, cancel anytime.
+          <p className="text-jet-black-600 text-lg max-w-2xl mx-auto mb-8">
+            Start free. Scale as you grow. No hidden fees.
           </p>
-        </motion.div>
 
-        {/* Offers Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex flex-wrap justify-center gap-4 mb-12"
-        >
-          {offers.map((offer, index) => (
-            <div 
-              key={index}
-              className="flex items-center gap-2 bg-neutral-500 px-4 py-2 rounded-full shadow-sm border border-lavender-600"
-            >
-              <span className="w-2 h-2 rounded-full bg-teal"></span>
-              <span className="text-sm font-medium text-jet-black">
-                {index === 1 ? (
-                  <>
-                    <span className="text-teal font-semibold">Save 20%</span>
-                    <span> with annual billing</span>
-                  </>
-                ) : (
-                  offer.text
-                )}
-              </span>
-              <span className="text-xs text-neutral-300">• {offer.discount}</span>
+          {/* Monthly / Annual Toggle */}
+          <div className="inline-flex items-center gap-2">
+            <div className="relative flex rounded-full border border-lavender-600 bg-lavender-700 p-1">
+              <button
+                type="button"
+                onClick={() => setIsAnnual(false)}
+                className={`relative z-10 px-5 py-2 rounded-full text-sm font-medium transition-colors ${
+                  !isAnnual ? "text-white" : "text-neutral-400 hover:text-jet-black"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAnnual(true)}
+                className={`relative z-10 px-5 py-2 rounded-full text-sm font-medium transition-colors ${
+                  isAnnual ? "text-white" : "text-neutral-400 hover:text-jet-black"
+                }`}
+              >
+                Annual
+              </button>
+              <motion.div
+                layout
+                className="absolute top-1 bottom-1 rounded-full bg-teal"
+                initial={false}
+                animate={{
+                  left: isAnnual ? "calc(50% + 2px)" : "4px",
+                  width: "calc(50% - 6px)",
+                }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              />
             </div>
-          ))}
+            {isAnnual && (
+              <span className="text-xs font-medium text-teal">Save 20%</span>
+            )}
+          </div>
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className={`relative ${plan.popular ? 'md:-mt-4' : ''}`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
-                  <span className="bg-teal text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
-                    <Crown className="w-4 h-4" />
-                    Most Popular
-                  </span>
-                </div>
-              )}
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+          {plans.map((plan, index) => {
+            const planPrice = plan.period === "forever" ? plan.priceMonthly : (isAnnual ? plan.priceAnnual : plan.priceMonthly);
+            const planPeriod = plan.period === "forever" ? "forever" : (isAnnual ? "year" : "month");
+            const isFeatured = plan.popular;
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className={`relative ${isFeatured ? "md:-mt-2 md:mb-2" : ""}`}
+              >
+                {isFeatured && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                    <span className="bg-teal text-white px-4 py-1.5 rounded-full text-xs font-semibold">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
 
-              <div className={`h-full bg-neutral-500 rounded-3xl shadow-xl overflow-hidden ${plan.popular ? 'ring-2 ring-teal' : 'border border-lavender-600'}`}>
-                {/* Card Header */}
-                <div className={`p-8 bg-gradient-to-br ${plan.popular ? 'from-teal-400/30 to-teal-600/20' : 'from-lavender-700 to-neutral-500'}`}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-12 h-12 rounded-2xl bg-gradient-to-r ${plan.gradient} flex items-center justify-center text-white`}>
-                      {plan.icon}
+                <div
+                  className={`h-full rounded-2xl overflow-hidden border transition-shadow ${
+                    isFeatured
+                      ? "bg-gradient-to-b from-[#0a1628] via-[#0e7490] to-[#0a1628] border-teal-500/40 shadow-xl shadow-teal-900/30"
+                      : "bg-neutral-500 border-lavender-600 shadow-sm"
+                  }`}
+                >
+                  <div className={`p-6 sm:p-8 ${isFeatured ? "text-white" : ""}`}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                          isFeatured ? "bg-white/20 text-white" : "bg-teal/15 text-teal"
+                        }`}
+                      >
+                        {plan.icon}
+                      </div>
+                      <h3 className={`text-lg font-bold ${isFeatured ? "text-white" : "text-jet-black"}`}>
+                        {plan.name}
+                      </h3>
                     </div>
-                    <h3 className="text-xl font-bold text-jet-black">{plan.name}</h3>
-                  </div>
-                  
-                  <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-4xl font-bold text-jet-black">{plan.price}</span>
-                    <span className="text-neutral-300">/{plan.period}</span>
-                  </div>
-                  <p className="text-neutral-300 text-sm">{plan.description}</p>
-                </div>
+                    <p className={`text-sm mb-4 ${isFeatured ? "text-white/80" : "text-neutral-400"}`}>
+                      {plan.description}
+                    </p>
+                    <div className="flex items-baseline gap-1 mb-6">
+                      <span className={`text-3xl font-bold ${isFeatured ? "text-white" : "text-jet-black"}`}>
+                        {planPrice}
+                      </span>
+                      {plan.period !== "forever" && (
+                        <span className={isFeatured ? "text-white/70" : "text-neutral-400"}>/{planPeriod}</span>
+                      )}
+                    </div>
 
-                {/* Features */}
-                <div className="p-8">
-                  <ul className="space-y-4 mb-8">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-start gap-3">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-gradient-to-r ${plan.popular ? 'from-teal to-teal-700' : 'from-neutral-300 to-neutral-400'}`}>
-                          <Check className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-jet-black-600 text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                    <ul className="space-y-3 mb-8">
+                      {plan.features.map((feature, fi) => (
+                        <li key={fi} className="flex items-start gap-2.5">
+                          <div
+                            className={`w-4 h-4 rounded-sm shrink-0 mt-0.5 flex items-center justify-center ${
+                              isFeatured ? "bg-white/20" : "bg-teal/15"
+                            }`}
+                          >
+                            <Check className={`w-2.5 h-2.5 ${isFeatured ? "text-white" : "text-teal"}`} strokeWidth={2.5} />
+                          </div>
+                          <span className={`text-sm ${isFeatured ? "text-white/90" : "text-jet-black-600"}`}>
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
 
-                  {plan.planSlug ? (
-                    <button
-                      type="button"
-                      onClick={() => openCheckoutModal(plan)}
-                      className={`block w-full py-4 rounded-2xl text-center font-semibold transition-all duration-300 ${
-                        plan.popular
-                          ? "bg-teal text-white shadow-lg shadow-teal-800/30 hover:bg-teal-600 hover:shadow-xl hover:shadow-teal-800/30"
-                          : "bg-lavender-600 text-jet-black hover:bg-lavender-500"
-                      }`}
-                    >
-                      {plan.cta}
-                    </button>
-                  ) : (
-                    <Link
-                      href="/get-started"
-                      className={`block w-full py-4 rounded-2xl text-center font-semibold transition-all duration-300 ${
-                        plan.popular
-                          ? "bg-teal text-white shadow-lg shadow-teal-800/30 hover:bg-teal-600 hover:shadow-xl hover:shadow-teal-800/30"
-                          : "bg-lavender-600 text-jet-black hover:bg-lavender-500"
-                      }`}
-                    >
-                      {plan.cta}
-                    </Link>
-                  )}
+                    {plan.planSlug ? (
+                      <button
+                        type="button"
+                        onClick={() => openCheckoutModal(plan)}
+                        className={`block w-full py-3 rounded-full text-center font-semibold transition-colors ${
+                          isFeatured
+                            ? "bg-white text-teal hover:bg-white/95"
+                            : "bg-teal text-white hover:bg-teal-600"
+                        }`}
+                      >
+                        {plan.cta}
+                      </button>
+                    ) : (
+                      <Link
+                        href="/get-started"
+                        className={`block w-full py-3 rounded-full text-center font-semibold transition-colors ${
+                          isFeatured
+                            ? "bg-white text-teal hover:bg-white/95"
+                            : "bg-lavender-600 text-jet-black hover:bg-lavender-500"
+                        }`}
+                      >
+                        {plan.cta}
+                      </Link>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* FAQ Section with Accordion */}
+        {/* FAQ Section - Accordion in single container */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="mt-20 max-w-3xl mx-auto"
         >
-          <h2 className="text-3xl font-bold text-center mb-12 text-jet-black font-heading">
-            Frequently Asked Questions
+          <h2 className="text-2xl font-bold text-center mb-8 text-jet-black font-heading">
+            Frequently asked questions
           </h2>
 
-          <div className="space-y-3">
+          <div className="rounded-xl border border-lavender-600 bg-neutral-500 overflow-hidden shadow-sm">
             {faqs.map((faq, index) => (
-              <div 
-                key={index} 
-                className="bg-neutral-500 rounded-2xl shadow-sm border border-lavender-600 overflow-hidden"
+              <div
+                key={index}
+                className={`border-b border-lavender-600 last:border-b-0`}
               >
                 <button
                   onClick={() => toggleFAQ(index)}
-                  className="w-full px-6 py-5 flex items-center justify-between text-left transition-colors hover:bg-lavender-700"
+                  className="w-full px-6 py-4 flex items-center justify-between text-left transition-colors hover:bg-lavender-700/50"
                 >
-                  <h3 className="font-semibold text-jet-black pr-4">{faq.q}</h3>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${openIndex === index ? 'bg-teal rotate-180' : 'bg-lavender-600'}`}>
-                    {openIndex === index ? (
-                      <Minus className="w-4 h-4 text-white" />
-                    ) : (
-                      <Plus className="w-4 h-4 text-jet-black-600" />
-                    )}
-                  </div>
+                  <span className="font-medium text-jet-black pr-4">{faq.q}</span>
+                  <ChevronDown
+                    className={`w-5 h-5 shrink-0 text-neutral-400 transition-transform duration-200 ${
+                      openIndex === index ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
                 <AnimatePresence>
                   {openIndex === index && (
@@ -485,11 +500,11 @@ function PricingContent() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      transition={{ duration: 0.25, ease: "easeInOut" }}
                       className="overflow-hidden"
                     >
-                      <div className="px-6 pb-5">
-                        <p className="text-jet-black-600">{faq.a}</p>
+                      <div className="px-6 pb-4 pt-0">
+                        <p className="text-jet-black-600 text-sm">{faq.a}</p>
                       </div>
                     </motion.div>
                   )}

@@ -21,6 +21,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import AudioPlayer from "@/components/AudioPlayer";
+import { CardSpotlight } from "@/components/ui/card-spotlight";
 import {
   publishTrack,
   unpublishTrack,
@@ -88,17 +89,10 @@ function ReleaseCard({
   };
 
   return (
-    <div className="bg-neutral-500 rounded-xl border border-lavender-600 overflow-hidden shadow-sm flex flex-col">
+    <CardSpotlight color="#00d4ff">
+    <div className="bg-neutral-500 rounded-xl overflow-hidden shadow-sm flex flex-col">
       {/* Cover art */}
-      <div className={`h-32 bg-gradient-to-br ${genreGradient(track.genre)} relative flex items-end p-3`}>
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 80% 20%, white 1px, transparent 1px)",
-            backgroundSize: "20px 20px",
-          }}
-        />
+      <div className="h-32 bg-teal relative flex items-end p-3">
         {/* Published badge */}
         {isPublished && (
           <span className="absolute top-2 left-2 inline-flex items-center gap-1 text-[10px] font-bold bg-teal text-white rounded-full px-2 py-0.5">
@@ -186,6 +180,7 @@ function ReleaseCard({
         </button>
       </div>
     </div>
+    </CardSpotlight>
   );
 }
 
@@ -242,10 +237,12 @@ export default function ReleasesPage() {
           { label: "Published", value: publishedTracks.length, color: "text-green-600" },
           { label: "Unpublished", value: unpublishedTracks.length, color: "text-neutral-300" },
         ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-lavender-600 bg-neutral-500 px-3 sm:px-4 py-2.5 sm:py-3">
+          <CardSpotlight key={s.label} color="#00d4ff">
+          <div className="rounded-xl bg-neutral-500 px-3 sm:px-4 py-2.5 sm:py-3">
             <p className={`text-xl sm:text-2xl font-bold font-heading ${s.color}`}>{s.value}</p>
             <p className="text-[11px] sm:text-xs text-neutral-300 mt-0.5">{s.label}</p>
           </div>
+          </CardSpotlight>
         ))}
       </div>
 
@@ -263,8 +260,8 @@ export default function ReleasesPage() {
         </div>
       ) : completedTracks.length === 0 ? (
         /* Empty state */
-        <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-teal/20 to-teal-600/20 flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center py-24 text-center gap-4 rounded-xl border-2 border-dotted border-lavender-600 bg-neutral-500/30">
+          <div className="w-20 h-20 rounded-3xl bg-lavender-700 flex items-center justify-center">
             <UploadCloud className="w-10 h-10 text-teal" />
           </div>
           <div>
@@ -275,7 +272,7 @@ export default function ReleasesPage() {
           </div>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal text-white text-sm font-semibold hover:bg-teal-600 transition-colors shadow-sm"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-teal text-white text-sm font-semibold hover:bg-teal-600 transition-colors"
           >
             <Sparkles className="w-4 h-4" /> Generate a Track
           </Link>
@@ -342,8 +339,9 @@ export default function ReleasesPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {inProgressTracks.map((track) => (
-                  <div key={track.id} className="bg-neutral-500 rounded-xl border border-lavender-600 p-4 flex items-center gap-3 opacity-60">
-                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${genreGradient(track.genre)} flex items-center justify-center shrink-0`}>
+                  <CardSpotlight key={track.id} color="#00d4ff">
+                  <div className="bg-neutral-500 rounded-xl p-4 flex items-center gap-3 opacity-60">
+                    <div className="w-10 h-10 rounded-lg bg-teal flex items-center justify-center shrink-0">
                       <Music className="w-4 h-4 text-white/80" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -354,6 +352,7 @@ export default function ReleasesPage() {
                       Generating…
                     </span>
                   </div>
+                  </CardSpotlight>
                 ))}
               </div>
             </section>

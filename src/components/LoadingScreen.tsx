@@ -1,22 +1,37 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { useIntro } from "@/components/IntroContext";
+import { useIntro, setIntroSeen, INTRO_SEEN_KEY } from "@/components/IntroContext";
 
 export default function LoadingScreen() {
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { setIntroVisible } = useIntro();
+  const forceIntro = searchParams.get("intro") === "1";
 
   useEffect(() => {
-    // Show loading screen for 1.5 seconds (between 1-2 seconds as requested)
+    if (typeof window === "undefined") return;
+    if (!forceIntro && localStorage.getItem(INTRO_SEEN_KEY)) {
+      setIsLoading(false);
+      setIntroVisible(false);
+      return;
+    }
+    if (pathname.startsWith("/dashboard") && !forceIntro) {
+      setIntroSeen();
+      setIsLoading(false);
+      setIntroVisible(false);
+      return;
+    }
     const timer = setTimeout(() => {
+      if (!forceIntro) setIntroSeen();
       setIsLoading(false);
       setIntroVisible(false);
     }, 1800);
-
     return () => clearTimeout(timer);
-  }, [setIntroVisible]);
+  }, [setIntroVisible, pathname, forceIntro]);
 
   return (
     <AnimatePresence>

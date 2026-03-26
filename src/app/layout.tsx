@@ -5,6 +5,7 @@ import NavbarWrapper from "@/components/NavbarWrapper";
 import FooterWrapper from "@/components/FooterWrapper";
 import LoadingScreen from "@/components/LoadingScreen";
 import ThemeToggleFixed from "@/components/ThemeToggleFixed";
+import { ThemeTransitionProvider } from "@/components/ThemeTransitionContext";
 import { AuthProvider } from "@/components/AuthContext";
 import { IntroProvider } from "@/components/IntroContext";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
@@ -13,6 +14,13 @@ import AuthStoreSync from "@/components/AuthStoreSync";
 export const metadata: Metadata = {
   title: "SargamAI - AI-Powered Music Lyrics Generator",
   description: "Transform your ideas into meaningful music lyrics with AI. Create beautiful songs with our intelligent lyrics generator.",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover" as const,
 };
 
 export default function RootLayout({
@@ -33,7 +41,8 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange={false} storageKey="sargam-theme">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange={true} storageKey="sargam-theme">
+          <ThemeTransitionProvider>
           <SessionProviderWrapper>
           <AuthStoreSync />
           <AuthProvider>
@@ -47,6 +56,7 @@ export default function RootLayout({
             </IntroProvider>
           </AuthProvider>
           </SessionProviderWrapper>
+          </ThemeTransitionProvider>
         </ThemeProvider>
       </body>
     </html>
