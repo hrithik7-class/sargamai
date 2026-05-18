@@ -1,452 +1,583 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import gsap from "gsap";
-import { 
-  Music, 
-  Sparkles, 
-  Wand2, 
-  Copy, 
-  Download, 
-  RefreshCw, 
-  Heart, 
-  Share2,
-  ChevronRight,
-  Layers,
-  Palette,
-  Mic,
-  Volume2,
-  Clock,
-  TrendingUp,
-  Users,
-  Play
+import {
+  motion, AnimatePresence, useInView,
+  useMotionValue, useTransform, animate,
+} from "framer-motion";
+import {
+  Music, Sparkles, Wand2, Copy, Download, Heart,
+  TrendingUp, Users, Play, Zap, Check, Star,
 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 
-const typingTexts = [
-  "AI-Powered Lyrics Generator",
-  "Write Beautiful Songs in Seconds",
-  "Your Creative Music Partner",
-  "Transform Ideas Into Music"
+/* ─── constants ──────────────────────────────────────── */
+
+const LYRICS_LINES = [
+  { tag: true,  text: "[Verse 1]" },
+  { tag: false, text: "In the silence of the dawn," },
+  { tag: false, text: "Where the broken pieces fall," },
+  { tag: false, text: "I've been searching for the light," },
+  { tag: false, text: "That was hidden in it all." },
+  { tag: true,  text: "[Chorus]" },
+  { tag: false, text: "We were made for something more," },
+  { tag: false, text: "Than the echoes at the door," },
+  { tag: false, text: "Let the music carry us," },
+  { tag: false, text: "To the shore we've waited for." },
+  { tag: true,  text: "[Bridge]" },
+  { tag: false, text: "Hold on, hold on to the fire," },
+  { tag: false, text: "We're climbing up from the wire," },
 ];
 
-const dashboardStats = [
-  { label: "Total Songs", value: "1,247", icon: Music, change: "+12%" },
-  { label: "Active Users", value: "3,892", icon: Users, change: "+8%" },
-  { label: "Plays", value: "45.2K", icon: Play, change: "+23%" },
+const STATS = [
+  { label: "Songs Created", value: 50000, suffix: "+", icon: Music,    trend: "+12%" },
+  { label: "Active Users",  value: 12000, suffix: "+", icon: Users,    trend: "+8%"  },
+  { label: "Genres",        value: 100,   suffix: "+", icon: Star,     trend: "New"  },
+  { label: "Avg Gen Time",  value: 3,     suffix: "s", icon: Zap,      trend: "Fast" },
 ];
 
-const recentSongs = [
-  { title: "Midnight Dreams", genre: "Pop", plays: "2.3K", date: "2 hours ago" },
-  { title: "Ocean Waves", genre: "Lo-Fi", plays: "1.8K", date: "5 hours ago" },
-  { title: "City Lights", genre: "R&B", plays: "3.1K", date: "1 day ago" },
+const ACTIVITY = [
+  { title: "Midnight Dreams", genre: "Pop",   plays: "2.3K", time: "2m ago",  live: true  },
+  { title: "Ocean Waves",     genre: "Lo-Fi", plays: "1.8K", time: "14m ago", live: false },
+  { title: "City Lights",     genre: "R&B",   plays: "3.1K", time: "1h ago",  live: false },
+  { title: "Neon Pulse",      genre: "EDM",   plays: "4.0K", time: "3h ago",  live: false },
 ];
 
-export default function DashboardPreview() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const dashboardRef = useRef<HTMLDivElement>(null);
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [displayText, setDisplayText] = useState("");
-  const [isTyping, setIsTyping] = useState(true);
+/* ─── Count-up ───────────────────────────────────────── */
 
-  // Typing effect
+function AnimatedNumber({ to, suffix }: { to: number; suffix: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const count = useMotionValue(0);
+  const display = useTransform(count, (v) =>
+    to >= 1000 ? `${(v / 1000).toFixed(v < to ? 1 : 0)}K` : Math.round(v).toString()
+  );
   useEffect(() => {
-    const text = typingTexts[currentTextIndex];
-    let index = 0;
+    if (!inView) return;
+    const c = animate(count, to, { duration: 1.6, ease: "easeOut" });
+    return c.stop;
+  }, [inView, to, count]);
+  return (
+    <span ref={ref} className="tabular-nums">
+      <motion.span>{display}</motion.span>{suffix}
+    </span>
+  );
+}
 
-    const typeInterval = setInterval(() => {
-      if (index <= text.length) {
-        setDisplayText(text.slice(0, index));
-        index++;
-      } else {
-        clearInterval(typeInterval);
-        setIsTyping(false);
-        setTimeout(() => {
-          setCurrentTextIndex((prev) => (prev + 1) % typingTexts.length);
-          setIsTyping(true);
-        }, 2000);
-      }
-    }, 80);
+/* ─── Waveform ───────────────────────────────────────── */
 
-    return () => clearInterval(typeInterval);
-  }, [currentTextIndex]);
+function Waveform({ active }: { active: boolean }) {
+  const heights = [4, 7, 11, 8, 14, 9, 12, 6, 13, 8, 5, 9, 11, 7, 4];
+  return (
+    <div className="flex items-center gap-[2.5px]" style={{ height: 24 }}>
+      {heights.map((h, i) => (
+        <motion.div
+          key={i}
+          className="w-[2px] rounded-full bg-teal"
+          animate={
+            active
+              ? { scaleY: [0.3, h / 8, 0.3], opacity: [0.4, 1, 0.4] }
+              : { scaleY: 0.25, opacity: 0.25 }
+          }
+          transition={{
+            duration: 0.7 + i * 0.04,
+            repeat: Infinity,
+            delay: i * 0.05,
+            ease: "easeInOut",
+          }}
+          style={{ height: `${h * 1.6}px`, transformOrigin: "center" }}
+        />
+      ))}
+    </div>
+  );
+}
 
-  // GSAP animations
+/* ─── Streaming lyrics ───────────────────────────────── */
+
+function LyricsStream({ playing }: { playing: boolean }) {
+  const [visible, setVisible] = useState(0);
   useEffect(() => {
-    if (!containerRef.current || !dashboardRef.current) return;
-
-    const ctx = gsap.context(() => {
-      // Dashboard entrance animation
-      gsap.fromTo(dashboardRef.current, 
-        { opacity: 0, y: 50, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 1, ease: "power3.out" }
-      );
-
-      // Floating elements animation
-      gsap.to(".dashboard-float", {
-        y: -10,
-        duration: 2,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        stagger: 0.3
-      });
-
-      // Stats cards animation
-      gsap.fromTo(".stat-card",
-        { opacity: 0, x: -20 },
-        { opacity: 1, x: 0, duration: 0.5, stagger: 0.1, delay: 0.5 }
-      );
-
-      // Recent songs animation
-      gsap.fromTo(".song-card",
-        { opacity: 0, x: 20 },
-        { opacity: 1, x: 0, duration: 0.5, stagger: 0.1, delay: 0.7 }
-      );
-
-      // Quick actions animation
-      gsap.fromTo(".quick-action",
-        { opacity: 0, scale: 0.8 },
-        { opacity: 1, scale: 1, duration: 0.4, stagger: 0.05, delay: 0.9 }
-      );
-
-      // Button hover effects
-      gsap.to(".generate-btn", {
-        boxShadow: "0 0 30px rgba(31, 122, 140, 0.5)",
-        duration: 1.5,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut"
-      });
-    }, containerRef.current);
-
-    return () => ctx.revert();
-  }, []);
+    if (!playing) { setVisible(0); return; }
+    setVisible(0);
+    let i = 0;
+    const id = setInterval(() => {
+      i++;
+      setVisible(i);
+      if (i >= LYRICS_LINES.length) clearInterval(id);
+    }, 280);
+    return () => clearInterval(id);
+  }, [playing]);
 
   return (
-    <section className="relative z-10 py-16 sm:py-32 bg-gradient-to-b from-lavender-800 to-neutral-500 overflow-hidden min-w-0">
-      {/* Background decorations */}
-      <div className="absolute inset-0">
-        <div className="absolute top-20 left-4 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-teal-400/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-4 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-teal-800/20 rounded-full blur-3xl" />
-      </div>
-
-      <div ref={containerRef} className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-w-0">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-10 sm:mb-16"
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-teal/20 border border-teal-600 text-teal text-xs sm:text-sm font-semibold mb-4 sm:mb-6">
-            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span>See SargamAI in Action</span>
-          </div>
-          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-jet-black font-heading">
-            <span className="text-teal">
-              Your Creative Dashboard
+    <div className="font-mono text-sm leading-7 space-y-0.5">
+      <AnimatePresence>
+        {LYRICS_LINES.slice(0, visible).map((line, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.22 }}
+            className="flex items-baseline gap-3"
+          >
+            <span className="text-lavender-600/40 text-[10px] w-4 text-right shrink-0 select-none">
+              {i + 1}
             </span>
+            <span className={line.tag ? "text-teal font-semibold" : "text-jet-black-600"}>
+              {line.text}
+            </span>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+      {playing && visible < LYRICS_LINES.length && (
+        <div className="flex items-baseline gap-3">
+          <span className="w-4 shrink-0" />
+          <motion.span
+            animate={{ opacity: [1, 0] }}
+            transition={{ duration: 0.5, repeat: Infinity }}
+            className="inline-block w-2 h-4 bg-teal rounded-sm"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Window dots ────────────────────────────────────── */
+
+function WindowDots() {
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+      <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
+      <div className="w-3 h-3 rounded-full bg-[#28c840]" />
+    </div>
+  );
+}
+
+/* ─── Main ───────────────────────────────────────────── */
+
+export default function DashboardPreview() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const inView = useInView(sectionRef, { once: true, margin: "-100px" });
+
+  const [progress, setProgress] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState("generate");
+
+  useEffect(() => {
+    if (!inView) return;
+    const t = setTimeout(() => {
+      setProgress(0);
+      setPlaying(false);
+      const id = setInterval(() => {
+        setProgress((p) => {
+          if (p >= 100) { clearInterval(id); setPlaying(true); return 100; }
+          return p + 2.5;
+        });
+      }, 32);
+      return () => clearInterval(id);
+    }, 500);
+    return () => clearTimeout(t);
+  }, [inView]);
+
+  const handleCopy = () => { setCopied(true); setTimeout(() => setCopied(false), 1800); };
+
+  return (
+    <section ref={sectionRef} className="relative z-10 py-24 sm:py-40 overflow-hidden">
+
+      {/* ── background ── */}
+      <div className="absolute inset-0 bg-[var(--page-bg)]" />
+      <div
+        className="absolute inset-0 opacity-[0.022]"
+        style={{
+          backgroundImage: "radial-gradient(circle at 1px 1px, var(--color-teal) 1px, transparent 0)",
+          backgroundSize: "30px 30px",
+        }}
+        aria-hidden
+      />
+      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] rounded-full blur-[160px] -translate-y-1/3 pointer-events-none" style={{ background: "rgba(0,212,255,0.05)" }} aria-hidden />
+      <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] rounded-full blur-[140px] translate-y-1/3 pointer-events-none" style={{ background: "rgba(0,212,255,0.04)" }} aria-hidden />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* ── header ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="mb-14 sm:mb-20 max-w-2xl"
+        >
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.05 }}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal/10 border border-teal/20 text-teal text-xs font-semibold uppercase tracking-widest mb-5"
+          >
+            <Sparkles className="w-3 h-3" strokeWidth={1.5} />
+            Product Demo
+          </motion.span>
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-heading text-jet-black leading-[1.1] tracking-tight mb-5">
+            Watch AI craft<br />
+            <span className="text-teal">your next hit.</span>
           </h2>
-          <p className="text-jet-black-600 text-sm sm:text-lg max-w-2xl mx-auto">
-            Experience the power of AI-driven lyrics generation with our intuitive dashboard
+          <p className="text-jet-black-600 text-base sm:text-lg leading-relaxed">
+            One prompt. Three seconds. Studio-ready lyrics — live.
           </p>
         </motion.div>
 
-        {/* Dynamic Typing Text */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-center mb-8 sm:mb-12"
-        >
-          <div className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-neutral-500 border border-lavender-500 shadow-sm max-w-[calc(100vw-1.5rem)] min-w-0">
-            <Wand2 className="w-4 h-4 sm:w-5 sm:h-5 text-teal shrink-0" />
-            <span className="text-sm sm:text-xl font-medium text-jet-black truncate min-w-0">
-              {displayText}
-              <span className="inline-block w-0.5 h-4 sm:h-6 bg-teal ml-1 animate-pulse shrink-0" />
-            </span>
-          </div>
-        </motion.div>
+        {/* ── two-column grid — equal 50/50, same height ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6 items-stretch">
 
-        {/* Dashboard Preview */}
-        <div ref={dashboardRef} className="relative">
-          {/* Main Dashboard Card */}
-          <div
-            className="bg-neutral-500 rounded-2xl sm:rounded-3xl shadow-2xl border border-lavender-500 overflow-hidden min-w-0"
+          {/* ════════════════ LEFT — app window ════════════════ */}
+          <motion.div
+            initial={{ opacity: 0, x: -32 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col h-full"
           >
-            {/* Dashboard Header */}
-            <motion.div
-              className="bg-gradient-to-r from-jet-black to-teal px-4 sm:px-8 py-4 sm:py-6"
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
-                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0">
-                    <Music className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            {/* Browser/app chrome */}
+            <div className="flex flex-col h-full rounded-2xl sm:rounded-3xl border border-lavender-600/30 bg-gradient-to-br from-lavender-800 to-lavender-700 overflow-hidden">
+
+              {/* Title bar */}
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-lavender-600/30 bg-lavender-900/60 shrink-0">
+                <WindowDots />
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-md bg-teal/10 border border-teal/20 flex items-center justify-center">
+                    <Music className="w-3 h-3 text-teal" strokeWidth={1.5} />
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="text-white font-bold text-lg sm:text-xl truncate">SargamAI Studio</h3>
-                    <p className="text-white/80 text-xs sm:text-sm">AI Lyrics Generator</p>
-                  </div>
+                  <span className="text-[13px] text-jet-black-600 font-medium">sargam-studio</span>
+                  <Badge className="bg-teal/10 text-teal border-teal/20 border text-[10px] px-2 py-0 ml-1">
+                    {progress < 100 ? "Generating…" : "Done"}
+                  </Badge>
                 </div>
-                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                  <div className="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/20 backdrop-blur text-white text-xs sm:text-sm">
-                    <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    <span className="truncate">Last used: 2 min ago</span>
-                  </div>
-                </div>
+                <Waveform active={playing} />
               </div>
-            </motion.div>
 
-            {/* Dashboard Body */}
-            <div className="p-4 sm:p-8 min-w-0">
-              <div className="grid lg:grid-cols-3 gap-4 sm:gap-8 min-w-0">
-                {/* Main Generator Panel */}
-                <div className="lg:col-span-2 space-y-4 sm:space-y-6 min-w-0">
-                  {/* Prompt Input */}
-                  <div className="bg-lavender-700 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-lavender-600 min-w-0">
-                    <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-teal flex items-center justify-center shrink-0">
-                        <Wand2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                      </div>
-                      <h4 className="font-semibold text-jet-black text-sm sm:text-base">Create New Lyrics</h4>
-                    </div>
-                    <textarea
-                      className="w-full min-w-0 h-24 sm:h-32 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-lavender-500 bg-neutral-500 focus:ring-2 focus:ring-teal focus:border-transparent resize-none text-jet-black text-xs sm:text-base placeholder-neutral-300"
-                      placeholder="Describe your song idea... e.g., 'A heartbreak song about losing someone you love, with pop influence and emotional lyrics'"
-                    />
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mt-3 sm:mt-4 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0">
-                        <select className="flex-1 min-w-0 max-w-[140px] sm:max-w-none px-3 py-2 rounded-lg border border-lavender-500 bg-neutral-500 text-jet-black text-xs sm:text-sm focus:ring-2 focus:ring-teal">
-                          <option>Pop</option>
-                          <option>Rock</option>
-                          <option>R&B</option>
-                          <option>Hip-Hop</option>
-                          <option>Country</option>
-                        </select>
-                        <select className="flex-1 min-w-0 max-w-[140px] sm:max-w-none px-3 py-2 rounded-lg border border-lavender-500 bg-neutral-500 text-jet-black text-xs sm:text-sm focus:ring-2 focus:ring-teal">
-                          <option>Happy</option>
-                          <option>Sad</option>
-                          <option>Energetic</option>
-                          <option>Romantic</option>
-                        </select>
-                      </div>
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="generate-btn w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl bg-teal text-white text-sm sm:text-base font-semibold flex items-center justify-center gap-2 shadow-lg shadow-teal-800/30"
+              {/* Tab bar */}
+              <div className="px-5 pt-3 pb-0 border-b border-lavender-600/20 shrink-0">
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="bg-transparent h-auto p-0 gap-0 rounded-none w-full justify-start">
+                    {[
+                      { value: "generate", label: "Generate", icon: Wand2 },
+                      { value: "edit",     label: "Edit",     icon: Music },
+                      { value: "export",   label: "Export",   icon: Download },
+                    ].map(({ value, label, icon: Icon }) => (
+                      <TabsTrigger
+                        key={value}
+                        value={value}
+                        className="relative px-4 py-2.5 text-xs font-medium rounded-none border-0 bg-transparent
+                                   text-jet-black-600 data-[state=active]:text-teal data-[state=active]:bg-transparent
+                                   data-[state=active]:shadow-none hover:text-jet-black transition-colors
+                                   after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px]
+                                   after:rounded-full after:bg-teal after:opacity-0
+                                   data-[state=active]:after:opacity-100"
                       >
-                        <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        Generate Lyrics
-                      </motion.button>
-                    </div>
-                  </div>
-
-                  {/* Generated Lyrics Preview */}
-                  <div className="bg-gradient-to-br from-lavender-600 to-lavender-500 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-teal-600/50 min-w-0">
-                    <div className="flex flex-wrap items-start justify-between gap-2 mb-3 sm:mb-4 min-w-0">
-                      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-teal flex items-center justify-center shrink-0">
-                          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                        </div>
-                        <h4 className="font-semibold text-jet-black text-sm sm:text-base">Generated Lyrics</h4>
-                      </div>
-                      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                        <motion.button
-                          whileHover={{ scale: 1.1, rotate: 5 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="p-2 rounded-lg bg-neutral-500 border border-lavender-500 text-jet-black-600 hover:text-teal hover:border-teal-800 transition-colors"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1, rotate: -5 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="p-2 rounded-lg bg-neutral-500 border border-lavender-500 text-jet-black-600 hover:text-teal hover:border-teal-800 transition-colors"
-                        >
-                          <Download className="w-4 h-4" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="p-2 rounded-lg bg-neutral-500 border border-lavender-500 text-jet-black-600 hover:text-red-500 hover:border-red-300 transition-colors"
-                        >
-                          <Heart className="w-4 h-4" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1, rotate: 10 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="p-2 rounded-lg bg-neutral-500 border border-lavender-500 text-jet-black-600 hover:text-teal hover:border-teal-800 transition-colors"
-                        >
-                          <Share2 className="w-4 h-4" />
-                        </motion.button>
-                      </div>
-                    </div>
-                    <div className="bg-neutral-500 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-lavender-600 min-w-0">
-                      <p className="text-jet-black-600 leading-relaxed text-xs sm:text-base">
-                        [Verse 1]<br/>
-                        In the darkness of the night,<br/>
-                        I see your face in the moonlight,<br/>
-                        Every memory we shared,<br/>
-                        Now it&apos;s just me who cared...
-                      </p>
-                      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-lavender-600 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 min-w-0">
-                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                          <span className="px-2.5 py-1 rounded-full bg-teal/20 border border-teal-600/50 text-teal text-[10px] sm:text-xs font-medium">Pop</span>
-                          <span className="px-2.5 py-1 rounded-full bg-teal-900 text-teal-700 text-[10px] sm:text-xs font-medium">Romantic</span>
-                        </div>
-                        <button className="text-teal text-xs sm:text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all w-full sm:w-auto justify-center sm:justify-start">
-                          View Full Lyrics <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sidebar Stats */}
-                <motion.div 
-                  className="space-y-4 sm:space-y-6 min-w-0"
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 }}
-                >
-                  {/* Quick Stats */}
-                  <div className="grid gap-3 sm:gap-4 min-w-0">
-                    {dashboardStats.map((stat, index) => (
-                      <motion.div
-                        key={index}
-                        className="stat-card bg-lavender-700 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-lavender-600 hover:shadow-md transition-shadow cursor-pointer min-w-0"
-                        whileHover={{ scale: 1.02, backgroundColor: "#1e293b" }}
-                        initial={{ opacity: 0, x: 20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 + 0.4 }}
-                      >
-                        <div className="flex items-center justify-between gap-2 min-w-0">
-                          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-teal flex items-center justify-center shrink-0">
-                              <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-neutral-300 text-xs sm:text-sm truncate">{stat.label}</p>
-                              <p className="text-jet-black font-bold text-lg sm:text-xl truncate">{stat.value}</p>
-                            </div>
-                          </div>
-                          <span className="text-green-600 text-xs sm:text-sm font-medium flex items-center gap-1 shrink-0">
-                            <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                            {stat.change}
-                          </span>
-                        </div>
-                      </motion.div>
+                        <Icon className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        {label}
+                      </TabsTrigger>
                     ))}
-                  </div>
+                  </TabsList>
 
-                  {/* Recent Songs */}
-                  <div className="bg-lavender-700 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-lavender-600 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-3 sm:mb-4">
-                      <h4 className="font-semibold text-jet-black text-sm sm:text-base">Recent Creations</h4>
-                      <button className="text-teal text-xs sm:text-sm font-medium shrink-0">View All</button>
+                  {/* ── Generate tab ── */}
+                  <TabsContent value="generate" className="mt-0">
+                    <div className="flex flex-col" style={{ height: 460 }}>
+
+                      {/* Prompt row */}
+                      <div className="px-5 py-4 border-b border-lavender-600/20 shrink-0">
+                        <div className="flex items-start gap-3">
+                          <div className="w-7 h-7 rounded-full bg-teal flex items-center justify-center shrink-0 mt-0.5">
+                            <span className="text-lavender-900 text-[11px] font-bold">U</span>
+                          </div>
+                          <p className="text-jet-black-600 text-sm leading-relaxed">
+                            A hopeful love song about finding light after a dark season.
+                            Uplifting chorus, emotionally raw verse, 4/4 time, Pop.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Progress row */}
+                      <div className="px-5 py-3 shrink-0 border-b border-lavender-600/20">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="flex items-center gap-2 text-[11px] text-jet-black-600">
+                            <motion.span
+                              animate={progress < 100 ? { opacity: [1, 0.3] } : { opacity: 1 }}
+                              transition={{ duration: 0.7, repeat: progress < 100 ? Infinity : 0 }}
+                              className="w-1.5 h-1.5 rounded-full bg-teal"
+                            />
+                            {progress < 100 ? `Generating lyrics… ${progress}%` : "Generation complete"}
+                          </span>
+                          {progress === 100 && (
+                            <span className="flex items-center gap-1 text-[11px] text-teal font-medium">
+                              <Check className="w-3 h-3" /> Done
+                            </span>
+                          )}
+                        </div>
+                        <Progress value={progress} className="h-1 bg-lavender-600/30" />
+                      </div>
+
+                      {/* Lyrics scroll area */}
+                      <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-none">
+                        <LyricsStream playing={playing} />
+                      </div>
+
+                      {/* Action footer */}
+                      <div className="px-5 py-3 border-t border-lavender-600/20 flex items-center justify-between shrink-0 bg-lavender-900/30">
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-teal/10 text-teal border-teal/20 border text-[11px]">Pop</Badge>
+                          <Badge variant="outline" className="border-lavender-600/40 text-jet-black-600 text-[11px]">Hopeful</Badge>
+                          <Badge variant="outline" className="border-lavender-600/40 text-jet-black-600 text-[11px]">4/4</Badge>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {[
+                            { icon: copied ? Check : Copy, action: handleCopy, color: copied ? "text-teal" : "" },
+                            { icon: Download, action: () => {}, color: "" },
+                            { icon: Heart,    action: () => {}, color: "hover:text-red-400" },
+                          ].map(({ icon: Icon, action, color }, i) => (
+                            <motion.button
+                              key={i}
+                              whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                              onClick={action}
+                              className={`w-8 h-8 rounded-lg bg-lavender-600/20 border border-lavender-600/20 flex items-center justify-center text-jet-black-600 hover:text-teal hover:border-teal/20 transition-colors ${color}`}
+                            >
+                              <Icon className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            </motion.button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-2 sm:space-y-3">
-                      {recentSongs.map((song, index) => (
+                  </TabsContent>
+
+                  {/* ── Edit tab ── */}
+                  <TabsContent value="edit" className="mt-0">
+                    <div className="flex flex-col px-5 py-5 gap-3" style={{ height: 460 }}>
+                      <p className="text-jet-black-600 text-sm">Refine with natural language prompts</p>
+                      {[
+                        { text: "Make the chorus more uplifting and anthemic", done: true  },
+                        { text: "Add a bridge with a key change in the third verse", done: true  },
+                        { text: "Make verse 2 more introspective and personal",  done: false },
+                      ].map((item, i) => (
                         <motion.div
-                          key={index}
-                          className="flex items-center justify-between gap-2 p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-neutral-500 border border-lavender-600 hover:border-teal-800 cursor-pointer transition-colors min-w-0"
-                          whileHover={{ scale: 1.02 }}
+                          key={i}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.09 }}
+                          className="flex items-center gap-3 p-3.5 rounded-xl bg-lavender-900/50 border border-lavender-600/20"
                         >
-                          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-teal/20 border border-teal-600/50 flex items-center justify-center shrink-0">
-                              <Music className="w-4 h-4 sm:w-5 sm:h-5 text-teal" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-medium text-jet-black text-xs sm:text-sm truncate">{song.title}</p>
-                              <p className="text-neutral-300 text-[10px] sm:text-xs truncate">{song.genre} • {song.date}</p>
-                            </div>
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${item.done ? "bg-teal/20" : "border border-lavender-600/50"}`}>
+                            {item.done && <Check className="w-3 h-3 text-teal" />}
                           </div>
-                          <div className="flex items-center gap-1 text-neutral-300 text-[10px] sm:text-xs shrink-0">
-                            <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                            {song.plays}
-                          </div>
+                          <p className={`text-sm flex-1 ${item.done ? "text-jet-black-600" : "text-jet-black"}`}>{item.text}</p>
+                          <Badge className={`text-[10px] shrink-0 ${item.done ? "bg-teal/10 text-teal border border-teal/20" : "bg-lavender-600/20 text-jet-black-600 border border-lavender-600/30"}`}>
+                            {item.done ? "done" : "pending"}
+                          </Badge>
                         </motion.div>
                       ))}
+                      <div className="flex gap-2 mt-auto">
+                        <input
+                          readOnly
+                          placeholder="Describe a refinement…"
+                          className="flex-1 px-3.5 py-2.5 rounded-xl bg-lavender-900/50 border border-lavender-600/20 text-jet-black text-sm placeholder-jet-black-600 focus:outline-none"
+                        />
+                        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                          className="px-5 py-2.5 rounded-xl bg-teal text-lavender-900 text-sm font-semibold shrink-0">
+                          Apply
+                        </motion.button>
+                      </div>
                     </div>
-                  </div>
+                  </TabsContent>
 
-                  {/* Quick Actions */}
-                  <div className="bg-gradient-to-br from-jet-black to-teal rounded-xl sm:rounded-2xl p-4 sm:p-5 text-white min-w-0">
-                    <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Quick Actions</h4>
-                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  {/* ── Export tab ── */}
+                  <TabsContent value="export" className="mt-0">
+                    <div className="flex flex-col px-5 py-5 gap-3" style={{ height: 460 }}>
+                      <p className="text-jet-black-600 text-sm">Export your lyrics</p>
                       {[
-                        { icon: Layers, label: "New Project" },
-                        { icon: Palette, label: "Templates" },
-                        { icon: Mic, label: "Record" },
-                        { icon: Volume2, label: "Export" },
-                      ].map((action, index) => (
+                        { format: "PDF Document", ext: ".pdf", desc: "Print-ready layout",          icon: Download },
+                        { format: "Plain Text",   ext: ".txt", desc: "Clean copy for your DAW",     icon: Copy     },
+                        { format: "Markdown",     ext: ".md",  desc: "For Notion, Obsidian & more", icon: Sparkles },
+                      ].map((item, i) => (
                         <motion.button
-                          key={index}
-                          className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-white/20 backdrop-blur hover:bg-white/30 transition-colors min-w-0"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
+                          key={i}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.07 }}
+                          whileHover={{ scale: 1.015 }}
+                          whileTap={{ scale: 0.985 }}
+                          className="flex items-center gap-4 p-4 rounded-xl bg-lavender-900/50 border border-lavender-600/20 hover:border-teal/20 hover:bg-lavender-900/70 transition-all text-left"
                         >
-                          <action.icon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                          <span className="text-[10px] sm:text-xs font-medium text-center">{action.label}</span>
+                          <div className="w-10 h-10 rounded-xl bg-teal/10 border border-teal/15 flex items-center justify-center shrink-0">
+                            <item.icon className="w-5 h-5 text-teal" strokeWidth={1.5} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-jet-black text-sm font-medium">{item.format}</p>
+                            <p className="text-jet-black-600 text-xs mt-0.5">{item.desc}</p>
+                          </div>
+                          <Badge variant="outline" className="border-lavender-600/30 text-jet-black-600 text-[10px] shrink-0">{item.ext}</Badge>
                         </motion.button>
                       ))}
                     </div>
-                  </div>
-                </motion.div>
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
-          </div>
-
-          {/* Floating Elements */}
-          <motion.div 
-            className="dashboard-float absolute -top-4 -left-4 sm:-top-6 sm:-left-6 w-14 h-14 sm:w-20 sm:h-20 bg-teal rounded-xl sm:rounded-2xl shadow-xl flex items-center justify-center"
-          >
-            <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </motion.div>
-          <motion.div 
-            className="dashboard-float absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 w-12 h-12 sm:w-16 sm:h-16 bg-teal-600 rounded-xl sm:rounded-2xl shadow-xl flex items-center justify-center"
-            style={{ animationDelay: "0.5s" }}
-          >
-            <Music className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
-          </motion.div>
-        </div>
 
-        {/* Feature Highlights */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-8 sm:mt-12 min-w-0"
-        >
-          {[
-            { title: "Smart Generation", desc: "AI-powered lyrics that match your vision", icon: Sparkles },
-            { title: "50+ Genres", desc: "From pop to classical, we cover it all", icon: Music },
-            { title: "Easy Export", desc: "Download in multiple formats", icon: Download },
-            { title: "Collaboration", desc: "Work with your team in real-time", icon: Users },
-          ].map((feature, index) => (
+          {/* ════════════════ RIGHT — stats + activity ════════════════ */}
+          <motion.div
+            initial={{ opacity: 0, x: 32 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.65, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col gap-4 h-full"
+          >
+
+            {/* Prompt summary card */}
+            <Card className="border-lavender-600/30 bg-gradient-to-br from-lavender-800 to-lavender-700 shadow-none gap-0 shrink-0">
+              <CardHeader className="px-5 pt-5 pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm text-jet-black font-semibold">Your Prompt</CardTitle>
+                  <Badge className="bg-teal/10 text-teal border-teal/20 border text-[10px]">Active</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="px-5 pb-5">
+                <p className="text-jet-black-600 text-sm leading-relaxed mb-4">
+                  "A hopeful love song about finding light after a dark season…"
+                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {["Pop", "Hopeful", "4/4 time", "Verse + Chorus"].map((tag) => (
+                    <Badge key={tag} variant="outline" className="border-lavender-600/40 text-jet-black-600 text-[11px]">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Stats 2×2 */}
+            <div className="grid grid-cols-2 gap-3 shrink-0">
+              {STATS.map((s, i) => (
+                <motion.div
+                  key={s.label}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.18 + i * 0.07 }}
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                >
+                  <Card className="border-lavender-600/30 bg-gradient-to-br from-lavender-800 to-lavender-700 shadow-none gap-0 py-0">
+                    <CardContent className="px-4 py-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="w-8 h-8 rounded-lg bg-teal/10 border border-teal/15 flex items-center justify-center">
+                          <s.icon className="w-4 h-4 text-teal" strokeWidth={1.5} />
+                        </div>
+                        <span className="text-[10px] text-teal font-medium bg-teal/10 px-1.5 py-0.5 rounded-md">
+                          {s.trend}
+                        </span>
+                      </div>
+                      <p className="text-2xl font-bold font-heading text-jet-black leading-none mb-1">
+                        <AnimatedNumber to={s.value} suffix={s.suffix} />
+                      </p>
+                      <p className="text-[11px] text-jet-black-600">{s.label}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Activity feed — flex-1 fills remaining height */}
             <motion.div
-              key={index}
+              className="flex-1 min-h-0"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="text-center p-4 sm:p-6 min-w-0"
+              transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 rounded-xl sm:rounded-2xl bg-teal/20 border border-teal-600/50 flex items-center justify-center">
-                <feature.icon className="w-6 h-6 sm:w-7 sm:h-7 text-teal" />
-              </div>
-              <h5 className="font-semibold text-jet-black mb-1.5 sm:mb-2 font-heading text-sm sm:text-base">{feature.title}</h5>
-              <p className="text-neutral-300 text-xs sm:text-sm">{feature.desc}</p>
+              <Card className="border-lavender-600/30 bg-gradient-to-br from-lavender-800 to-lavender-700 shadow-none gap-0 h-full flex flex-col">
+                <CardHeader className="px-5 pt-4 pb-3 shrink-0">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm text-jet-black">Recent Activity</CardTitle>
+                    <div className="flex items-center gap-1.5">
+                      <motion.span
+                        animate={{ opacity: [1, 0.25] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                        className="w-1.5 h-1.5 rounded-full bg-teal"
+                      />
+                      <span className="text-[11px] text-teal font-medium">Live</span>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <Separator className="bg-lavender-600/25 shrink-0" />
+
+                <CardContent className="px-5 pt-3 pb-4 flex-1 space-y-1 overflow-y-auto">
+                  {ACTIVITY.map((song, i) => (
+                    <motion.div
+                      key={song.title}
+                      initial={{ opacity: 0, x: 10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.35 + i * 0.06 }}
+                      className="group flex items-center gap-3 py-2.5 rounded-xl px-2 hover:bg-lavender-600/15 transition-colors cursor-default"
+                    >
+                      {/* Icon with live ring */}
+                      <div className="relative shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-teal/10 border border-teal/15 flex items-center justify-center">
+                          <Music className="w-4 h-4 text-teal" strokeWidth={1.5} />
+                        </div>
+                        {song.live && (
+                          <>
+                            <motion.span
+                              animate={{ scale: [1, 2], opacity: [0.6, 0] }}
+                              transition={{ duration: 1.3, repeat: Infinity }}
+                              className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-teal"
+                            />
+                            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-teal" />
+                          </>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="text-jet-black text-sm font-medium truncate group-hover:text-teal transition-colors">
+                          {song.title}
+                        </p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Badge className="bg-teal/8 text-teal border border-teal/15 text-[10px] px-1.5 py-0">
+                            {song.genre}
+                          </Badge>
+                          <span className="text-[11px] text-jet-black-600">{song.time}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 text-jet-black-600 text-xs shrink-0">
+                        <Play className="w-3 h-3" strokeWidth={1.5} />
+                        {song.plays}
+                      </div>
+                    </motion.div>
+                  ))}
+                </CardContent>
+
+                <Separator className="bg-lavender-600/25 shrink-0" />
+
+                <CardContent className="px-5 py-3 shrink-0">
+                  <div className="flex items-center justify-between text-[11px] text-jet-black-600">
+                    <span className="flex items-center gap-1.5">
+                      <TrendingUp className="w-3 h-3 text-teal" />
+                      +23% plays this week
+                    </span>
+                    <button className="text-teal hover:underline font-medium">View all</button>
+                  </div>
+                </CardContent>
+              </Card>
             </motion.div>
-          ))}
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );

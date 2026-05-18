@@ -10,7 +10,7 @@ import HowItWorks from "@/components/HowItWorks";
 import CompanyTicker from "@/components/CompanyTicker";
 import Testimonials from "@/components/Testimonials";
 import { useAuth } from "@/components/AuthContext";
-import { Zap, Settings, RefreshCw, ArrowRight, Play, ChevronRight, Music, MessageSquare, Sparkles, CheckCircle } from "lucide-react";
+import { Zap, Settings, RefreshCw, ArrowRight, Play, Music } from "lucide-react";
 
 const rotatingWords = ["lyrics", "music", "singing", "composing", "playing"];
 
@@ -296,85 +296,86 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="relative z-10 py-20 sm:py-36 overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-neutral-500 via-pale-sky-900 to-neutral-500" />
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 50% 30%, var(--color-teal) 1px, transparent 1px)", backgroundSize: "24px 24px" }} aria-hidden />
-        <div className="absolute top-1/4 left-0 w-72 h-72 bg-teal-500/10 rounded-full blur-3xl -translate-x-1/2" aria-hidden />
-        <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-teal-700/10 rounded-full blur-3xl translate-x-1/3" aria-hidden />
+      <section id="features" className="relative z-10 py-24 sm:py-40 overflow-hidden">
+        <div className="absolute inset-0 bg-[var(--page-bg)]" />
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage: "radial-gradient(circle at 1px 1px, var(--color-teal) 1px, transparent 0)",
+            backgroundSize: "28px 28px",
+          }}
+          aria-hidden
+        />
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px] -translate-y-1/2 pointer-events-none" style={{ background: "rgba(0,212,255,0.05)" }} aria-hidden />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full blur-[100px] translate-y-1/3 pointer-events-none" style={{ background: "rgba(0,212,255,0.04)" }} aria-hidden />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-w-0">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 32 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-            className="text-center mb-12 sm:mb-20"
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-16 sm:mb-24 max-w-2xl"
           >
             <motion.span
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="inline-block px-3 py-1.5 rounded-full bg-teal-900/20 border border-teal-800/40 text-teal text-xs font-semibold uppercase tracking-wider mb-4"
+              transition={{ delay: 0.05, duration: 0.4 }}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal/10 border border-teal/20 text-teal text-xs font-semibold uppercase tracking-widest mb-5"
             >
+              <span className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" />
               Why SargamAI
             </motion.span>
-            <h2 className="text-2xl sm:text-4xl min-[400px]:text-3xl font-bold mb-4 sm:mb-5 text-jet-black font-heading">
-              <span className="text-teal">Powerful Features</span>
+
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-heading text-jet-black leading-[1.1] tracking-tight mb-5">
+              Create music<br />
+              <span className="text-teal">without limits.</span>
             </h2>
-            <p className="text-jet-black-600 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
-              Everything you need to create professional lyrics that resonate
+
+            <p className="text-jet-black-600 text-base sm:text-lg leading-relaxed max-w-xl">
+              Every tool you need to craft professional lyrics — from instant generation to studio-ready exports.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6 sm:gap-8 min-w-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 auto-rows-auto">
             <FeatureCard
+              variant="hero"
               title="Instant Generation"
-              description="Get unique, meaningful lyrics in seconds. Just describe your idea and watch the magic happen."
+              description="Describe your mood, story, or feeling in plain words and receive full studio-quality lyrics in under 3 seconds. Powered by our proprietary music-language model."
               icon={Zap}
-              gradient="from-teal to-teal-700"
-              chart={true}
+              stat="3s"
+              statLabel="Average generation time"
               chartData={[
-                { label: 'Jan', value: 30 },
-                { label: 'Feb', value: 45 },
-                { label: 'Mar', value: 60 },
-                { label: 'Apr', value: 55 },
-                { label: 'May', value: 80 },
-                { label: 'Jun', value: 95 },
+                { label: "Jan", value: 30 },
+                { label: "Feb", value: 45 },
+                { label: "Mar", value: 60 },
+                { label: "Apr", value: 55 },
+                { label: "May", value: 80 },
+                { label: "Jun", value: 95 },
               ]}
               delay={0}
             />
             <FeatureCard
+              variant="tall"
               title="50+ Genres"
-              description="From pop to rock, hip-hop to country. Every genre has its unique voice and style."
+              description="From Bollywood to Trap, Lo-Fi to Gospel. Every genre has a unique voice — and SargamAI speaks all of them fluently."
               icon={Music}
-              gradient="from-teal-600 to-teal"
-              chart={true}
-              chartData={[
-                { label: 'Jan', value: 40 },
-                { label: 'Feb', value: 55 },
-                { label: 'Mar', value: 70 },
-                { label: 'Apr', value: 65 },
-                { label: 'May', value: 85 },
-                { label: 'Jun', value: 90 },
-              ]}
               delay={0.1}
+              genres={["Pop", "Rock", "Hip-Hop", "R&B", "Lo-Fi", "Jazz", "Country", "EDM"]}
             />
             <FeatureCard
+              variant="small"
               title="Smart Editing"
-              description="Refine and customize your lyrics with simple prompts. Make it truly yours with AI assistance."
+              description="Refine with natural language. Tell the AI to make it darker, punchier, or more poetic — and watch it adapt instantly."
               icon={Settings}
-              gradient="from-teal-500 to-teal-600"
-              chart={true}
-              chartData={[
-                { label: 'Jan', value: 35 },
-                { label: 'Feb', value: 50 },
-                { label: 'Mar', value: 65 },
-                { label: 'Apr', value: 75 },
-                { label: 'May', value: 70 },
-                { label: 'Jun', value: 85 },
-              ]}
+              delay={0.15}
+            />
+            <FeatureCard
+              variant="small"
+              title="Export Ready"
+              description="Download lyrics as PDF, plain text, or copy directly into your DAW notes. Professional formatting included."
+              icon={RefreshCw}
               delay={0.2}
             />
           </div>

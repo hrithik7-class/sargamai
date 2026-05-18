@@ -1,23 +1,28 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { createPortal } from "react-dom";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   Loader2,
   Music,
-  ChevronDown,
+  Music2,
   Shield,
   ShieldAlert,
   AlertCircle,
   ChevronRight,
   RefreshCw,
+  Copy,
+  Check,
+  ArrowRight,
+  Tag,
+  Languages,
+  FileText,
+  Download,
+  Mic2,
 } from "lucide-react";
 import AudioPlayer from "@/components/AudioPlayer";
-import { CardSpotlight } from "@/components/ui/card-spotlight";
-import { Button as StatefulButton } from "@/components/ui/stateful-button";
 import {
   generateLyrics,
   generateAudio,
@@ -29,6 +34,9 @@ import {
   type CopyrightCheckResponse,
   ApiError,
 } from "@/lib/api";
+import { downloadLyricsPdf } from "@/lib/pdf";
+
+/* ─── constants ─────────────────────────────────────────── */
 
 const GENRES = [
   "Pop", "Rock", "Hip-Hop", "R&B", "Jazz", "Electronic",
@@ -36,16 +44,17 @@ const GENRES = [
 ];
 
 const LANGUAGES = [
-  { value: "english", label: "English" },
-  { value: "hindi", label: "Hindi (हिंदी)" },
+  { value: "english",  label: "English" },
+  { value: "hindi",    label: "Hindi" },
   { value: "hinglish", label: "Hinglish" },
-  { value: "punjabi", label: "Punjabi (ਪੰਜਾਬੀ)" },
-  { value: "auto", label: "Auto-detect" },
+  { value: "punjabi",  label: "Punjabi" },
+  { value: "auto",     label: "Auto" },
 ];
 
 const STORAGE_KEY = "sargam-create-music-draft";
-
 type Step = "input" | "lyrics" | "generating" | "done";
+
+/* ─── draft helpers ─────────────────────────────────────── */
 
 function loadDraft(): { prompt: string; genre: string; language: string; lyricsResult: LyricsGenerateResponse } | null {
   if (typeof window === "undefined") return null;
@@ -60,57 +69,48 @@ function loadDraft(): { prompt: string; genre: string; language: string; lyricsR
       language: String(parsed.language ?? "english"),
       lyricsResult: parsed.lyricsResult,
     };
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 function saveDraft(prompt: string, genre: string, language: string, lyricsResult: LyricsGenerateResponse | null) {
   if (typeof window === "undefined" || !lyricsResult) return;
-  try {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ prompt, genre, language, lyricsResult })
-    );
-  } catch {
-    /* ignore */
-  }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ prompt, genre, language, lyricsResult })); } catch { /* */ }
 }
 
 function clearDraft() {
   if (typeof window === "undefined") return;
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    /* ignore */
-  }
+  try { localStorage.removeItem(STORAGE_KEY); } catch { /* */ }
 }
 
-function SectionTag({ tag }: { tag: string }) {
+/* ─── lyrics display ────────────────────────────────────── */
+
+function SectionDivider({ tag }: { tag: string }) {
   return (
-    <span className="inline-block text-[10px] font-semibold text-teal uppercase tracking-wider bg-teal/10 border border-teal/20 rounded px-1.5 py-0.5 mb-0.5">
-      {tag}
-    </span>
+    <div className="flex items-center gap-4 my-7 first:mt-2">
+      <div className="flex-1 h-px bg-lavender-600/40" />
+      <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-teal shrink-0 px-1">
+        {tag}
+      </span>
+      <div className="flex-1 h-px bg-lavender-600/40" />
+    </div>
   );
 }
 
-/** Render lyrics with highlighted section tags */
 function LyricsDisplay({ lyrics }: { lyrics: string }) {
   const lines = lyrics.split("\n");
+
   return (
-    <div className="space-y-0.5 text-xs sm:text-sm font-mono leading-relaxed text-jet-black">
+    <div className="select-text">
       {lines.map((line, i) => {
         const tagMatch = line.trim().match(/^\[(.+)\]$/);
-        if (tagMatch) {
-          return (
-            <div key={i} className="pt-2 first:pt-0">
-              <SectionTag tag={tagMatch[1]} />
-            </div>
-          );
-        }
+        if (tagMatch) return <SectionDivider key={i} tag={tagMatch[1]} />;
+        if (line.trim() === "") return <div key={i} className="h-4" />;
         return (
-          <p key={i} className={line.trim() === "" ? "h-2" : ""}>
-            {line || "\u00A0"}
+          <p
+            key={i}
+            className="text-[15px] text-jet-black leading-[1.9] tracking-[0.01em]"
+          >
+            {line}
           </p>
         );
       })}
@@ -118,7 +118,6 @@ function LyricsDisplay({ lyrics }: { lyrics: string }) {
   );
 }
 
-/** Streaming lyrics display - reveals text progressively */
 function StreamingLyricsDisplay({
   lyrics,
   onComplete,
@@ -133,52 +132,99 @@ function StreamingLyricsDisplay({
   const fullLen = lyrics.length;
 
   useEffect(() => {
-    if (displayedLength >= fullLen) {
-      setDone(true);
-      onComplete?.();
-      return;
-    }
+    if (displayedLength >= fullLen) { setDone(true); onComplete?.(); return; }
     const timer = setInterval(() => {
-      setDisplayedLength((prev) => {
-        const next = Math.min(prev + speed, fullLen);
-        return next;
-      });
+      setDisplayedLength((prev) => Math.min(prev + speed, fullLen));
     }, 20);
     return () => clearInterval(timer);
   }, [displayedLength, fullLen, speed, onComplete]);
 
-  const displayed = lyrics.slice(0, displayedLength);
   return (
     <>
-      <LyricsDisplay lyrics={displayed} />
+      <LyricsDisplay lyrics={lyrics.slice(0, displayedLength)} />
       {!done && (
-        <span className="inline-block w-2 h-4 ml-0.5 bg-teal animate-pulse align-baseline" />
+        <span className="inline-block w-0.5 h-5 ml-0.5 bg-teal animate-pulse align-middle" />
       )}
     </>
   );
 }
 
+/* ─── small components ──────────────────────────────────── */
+
 function CopyrightBadge({ result }: { result: CopyrightCheckResponse }) {
-  if (result.note) {
+  if (result.note)
     return (
-      <span className="inline-flex items-center gap-1 text-xs text-neutral-300">
-        <AlertCircle className="w-3 h-3" /> Check unavailable
+      <span className="inline-flex items-center gap-1 text-xs text-neutral-400">
+        <AlertCircle className="w-3 h-3" /> Unavailable
       </span>
     );
-  }
-  if (result.safe) {
+  if (result.safe)
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-teal bg-teal/10 border border-teal/20 rounded-full px-2.5 py-0.5">
-        <Shield className="w-3 h-3" /> Copyright safe ({result.score.toFixed(0)}% match)
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-teal bg-teal/10 border border-teal/20 rounded-full px-2.5 py-1">
+        <Shield className="w-3 h-3" /> Safe ({result.score.toFixed(0)}%)
       </span>
     );
-  }
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-teal bg-teal/10 border border-teal-600/50 rounded-full px-2.5 py-0.5">
-      <ShieldAlert className="w-3 h-3" /> Potential match ({result.score.toFixed(0)}% similar)
+    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-full px-2.5 py-1">
+      <ShieldAlert className="w-3 h-3" /> Review ({result.score.toFixed(0)}%)
     </span>
   );
 }
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-lavender-600/60 text-xs font-medium text-neutral-400 hover:text-jet-black hover:bg-lavender-700 transition-all duration-200"
+    >
+      {copied ? (
+        <><Check className="w-3 h-3 text-teal" /> Copied!</>
+      ) : (
+        <><Copy className="w-3 h-3" /> Copy</>
+      )}
+    </button>
+  );
+}
+
+/* ─── step breadcrumb ───────────────────────────────────── */
+
+const STEPS = ["Describe", "Review Lyrics", "Generate Song"] as const;
+
+function StepBreadcrumb({ step }: { step: Step }) {
+  const activeIndex = step === "input" ? 0 : step === "lyrics" ? 1 : 2;
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap">
+      {STEPS.map((label, i) => (
+        <div key={label} className="flex items-center gap-1.5">
+          <div
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+              i < activeIndex
+                ? "bg-teal/15 text-teal border border-teal/20"
+                : i === activeIndex
+                ? "bg-teal text-white shadow-sm"
+                : "bg-lavender-700/60 text-neutral-500 border border-lavender-600/40"
+            }`}
+          >
+            {i < activeIndex && <Check className="w-3 h-3" />}
+            {label}
+          </div>
+          {i < STEPS.length - 1 && (
+            <ChevronRight className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─── main component ────────────────────────────────────── */
 
 export default function CreateMusicCard() {
   const { data: session, update: updateSession } = useSession();
@@ -188,30 +234,6 @@ export default function CreateMusicCard() {
   const [prompt, setPrompt] = useState("");
   const [genre, setGenre] = useState("Pop");
   const [language, setLanguage] = useState("english");
-  const [showGenreDropdown, setShowGenreDropdown] = useState(false);
-  const [showLangDropdown, setShowLangDropdown] = useState(false);
-
-  const langTriggerRef = useRef<HTMLButtonElement>(null);
-  const genreTriggerRef = useRef<HTMLButtonElement>(null);
-  const [langDropdownRect, setLangDropdownRect] = useState<{ top: number; left: number } | null>(null);
-  const [genreDropdownRect, setGenreDropdownRect] = useState<{ top: number; left: number } | null>(null);
-
-  useEffect(() => {
-    if (showLangDropdown && langTriggerRef.current) {
-      const r = langTriggerRef.current.getBoundingClientRect();
-      setLangDropdownRect({ top: r.bottom + 4, left: r.left });
-    } else {
-      setLangDropdownRect(null);
-    }
-  }, [showLangDropdown]);
-  useEffect(() => {
-    if (showGenreDropdown && genreTriggerRef.current) {
-      const r = genreTriggerRef.current.getBoundingClientRect();
-      setGenreDropdownRect({ top: r.bottom + 4, left: r.left });
-    } else {
-      setGenreDropdownRect(null);
-    }
-  }, [showGenreDropdown]);
 
   const [lyricsResult, setLyricsResult] = useState<LyricsGenerateResponse | null>(null);
   const [streamingComplete, setStreamingComplete] = useState(false);
@@ -219,7 +241,21 @@ export default function CreateMusicCard() {
   const [track, setTrack] = useState<Track | null>(null);
 
   const [lyricsLoading, setLyricsLoading] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [copyrightLoading, setCopyrightLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [audioUnavailable, setAudioUnavailable] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);
+
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const accessTokenRef = useRef(accessToken);
+  accessTokenRef.current = accessToken;
+
+  const clearPoll = () => {
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+  };
+
+  useEffect(() => () => clearPoll(), []);
 
   useEffect(() => {
     const draft = loadDraft();
@@ -238,95 +274,54 @@ export default function CreateMusicCard() {
     if (!hasHydrated || !lyricsResult) return;
     saveDraft(prompt, genre, language, lyricsResult);
   }, [hasHydrated, prompt, genre, language, lyricsResult]);
-  const [audioLoading, setAudioLoading] = useState(false);
-  const [copyrightLoading, setCopyrightLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const clearPoll = () => {
-    if (pollRef.current) {
-      clearInterval(pollRef.current);
-      pollRef.current = null;
-    }
-  };
-
-  useEffect(() => () => clearPoll(), []);
-
-  const accessTokenRef = useRef(accessToken);
-  accessTokenRef.current = accessToken;
-
-  const startPoll = useCallback(
-    (trackId: number, token?: string) => {
-      const t = token ?? accessTokenRef.current;
-      if (!t) return;
-      clearPoll();
-      pollRef.current = setInterval(async () => {
-        try {
-          const updated = await fetchTrack(trackId, accessTokenRef.current ?? t);
-          setTrack(updated);
-          if (updated.status === "completed" || updated.status === "failed") {
-            clearPoll();
-            setAudioLoading(false);
-            setStep(updated.status === "completed" ? "done" : "lyrics");
-            if (updated.status === "failed") {
-              setError(updated.error_message ?? "Audio generation failed. Please try again.");
-            }
-          }
-        } catch {
-          // keep polling; token may refresh via session
+  const startPoll = useCallback((trackId: number, token?: string) => {
+    const t = token ?? accessTokenRef.current;
+    if (!t) return;
+    clearPoll();
+    pollRef.current = setInterval(async () => {
+      try {
+        const updated = await fetchTrack(trackId, accessTokenRef.current ?? t);
+        setTrack(updated);
+        if (updated.status === "completed" || updated.status === "failed") {
+          clearPoll();
+          setAudioLoading(false);
+          setStep(updated.status === "completed" ? "done" : "lyrics");
+          if (updated.status === "failed")
+            setError(updated.error_message ?? "Audio generation failed. Please try again.");
         }
-      }, 3000);
-    },
-    [],
-  );
+      } catch { /* keep polling */ }
+    }, 3000);
+  }, []);
 
   const handleGenerateLyrics = async () => {
     if (!prompt.trim()) return;
-    if (!accessToken) {
-      setError("You must be signed in to generate lyrics.");
-      return;
-    }
+    if (!accessToken) { setError("You must be signed in to generate lyrics."); return; }
     setLyricsLoading(true);
     setError(null);
     setCopyrightResult(null);
     setTrack(null);
     try {
-      const result = await generateLyrics(
-        { input_prompt: prompt, language, genre },
-        accessToken,
-      );
+      const result = await generateLyrics({ input_prompt: prompt, language, genre }, accessToken);
       setLyricsResult(result);
       setStreamingComplete(false);
       setStep("lyrics");
-      setCopyrightResult(null);
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) {
         try {
           const refreshed = await updateSession();
-          const newToken = (refreshed as { accessToken?: string })?.accessToken;
+          const newToken = (refreshed as any)?.accessToken;
           if (newToken) {
-            const result = await generateLyrics(
-              { input_prompt: prompt, language, genre },
-              newToken,
-            );
-            setLyricsResult(result);
-            setStreamingComplete(false);
-            setStep("lyrics");
-            setCopyrightResult(null);
-            return;
+            const result = await generateLyrics({ input_prompt: prompt, language, genre }, newToken);
+            setLyricsResult(result); setStreamingComplete(false); setStep("lyrics"); return;
           }
-        } catch {
-          /* fall through to error */
-        }
+        } catch { /* fall through */ }
         setError("Session expired. Please sign in again.");
       } else {
         setError(e instanceof ApiError ? e.message : "Lyrics generation failed. Please try again.");
       }
       throw e;
-    } finally {
-      setLyricsLoading(false);
-    }
+    } finally { setLyricsLoading(false); }
   };
 
   const handleCheckCopyright = async () => {
@@ -334,10 +329,7 @@ export default function CreateMusicCard() {
     setCopyrightLoading(true);
     setError(null);
     try {
-      const result = await checkCopyright(
-        { lyrics: lyricsResult.lyrics, title: lyricsResult.title },
-        accessToken,
-      );
+      const result = await checkCopyright({ lyrics: lyricsResult.lyrics, title: lyricsResult.title }, accessToken);
       setCopyrightResult(result);
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) {
@@ -345,25 +337,15 @@ export default function CreateMusicCard() {
           const refreshed = await updateSession();
           const newToken = (refreshed as any)?.accessToken;
           if (newToken) {
-            const result = await checkCopyright(
-              { lyrics: lyricsResult.lyrics, title: lyricsResult.title },
-              newToken,
-            );
-            setCopyrightResult(result);
-            return;
+            const result = await checkCopyright({ lyrics: lyricsResult.lyrics, title: lyricsResult.title }, newToken);
+            setCopyrightResult(result); return;
           }
-        } catch {
-          /* fall through to error */
-        }
-        setCopyrightResult(null);
+        } catch { /* fall through */ }
         setError("Session expired. Please sign in again.");
       } else {
-        setCopyrightResult(null);
-        setError(e instanceof ApiError ? e.message : "Copyright check failed. Please try again.");
+        setError(e instanceof ApiError ? e.message : "Copyright check failed.");
       }
-    } finally {
-      setCopyrightLoading(false);
-    }
+    } finally { setCopyrightLoading(false); }
   };
 
   const handleGenerateAudio = async () => {
@@ -373,13 +355,7 @@ export default function CreateMusicCard() {
     setStep("generating");
     const doGenerate = async (t: string) => {
       const res = await generateAudio(
-        {
-          lyrics: lyricsResult.lyrics,
-          title: lyricsResult.title,
-          input_prompt: prompt,
-          language,
-          genre,
-        },
+        { lyrics: lyricsResult.lyrics, title: lyricsResult.title, input_prompt: prompt, language, genre },
         t,
       );
       const initialTrack = await fetchTrack(res.track_id, t);
@@ -388,395 +364,468 @@ export default function CreateMusicCard() {
     try {
       const { res, initialTrack } = await doGenerate(accessToken);
       setTrack(initialTrack);
-      if (initialTrack.status === "completed") {
-        setStep("done");
-        setAudioLoading(false);
-      } else {
-        startPoll(res.track_id);
-      }
+      if (initialTrack.status === "completed") { setStep("done"); setAudioLoading(false); }
+      else startPoll(res.track_id);
     } catch (e) {
+      setAudioLoading(false);
+      setStep("lyrics");
       if (e instanceof ApiError && e.status === 401) {
         try {
           const refreshed = await updateSession();
-          const newToken = (refreshed as { accessToken?: string })?.accessToken;
+          const newToken = (refreshed as any)?.accessToken;
           if (newToken) {
+            setStep("generating");
+            setAudioLoading(true);
             const { res, initialTrack } = await doGenerate(newToken);
             setTrack(initialTrack);
-            if (initialTrack.status === "completed") {
-              setStep("done");
-              setAudioLoading(false);
-            } else {
-              startPoll(res.track_id, newToken);
-            }
+            if (initialTrack.status === "completed") { setStep("done"); setAudioLoading(false); }
+            else startPoll(res.track_id, newToken);
             return;
           }
-        } catch {
-          /* fall through to error */
-        }
-        setAudioLoading(false);
-        setStep("lyrics");
+        } catch { /* fall through */ }
         setError("Session expired. Please sign in again.");
+      } else if (e instanceof ApiError && e.status === 402) {
+        setAudioUnavailable(true);
       } else {
-        setAudioLoading(false);
-        setStep("lyrics");
-        setError(e instanceof ApiError ? e.message : "Failed to start audio generation.");
+        const msg = e instanceof ApiError ? e.message : String(e);
+        if (msg.toLowerCase().includes("insufficient") || msg.toLowerCase().includes("credit") || msg.toLowerCase().includes("billing")) {
+          setAudioUnavailable(true);
+        } else {
+          setError(msg || "Failed to start audio generation.");
+        }
       }
-      throw e;
     }
   };
 
   const reset = () => {
-    clearPoll();
-    clearDraft();
-    setStep("input");
-    setPrompt("");
-    setLyricsResult(null);
-    setCopyrightResult(null);
-    setTrack(null);
-    setError(null);
-    setAudioLoading(false);
-    setStreamingComplete(false);
+    clearPoll(); clearDraft();
+    setStep("input"); setPrompt(""); setLyricsResult(null);
+    setCopyrightResult(null); setTrack(null); setError(null);
+    setAudioLoading(false); setStreamingComplete(false); setAudioUnavailable(false);
   };
 
   const hasLyrics = !!lyricsResult;
   const showSplitLayout = hasLyrics || step === "generating" || step === "done";
-
   const langLabel = LANGUAGES.find((l) => l.value === language)?.label ?? language;
 
+  /* ── render ──────────────────────────────────────────── */
   return (
-    <CardSpotlight color="#00d4ff" className="mb-6 sm:mb-8 min-w-0 !border-lavender-600">
-    <div className="bg-neutral-500 rounded-xl sm:rounded-2xl overflow-hidden min-w-0">
-      {/* Header */}
-      <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-lavender-600 flex items-center gap-2 sm:gap-3 min-w-0">
-        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-teal flex items-center justify-center shrink-0">
-          <Music className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h2 className="font-semibold text-jet-black font-heading text-sm sm:text-base truncate">
-            Create music from lyrics
-          </h2>
-          <p className="text-[10px] sm:text-xs text-neutral-300 truncate">
-            Enter rhymes or ideas — AI generates lyrics and synthesizes a full song
-          </p>
-        </div>
-        {step !== "input" && (
-          <button
-            type="button"
-            onClick={reset}
-            className="shrink-0 flex items-center gap-1 text-xs text-neutral-300 hover:text-jet-black transition-colors"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">New</span>
-          </button>
-        )}
-      </div>
+    <div className="min-w-0">
 
-      <div className="p-3 sm:p-6 min-w-0">
-        <AnimatePresence mode="wait">
-          {/* ── Single column: Input only ── */}
-          {!showSplitLayout && step === "input" && (
-            <motion.div
-              key="input-only"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="flex flex-col lg:flex-row gap-4 lg:gap-6 mb-4 min-w-0"
+      {/* Step breadcrumbs */}
+      <AnimatePresence>
+        {showSplitLayout && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="flex items-center justify-between gap-4 mb-7 flex-wrap"
+          >
+            <StepBreadcrumb step={step} />
+            <button
+              type="button"
+              onClick={reset}
+              className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-teal transition-colors px-3 py-1.5 rounded-lg hover:bg-teal/10 border border-transparent hover:border-teal/20"
             >
-              <div className="flex-1 min-w-0">
-                <label className="block text-xs sm:text-sm font-medium text-jet-black mb-1.5">
-                  Your rhymes, lyrics, or theme
-                </label>
+              <RefreshCw className="w-3.5 h-3.5" /> Start over
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence mode="wait">
+
+        {/* ══ INPUT phase ══════════════════════════════════════ */}
+        {!showSplitLayout && step === "input" && (
+          <motion.div
+            key="input"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-2xl mx-auto"
+          >
+            {/* Textarea */}
+            <div className="mb-7">
+              <label className="block text-sm font-semibold text-jet-black mb-2.5">
+                What's your song about?
+              </label>
+              <div className="relative">
                 <textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  placeholder={"Enter rhyme words, a story idea, or partial lyrics…\n\nExample:\ndil dhadke tere naam se\nraat ko tere khwaab aate hain"}
-                  className="w-full min-w-0 h-36 sm:h-44 lg:h-52 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border-2 border-dashed border-lavender-600 bg-lavender-800/50 text-jet-black text-xs sm:text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal focus:border-solid focus:border-2 resize-none transition-colors"
+                  placeholder={"Share a mood, story, or feeling…\n\nExamples:\n• Heartbreak under city lights\n• dil dhadke tere naam se, raat ko tere khwaab aate hain\n• A summer road trip with old friends"}
+                  className="w-full h-48 sm:h-56 px-5 py-4 rounded-2xl border border-lavender-600/60 bg-lavender-800/50 text-jet-black text-sm placeholder-neutral-500 focus:outline-none focus:border-teal/50 focus:ring-4 focus:ring-teal/10 focus:bg-lavender-800/70 resize-none transition-all duration-200 leading-relaxed"
                 />
-              </div>
-              <div className="lg:w-48 xl:w-52 flex flex-row lg:flex-col gap-2 sm:gap-3 shrink-0">
-                {/* Language picker */}
-                <div className="relative flex-1 lg:flex-none">
-                  <label className="block text-[10px] sm:text-xs text-neutral-400 mb-1 lg:mb-1.5">Language</label>
-                  <button
-                    ref={langTriggerRef}
-                    type="button"
-                    onClick={() => { setShowLangDropdown(!showLangDropdown); setShowGenreDropdown(false); }}
-                    className="w-full flex items-center justify-between gap-1.5 px-3 py-2 rounded-lg bg-lavender-700 border border-lavender-600 text-jet-black text-xs sm:text-sm font-medium hover:bg-lavender-600 transition-colors"
-                  >
-                    <span className="truncate">{langLabel}</span>
-                    <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${showLangDropdown ? "rotate-180" : ""}`} />
-                  </button>
-                {showLangDropdown && typeof document !== "undefined" && langDropdownRect &&
-                  createPortal(
-                    <>
-                      <div className="fixed inset-0 z-[100]" aria-hidden onClick={() => setShowLangDropdown(false)} />
-                      <div
-                        className="fixed z-[101] w-44 py-1 rounded-lg bg-neutral-500 border border-lavender-600 shadow-xl"
-                        style={{ top: langDropdownRect.top, left: langDropdownRect.left }}
-                      >
-                        {LANGUAGES.map((l) => (
-                          <button
-                            key={l.value}
-                            type="button"
-                            onClick={() => { setLanguage(l.value); setShowLangDropdown(false); }}
-                            className={`w-full px-3 py-2 text-left text-xs sm:text-sm transition-colors ${language === l.value ? "text-jet-black font-medium bg-teal/15" : "text-jet-black hover:bg-lavender-700"}`}
-                          >
-                            {l.label}
-                          </button>
-                        ))}
-                      </div>
-                    </>,
-                    document.body
-                  )}
-                </div>
-
-                {/* Genre picker */}
-                <div className="relative flex-1 lg:flex-none">
-                  <label className="block text-[10px] sm:text-xs text-neutral-400 mb-1 lg:mb-1.5">Genre</label>
-                  <button
-                    ref={genreTriggerRef}
-                    type="button"
-                    onClick={() => { setShowGenreDropdown(!showGenreDropdown); setShowLangDropdown(false); }}
-                    className="w-full flex items-center justify-between gap-1.5 px-3 py-2 rounded-lg bg-lavender-700 border border-lavender-600 text-jet-black text-xs sm:text-sm font-medium hover:bg-lavender-600 transition-colors"
-                  >
-                    <span className="truncate">{genre}</span>
-                    <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${showGenreDropdown ? "rotate-180" : ""}`} />
-                  </button>
-                {showGenreDropdown && typeof document !== "undefined" && genreDropdownRect &&
-                  createPortal(
-                    <>
-                      <div className="fixed inset-0 z-[100]" aria-hidden onClick={() => setShowGenreDropdown(false)} />
-                      <div
-                        className="fixed z-[101] w-36 py-1 rounded-lg bg-neutral-500 border border-lavender-600 shadow-xl max-h-52 overflow-y-auto"
-                        style={{ top: genreDropdownRect.top, left: genreDropdownRect.left }}
-                      >
-                        {GENRES.map((g) => (
-                          <button
-                            key={g}
-                            type="button"
-                            onClick={() => { setGenre(g); setShowGenreDropdown(false); }}
-                            className={`w-full px-3 py-2 text-left text-xs sm:text-sm transition-colors ${genre === g ? "text-jet-black font-medium bg-teal/15" : "text-jet-black hover:bg-lavender-700"}`}
-                          >
-                            {g}
-                          </button>
-                        ))}
-                      </div>
-                    </>,
-                    document.body
-                  )}
-                </div>
-
-                {/* Generate Lyrics button */}
-                <div className="lg:mt-2">
-                  <StatefulButton
-                    type="button"
-                    onClick={async () => { await handleGenerateLyrics(); }}
-                    disabled={lyricsLoading || !prompt.trim()}
-                    className="!min-w-0 !w-full !rounded-lg text-xs sm:text-sm"
-                  >
-                    Generate Lyrics
-                  </StatefulButton>
+                <div className="absolute bottom-3.5 right-4 text-[10px] text-neutral-500 tabular-nums pointer-events-none">
+                  {prompt.length}
                 </div>
               </div>
-            </motion.div>
-          )}
+            </div>
 
-          {/* ── Split layout: Two separate cards, full viewport height ── */}
-          {showSplitLayout && (
-            <motion.div
-              key="split"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 min-w-0 min-h-[600px] sm:min-h-[680px] lg:min-h-0 lg:h-[400px]"
+            {/* Genre pills */}
+            <div className="mb-7">
+              <p className="text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-3">Genre</p>
+              <div className="flex flex-wrap gap-2">
+                {GENRES.map((g) => (
+                  <motion.button
+                    key={g}
+                    type="button"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => setGenre(g)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all duration-200 ${
+                      genre === g
+                        ? "bg-teal text-white border-teal shadow-[0_4px_18px_rgba(0,212,255,0.3)]"
+                        : "bg-lavender-800/40 border-lavender-600/60 text-neutral-300 hover:border-teal/40 hover:text-jet-black hover:bg-lavender-700/60"
+                    }`}
+                  >
+                    {g}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+
+            {/* Language segmented */}
+            <div className="mb-8">
+              <p className="text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-3">Language</p>
+              <div className="inline-flex flex-wrap gap-1 p-1.5 rounded-xl bg-lavender-800/60 border border-lavender-600/60">
+                {LANGUAGES.map((l) => (
+                  <button
+                    key={l.value}
+                    type="button"
+                    onClick={() => setLanguage(l.value)}
+                    className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                      language === l.value
+                        ? "bg-teal text-white shadow-sm"
+                        : "text-neutral-400 hover:text-jet-black hover:bg-lavender-700/80"
+                    }`}
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-2"
+              >
+                <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                <p className="text-sm text-red-400">{error}</p>
+              </motion.div>
+            )}
+
+            <motion.button
+              whileHover={{ scale: 1.01, boxShadow: "0 12px 40px rgba(0,212,255,0.3)" }}
+              whileTap={{ scale: 0.99 }}
+              type="button"
+              onClick={handleGenerateLyrics}
+              disabled={lyricsLoading || !prompt.trim()}
+              className="w-full py-4 rounded-2xl bg-teal text-white font-bold text-base flex items-center justify-center gap-3 hover:bg-teal-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_8px_32px_rgba(0,212,255,0.2)] disabled:shadow-none"
             >
-              {/* Left: Prompt card — separate card */}
-              <motion.div
-                initial={{ opacity: 0, x: -16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: 0.05 }}
-                className="flex flex-col min-w-0 h-full"
-              >
-                <div className="h-full flex flex-col rounded-2xl border-2 border-lavender-600 bg-neutral-500 shadow-lg overflow-hidden">
-                  <div className="p-4 sm:p-5 border-b border-lavender-600 shrink-0">
-                    <h3 className="font-semibold text-jet-black font-heading text-sm sm:text-base">
-                      Your prompt
-                    </h3>
-                    <p className="text-xs text-neutral-300 mt-0.5">Edit and regenerate lyrics</p>
+              {lyricsLoading ? (
+                <><Loader2 className="w-5 h-5 animate-spin" /> Generating lyrics…</>
+              ) : (
+                <><Sparkles className="w-5 h-5" /> Generate Lyrics <ArrowRight className="w-5 h-5" /></>
+              )}
+            </motion.button>
+
+            <p className="text-center text-xs text-neutral-500 mt-3.5">
+              AI-powered · Under 3 seconds · 50+ genres supported
+            </p>
+          </motion.div>
+        )}
+
+        {/* ══ SPLIT layout ═════════════════════════════════════ */}
+        {showSplitLayout && (
+          <motion.div
+            key="split"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-5"
+          >
+            {/* ── Left sidebar ──────────────────────────────── */}
+            <motion.div
+              initial={{ opacity: 0, x: -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+              className="flex flex-col"
+            >
+              <div className="flex-1 flex flex-col rounded-2xl border border-lavender-600/40 bg-lavender-800/25 overflow-hidden">
+                {/* Sidebar header */}
+                <div className="px-4 py-3.5 border-b border-lavender-600/30 flex items-center gap-2 shrink-0">
+                  <Mic2 className="w-3.5 h-3.5 text-teal" />
+                  <span className="text-xs font-semibold text-jet-black flex-1 uppercase tracking-wide">Your Prompt</span>
+                  <button
+                    type="button"
+                    onClick={() => { setStep("input"); setLyricsResult(null); setStreamingComplete(false); }}
+                    className="text-xs text-neutral-400 hover:text-teal transition-colors"
+                  >
+                    Edit
+                  </button>
+                </div>
+
+                <div className="p-4 flex-1 flex flex-col gap-4 min-h-0">
+                  {/* Prompt text */}
+                  <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="flex-1 min-h-[100px] w-full bg-transparent text-jet-black text-sm leading-relaxed resize-none focus:outline-none placeholder-neutral-500"
+                    placeholder="Enter your idea…"
+                  />
+
+                  {/* Genre + Language chips */}
+                  <div className="flex flex-wrap gap-1.5 pt-3 border-t border-lavender-600/25">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal/10 border border-teal/20 text-teal text-[11px] font-semibold">
+                      <Tag className="w-2.5 h-2.5" /> {genre}
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-lavender-700/80 border border-lavender-600/50 text-neutral-300 text-[11px] font-medium">
+                      <Languages className="w-2.5 h-2.5" /> {langLabel}
+                    </span>
                   </div>
-                  <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-5">
-                    <label className="block text-xs sm:text-sm font-medium text-jet-black mb-1.5 shrink-0">
-                      Rhymes, lyrics, or theme
-                    </label>
-                    <textarea
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      placeholder="Enter rhyme words, a story idea…"
-                      className="h-[110px] w-full min-w-0 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border-2 border-lavender-600 bg-lavender-800/50 text-jet-black text-xs sm:text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal resize-none"
-                    />
-                    <div className="flex flex-row gap-2 mt-3">
-                      <div className="relative flex-1">
-                        <label className="block text-[10px] text-neutral-400 mb-1">Language</label>
-                        <button
-                          ref={langTriggerRef}
-                          type="button"
-                          onClick={() => { setShowLangDropdown(!showLangDropdown); setShowGenreDropdown(false); }}
-                          className="w-full flex items-center justify-between gap-1.5 px-3 py-2 rounded-lg bg-lavender-700 border border-lavender-600 text-jet-black text-xs font-medium hover:bg-lavender-600"
-                        >
-                          <span className="truncate">{langLabel}</span>
-                          <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${showLangDropdown ? "rotate-180" : ""}`} />
-                        </button>
-                        {showLangDropdown && typeof document !== "undefined" && langDropdownRect &&
-                          createPortal(
-                            <>
-                              <div className="fixed inset-0 z-[100]" aria-hidden onClick={() => setShowLangDropdown(false)} />
-                              <div className="fixed z-[101] w-44 py-1 rounded-lg bg-neutral-500 border border-lavender-600 shadow-xl" style={{ top: langDropdownRect.top, left: langDropdownRect.left }}>
-                                {LANGUAGES.map((l) => (
-                                  <button key={l.value} type="button" onClick={() => { setLanguage(l.value); setShowLangDropdown(false); }} className={`w-full px-3 py-2 text-left text-xs transition-colors ${language === l.value ? "text-jet-black font-medium bg-teal/15" : "text-jet-black hover:bg-lavender-700"}`}>{l.label}</button>
-                                ))}
-                              </div>
-                            </>,
-                            document.body
-                          )}
-                      </div>
-                      <div className="relative flex-1">
-                        <label className="block text-[10px] text-neutral-400 mb-1">Genre</label>
-                        <button
-                          ref={genreTriggerRef}
-                          type="button"
-                          onClick={() => { setShowGenreDropdown(!showGenreDropdown); setShowLangDropdown(false); }}
-                          className="w-full flex items-center justify-between gap-1.5 px-3 py-2 rounded-lg bg-lavender-700 border border-lavender-600 text-jet-black text-xs font-medium hover:bg-lavender-600"
-                        >
-                          <span className="truncate">{genre}</span>
-                          <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${showGenreDropdown ? "rotate-180" : ""}`} />
-                        </button>
-                        {showGenreDropdown && typeof document !== "undefined" && genreDropdownRect &&
-                          createPortal(
-                            <>
-                              <div className="fixed inset-0 z-[100]" aria-hidden onClick={() => setShowGenreDropdown(false)} />
-                              <div className="fixed z-[101] w-36 py-1 rounded-lg bg-neutral-500 border border-lavender-600 shadow-xl max-h-52 overflow-y-auto" style={{ top: genreDropdownRect.top, left: genreDropdownRect.left }}>
-                                {GENRES.map((g) => (
-                                  <button key={g} type="button" onClick={() => { setGenre(g); setShowGenreDropdown(false); }} className={`w-full px-3 py-2 text-left text-xs transition-colors ${genre === g ? "text-jet-black font-medium bg-teal/15" : "text-jet-black hover:bg-lavender-700"}`}>{g}</button>
-                                ))}
-                              </div>
-                            </>,
-                            document.body
-                          )}
+
+                  {/* Regenerate */}
+                  <motion.button
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="button"
+                    onClick={handleGenerateLyrics}
+                    disabled={lyricsLoading || !prompt.trim()}
+                    className="w-full py-2 rounded-xl border border-teal/30 bg-teal/5 text-teal text-xs font-semibold flex items-center justify-center gap-2 hover:bg-teal/10 transition-colors disabled:opacity-50"
+                  >
+                    {lyricsLoading
+                      ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Regenerating…</>
+                      : <><RefreshCw className="w-3.5 h-3.5" /> Regenerate</>
+                    }
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* ── Right: lyrics / generating / done ─────────── */}
+            <motion.div
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="flex flex-col"
+            >
+
+              {/* LYRICS */}
+              {step === "lyrics" && lyricsResult && (
+                <div className="flex flex-col rounded-2xl border border-lavender-600/40 bg-[var(--page-bg)] overflow-hidden shadow-sm" style={{ minHeight: 520 }}>
+
+                  {/* — Lyrics panel top bar — */}
+                  <div className="px-6 py-4 border-b border-lavender-600/30 shrink-0 flex items-start gap-4">
+                    {/* Song icon + title */}
+                    <div className="w-10 h-10 rounded-xl bg-teal/10 border border-teal/20 flex items-center justify-center shrink-0 mt-0.5">
+                      <Music2 className="w-5 h-5 text-teal" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-xl font-bold font-heading text-jet-black leading-tight truncate">
+                        {lyricsResult.title}
+                      </h2>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <span className="text-xs text-neutral-400">{lyricsResult.genre}</span>
+                        <span className="text-neutral-600 text-xs">·</span>
+                        <span className="text-xs text-neutral-400">{langLabel}</span>
+                        {copyrightResult && (
+                          <>
+                            <span className="text-neutral-600 text-xs">·</span>
+                            <CopyrightBadge result={copyrightResult} />
+                          </>
+                        )}
                       </div>
                     </div>
-                    <div className="flex gap-2 mt-3">
-                      <StatefulButton type="button" onClick={async () => { await handleGenerateLyrics(); }} disabled={lyricsLoading || !prompt.trim()} className="!min-w-0 flex-1 !rounded-lg text-xs">
-                        {lyricsLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Regenerate Lyrics"}
-                      </StatefulButton>
-                      <button type="button" onClick={() => { setStep("input"); setLyricsResult(null); setStreamingComplete(false); }} className="px-3 py-2 rounded-lg border border-lavender-600 text-xs font-medium text-jet-black hover:bg-lavender-700">
-                        Edit Input
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                      <button
+                        type="button"
+                        onClick={handleCheckCopyright}
+                        disabled={copyrightLoading}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-lavender-600/60 text-xs font-medium text-neutral-400 hover:text-jet-black hover:bg-lavender-700 transition-all disabled:opacity-60"
+                      >
+                        {copyrightLoading
+                          ? <Loader2 className="w-3 h-3 animate-spin" />
+                          : <Shield className="w-3 h-3" />}
+                        Check
                       </button>
+                      <CopyButton text={lyricsResult.lyrics} />
+                    </div>
+                  </div>
+
+                  {/* — Lyrics scroll area — */}
+                  <div className="flex-1 overflow-y-auto px-8 py-6 sm:px-10 sm:py-8">
+                    <StreamingLyricsDisplay
+                      lyrics={lyricsResult.lyrics}
+                      onComplete={() => setStreamingComplete(true)}
+                      speed={16}
+                    />
+                  </div>
+
+                  {/* — Generate song footer — */}
+                  <div className="px-6 py-4 border-t border-lavender-600/30 shrink-0 bg-lavender-800/20">
+                    {error && (
+                      <p className="mb-3 text-xs text-red-400 flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error}
+                      </p>
+                    )}
+                    {audioUnavailable ? (
+                      <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-amber-400/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <AlertCircle className="w-4 h-4 text-amber-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-jet-black mb-0.5">Insufficient credits</p>
+                            <p className="text-xs text-neutral-400 leading-relaxed">
+                              Your music provider has run out of credits. Add $5 to{" "}
+                              <a href="https://replicate.com/account/billing" target="_blank" rel="noopener noreferrer" className="text-teal underline underline-offset-2">
+                                Replicate billing
+                              </a>{" "}
+                              to generate songs — enough for 100+ tracks.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setAudioUnavailable(false)}
+                          className="mt-3 w-full py-2.5 rounded-lg border border-lavender-600/60 text-xs font-medium text-neutral-400 hover:text-jet-black hover:bg-lavender-700 transition-colors"
+                        >
+                          Try again anyway
+                        </button>
+                      </div>
+                    ) : (
+                      <motion.button
+                        whileHover={{ scale: 1.005, boxShadow: "0 8px 30px rgba(0,212,255,0.25)" }}
+                        whileTap={{ scale: 0.995 }}
+                        type="button"
+                        onClick={handleGenerateAudio}
+                        className="w-full py-3.5 rounded-xl bg-teal text-white font-bold text-sm flex items-center justify-center gap-2.5 hover:bg-teal-600 transition-colors shadow-[0_4px_24px_rgba(0,212,255,0.18)]"
+                      >
+                        <Music className="w-4 h-4" />
+                        Generate Full Song
+                        <ChevronRight className="w-4 h-4" />
+                      </motion.button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* GENERATING */}
+              {step === "generating" && (
+                <div
+                  className="flex flex-col rounded-2xl border border-lavender-600/40 bg-[var(--page-bg)] overflow-hidden"
+                  style={{ minHeight: 520 }}
+                >
+                  <div className="flex-1 flex flex-col items-center justify-center py-16 gap-8 px-6">
+                    {/* Waveform */}
+                    <div className="relative">
+                      <div className="flex items-end justify-center gap-[3px] h-20">
+                        {Array.from({ length: 24 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="w-1.5 rounded-full"
+                            style={{
+                              background: `linear-gradient(to top, #00d4ff, rgba(0,212,255,0.25))`,
+                              height: "8px",
+                              animation: "sargamWave 0.9s ease-in-out infinite",
+                              animationDelay: `${i * 0.05}s`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 h-12 blur-2xl bg-teal/20 rounded-full pointer-events-none" />
+                    </div>
+
+                    <div className="text-center space-y-2">
+                      <p className="text-xl font-bold font-heading text-jet-black">Composing your song…</p>
+                      <p className="text-sm text-neutral-400 max-w-xs leading-relaxed">
+                        AI is synthesizing vocals and music. Usually takes 30–90 seconds.
+                      </p>
+                    </div>
+
+                    <div className="flex gap-2">
+                      {[0, 1, 2].map((i) => (
+                        <div key={i} className="w-2 h-2 rounded-full bg-teal/50 animate-pulse" style={{ animationDelay: `${i * 0.25}s` }} />
+                      ))}
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              )}
 
-              {/* Right: Lyrics card — separate card */}
-              <motion.div
-                initial={{ opacity: 0, x: 16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
-                className="flex flex-col min-w-0 min-h-0 h-full"
-              >
-                {step === "lyrics" && lyricsResult && (
-                  <div className="h-full flex flex-col rounded-2xl border-2 border-lavender-600 bg-neutral-500 shadow-lg overflow-hidden min-h-0">
-                    <div className="p-4 sm:p-5 border-b border-lavender-600 shrink-0 flex flex-wrap items-center justify-between gap-2">
-                      <div>
-                        <h3 className="font-semibold text-jet-black font-heading text-sm sm:text-base">{lyricsResult.title}</h3>
-                        <p className="text-xs text-neutral-300">{lyricsResult.genre} · {langLabel}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {copyrightResult && <CopyrightBadge result={copyrightResult} />}
+              {/* DONE */}
+              {step === "done" && track && track.audio_url && lyricsResult && (
+                <div
+                  className="flex flex-col rounded-2xl border border-teal/25 bg-[var(--page-bg)] overflow-hidden shadow-[0_0_60px_rgba(0,212,255,0.07)]"
+                  style={{ minHeight: 520 }}
+                >
+                  <div className="px-6 py-4 border-b border-lavender-600/30 flex items-center gap-3 shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-teal/15 border border-teal/20 flex items-center justify-center">
+                      <div className="w-2 h-2 rounded-full bg-teal animate-pulse" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[10px] font-bold text-teal uppercase tracking-widest block">Ready to play</span>
+                      <h3 className="font-bold text-jet-black font-heading truncate">{track.title}</h3>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      {track.generated_lyrics && (
                         <button
                           type="button"
-                          onClick={() => handleCheckCopyright()}
-                          disabled={copyrightLoading}
-                          className="inline-flex min-w-0 items-center gap-2 whitespace-nowrap rounded-lg border border-lavender-600 bg-transparent px-3 py-2 text-xs font-medium text-jet-black transition-colors hover:bg-lavender-700 disabled:opacity-70"
+                          onClick={() => downloadLyricsPdf(track)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-lavender-600/60 text-xs font-medium text-neutral-400 hover:text-jet-black hover:bg-lavender-700 transition-all"
                         >
-                          {copyrightLoading ? (
-                            <Loader2 className="w-3 h-3 shrink-0 animate-spin" />
-                          ) : (
-                            <Shield className="w-3 h-3 shrink-0" />
-                          )}
-                          Check
+                          <Download className="w-3 h-3" /> PDF
                         </button>
-                      </div>
-                    </div>
-                    <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-5">
-                      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden rounded-lg bg-lavender-800/50 border border-lavender-600 p-3 sm:p-4">
-                        <StreamingLyricsDisplay lyrics={lyricsResult.lyrics} onComplete={() => setStreamingComplete(true)} speed={14} />
-                      </div>
-                      <StatefulButton type="button" onClick={async () => { await handleGenerateAudio(); }} className="mt-4 shrink-0 !min-w-0 !rounded-lg !py-2 !px-4 text-xs sm:text-sm w-full">
-                        <span className="inline-flex items-center gap-2 whitespace-nowrap">
-                          <Music className="w-3.5 h-3.5 shrink-0" />
-                          Generate Song
-                          <ChevronRight className="w-3.5 h-3.5 shrink-0" />
-                        </span>
-                      </StatefulButton>
-                    </div>
-                  </div>
-                )}
-                {step === "generating" && (
-                  <div className="h-full flex flex-col rounded-2xl border-2 border-lavender-600 bg-neutral-500 shadow-lg overflow-hidden">
-                    <div className="flex-1 flex flex-col items-center justify-center py-12 gap-4">
-                      <div className="flex items-end justify-center gap-1 h-12">
-                        {Array.from({ length: 16 }).map((_, i) => (
-                          <div key={i} className="w-1.5 bg-gradient-to-t from-teal to-teal-700 rounded-full" style={{ height: "8px", animation: "sargamWave 0.9s ease-in-out infinite", animationDelay: `${i * 0.06}s` }} />
-                        ))}
-                      </div>
-                      <p className="text-sm font-medium text-jet-black">Composing your song…</p>
-                      <p className="text-xs text-neutral-300 text-center max-w-xs">MiniMax Music 2.5 is generating vocals. Usually 30–90 seconds.</p>
-                    </div>
-                  </div>
-                )}
-                {step === "done" && track && track.audio_url && lyricsResult && (
-                  <div className="h-full flex flex-col rounded-2xl border-2 border-lavender-600 bg-neutral-500 shadow-lg overflow-hidden">
-                    <div className="p-4 sm:p-5 border-b border-lavender-600 shrink-0">
-                      <h3 className="font-semibold text-jet-black font-heading text-sm">{track.title}</h3>
-                      <p className="text-xs text-neutral-300">{track.genre} · {langLabel}</p>
-                    </div>
-                    <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5">
-                      <AudioPlayer src={audioSrc(track.audio_url)} title={track.title} genre={track.genre} language={track.language} />
-                      <details className="mt-3 group">
-                        <summary className="cursor-pointer text-xs font-medium text-teal hover:text-teal-600 select-none list-none flex items-center gap-1">
-                          <ChevronRight className="w-3.5 h-3.5 group-open:rotate-90 transition-transform" /> View lyrics
-                        </summary>
-                        <div className="mt-2 max-h-48 overflow-y-auto rounded-lg bg-lavender-700/50 border border-lavender-600 p-3">
-                          <LyricsDisplay lyrics={lyricsResult.lyrics} />
-                        </div>
-                      </details>
-                      <button type="button" onClick={reset} className="mt-4 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-teal text-white text-xs font-semibold hover:bg-teal-600 w-full">
-                        <Sparkles className="w-4 h-4" /> Create another
+                      )}
+                      <button
+                        type="button"
+                        onClick={reset}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-teal hover:text-teal-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-teal/10"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" /> Create new
                       </button>
                     </div>
                   </div>
-                )}
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        {error && (
-          <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
-            <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error}
-          </p>
+                  <div className="flex-1 min-h-0 overflow-y-auto p-6 sm:p-8 space-y-6">
+                    <AudioPlayer
+                      src={audioSrc(track.audio_url)}
+                      title={track.title}
+                      genre={track.genre}
+                      language={track.language}
+                    />
+
+                    <details className="group">
+                      <summary className="cursor-pointer text-xs font-bold text-teal hover:text-teal-600 select-none list-none flex items-center gap-1.5 py-1 uppercase tracking-wide">
+                        <ChevronRight className="w-3.5 h-3.5 group-open:rotate-90 transition-transform" />
+                        View Lyrics
+                      </summary>
+                      <div className="mt-4 rounded-xl bg-lavender-800/30 border border-lavender-600/30 px-8 py-6 max-h-72 overflow-y-auto">
+                        <LyricsDisplay lyrics={lyricsResult.lyrics} />
+                      </div>
+                    </details>
+                  </div>
+                </div>
+              )}
+
+            </motion.div>
+          </motion.div>
         )}
-      </div>
+
+      </AnimatePresence>
 
       <style>{`
         @keyframes sargamWave {
           0%, 100% { height: 8px; }
-          50% { height: 40px; }
+          50% { height: 46px; }
         }
       `}</style>
     </div>
-    </CardSpotlight>
   );
 }

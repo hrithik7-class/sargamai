@@ -67,6 +67,24 @@
   /* page background and text (for theme transition) */
   --page-bg: #0a0f1a;
   --page-text: #e8edf5;
+
+  /* shadcn/radix compatibility tokens */
+  --color-background:         #0a0f1a;
+  --color-foreground:         #e8edf5;
+  --color-card:               #111827;
+  --color-card-foreground:    #e8edf5;
+  --color-primary:            #00d4ff;
+  --color-primary-foreground: #0a0f1a;
+  --color-secondary:          #1e293b;
+  --color-secondary-foreground: #e8edf5;
+  --color-muted:              #1e293b;
+  --color-muted-foreground:   #94a3b8;
+  --color-accent:             #1e293b;
+  --color-accent-foreground:  #e8edf5;
+  --color-border:             #1e293b;
+  --color-input:              #1e293b;
+  --color-ring:               #00d4ff;
+  --color-destructive:        #ef4444;
 }
 
 html {
@@ -156,6 +174,21 @@ html.light {
   --color-neutral-300: #64748b;
   --color-neutral-400: #94a3b8;
   --color-neutral-500: #f8fafc;
+
+  /* shadcn light mode overrides */
+  --color-background:         #ffffff;
+  --color-foreground:         #0f172a;
+  --color-card:               #f8fafc;
+  --color-card-foreground:    #0f172a;
+  --color-primary:            #0891b2;
+  --color-primary-foreground: #ffffff;
+  --color-muted:              #f1f5f9;
+  --color-muted-foreground:   #64748b;
+  --color-accent:             #f1f5f9;
+  --color-accent-foreground:  #0f172a;
+  --color-border:             #e2e8f0;
+  --color-input:              #e2e8f0;
+  --color-ring:               #0891b2;
 }
 
 .font-heading {
