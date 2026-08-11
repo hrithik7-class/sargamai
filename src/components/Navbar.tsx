@@ -66,9 +66,9 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop: center nav links */}
+          {/* Desktop: center nav links — hidden when logged in */}
           <nav className="hidden md:flex items-center justify-center flex-1 gap-0.5" aria-label="Main">
-            {navLinks.map((link) => {
+            {!isAuthenticated && navLinks.map((link) => {
               const isActive =
                 pathname === link.href ||
                 (link.href !== "/" && pathname.startsWith(link.href.split("#")[0]));
@@ -147,7 +147,7 @@ export default function Navbar() {
               className="md:hidden overflow-hidden border-t border-lavender-600 bg-neutral-500/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] max-h-[calc(100dvh-4rem)] overflow-y-auto"
             >
               <nav className="py-4 px-3 sm:px-4 flex flex-col gap-0.5" aria-label="Mobile">
-              {navLinks.map((link) => {
+              {!isAuthenticated && navLinks.map((link) => {
                 const isActive =
                   pathname === link.href ||
                   (link.href !== "/" && pathname.startsWith(link.href.split("#")[0]));

@@ -96,6 +96,7 @@ export interface Track {
   copyright_safe?: boolean | null;
   copyright_score?: number | null;
   duration_seconds?: number | null;
+  cover_image_url?: string | null;
   published_at?: string | null;
   created_at: string;
   updated_at: string;
@@ -173,6 +174,9 @@ export const publishTrack = (id: number, token: string) =>
 
 export const unpublishTrack = (id: number, token: string) =>
   apiCall<Track>(`/api/tracks/${id}/unpublish`, { method: "POST" }, token);
+
+export const generateCover = (id: number, token: string) =>
+  apiCall<Track>(`/api/tracks/${id}/generate-cover`, { method: "POST" }, token);
 
 export const fetchAnalytics = (token: string) =>
   apiCall<AnalyticsResponse>("/api/analytics", {}, token);

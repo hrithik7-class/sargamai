@@ -179,9 +179,11 @@ export const authOptions: NextAuthOptions = {
 
       if (account.provider === "google") {
         try {
-          const res = await fetch(
-            `${API_URL}/api/auth/callback/google?code=${account.access_token}`,
-          );
+          const res = await fetch(`${API_URL}/api/auth/oauth/google/token`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ access_token: account.access_token }),
+          });
           if (!res.ok) return "/get-started?error=OAuthGoogleFailed";
           const data = await res.json();
           (user as any).accessToken = data.access_token;

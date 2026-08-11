@@ -456,7 +456,7 @@ export default function CreateMusicCard() {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   placeholder={"Share a mood, story, or feeling…\n\nExamples:\n• Heartbreak under city lights\n• dil dhadke tere naam se, raat ko tere khwaab aate hain\n• A summer road trip with old friends"}
-                  className="w-full h-48 sm:h-56 px-5 py-4 rounded-2xl border border-lavender-600/60 bg-lavender-800/50 text-jet-black text-sm placeholder-neutral-500 focus:outline-none focus:border-teal/50 focus:ring-4 focus:ring-teal/10 focus:bg-lavender-800/70 resize-none transition-all duration-200 leading-relaxed"
+                  className="w-full h-48 sm:h-56 px-5 py-4 rounded-2xl border border-lavender-600/60 bg-lavender-800/50 text-jet-black text-sm placeholder-neutral-300 focus:outline-none focus:border-teal/50 focus:ring-4 focus:ring-teal/10 focus:bg-lavender-800/70 resize-none transition-all duration-200 leading-relaxed"
                 />
                 <div className="absolute bottom-3.5 right-4 text-[10px] text-neutral-500 tabular-nums pointer-events-none">
                   {prompt.length}
@@ -576,7 +576,7 @@ export default function CreateMusicCard() {
                   <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    className="flex-1 min-h-[100px] w-full bg-transparent text-jet-black text-sm leading-relaxed resize-none focus:outline-none placeholder-neutral-500"
+                    className="flex-1 min-h-[100px] w-full bg-transparent text-jet-black text-sm leading-relaxed resize-none focus:outline-none placeholder-neutral-300"
                     placeholder="Enter your idea…"
                   />
 
@@ -618,7 +618,7 @@ export default function CreateMusicCard() {
 
               {/* LYRICS */}
               {step === "lyrics" && lyricsResult && (
-                <div className="flex flex-col rounded-2xl border border-lavender-600/40 bg-[var(--page-bg)] overflow-hidden shadow-sm" style={{ minHeight: 520 }}>
+                <div className="flex flex-col rounded-2xl border border-lavender-600/40 bg-[var(--page-bg)] overflow-hidden shadow-sm" style={{ height: "calc(100vh - 180px)" }}>
 
                   {/* — Lyrics panel top bar — */}
                   <div className="px-6 py-4 border-b border-lavender-600/30 shrink-0 flex items-start gap-4">
@@ -721,7 +721,7 @@ export default function CreateMusicCard() {
               {step === "generating" && (
                 <div
                   className="flex flex-col rounded-2xl border border-lavender-600/40 bg-[var(--page-bg)] overflow-hidden"
-                  style={{ minHeight: 520 }}
+                  style={{ height: "calc(100vh - 180px)" }}
                 >
                   <div className="flex-1 flex flex-col items-center justify-center py-16 gap-8 px-6">
                     {/* Waveform */}
@@ -763,7 +763,7 @@ export default function CreateMusicCard() {
               {step === "done" && track && track.audio_url && lyricsResult && (
                 <div
                   className="flex flex-col rounded-2xl border border-teal/25 bg-[var(--page-bg)] overflow-hidden shadow-[0_0_60px_rgba(0,212,255,0.07)]"
-                  style={{ minHeight: 520 }}
+                  style={{ height: "calc(100vh - 180px)" }}
                 >
                   <div className="px-6 py-4 border-b border-lavender-600/30 flex items-center gap-3 shrink-0">
                     <div className="w-9 h-9 rounded-xl bg-teal/15 border border-teal/20 flex items-center justify-center">
