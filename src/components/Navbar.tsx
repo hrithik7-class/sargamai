@@ -135,16 +135,28 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile menu — smooth open/close with Framer Motion */}
-        <AnimatePresence>
-          {isMenuOpen && (
+      </div>
+
+      {/* Mobile menu — slide-in drawer pinned to the right edge */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <>
+            <motion.div
+              key="mobile-menu-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="md:hidden fixed inset-0 z-[60] bg-black/40 backdrop-blur-[1px]"
+              onClick={() => setIsMenuOpen(false)}
+            />
             <motion.div
               key="mobile-menu"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
               transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              className="md:hidden overflow-hidden border-t border-lavender-600 bg-neutral-500/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] max-h-[calc(100dvh-4rem)] overflow-y-auto"
+              className="md:hidden fixed top-0 right-0 z-[70] h-full w-[min(80vw,20rem)] bg-neutral-500 backdrop-blur-md border-l border-lavender-600 shadow-xl pt-[calc(env(safe-area-inset-top,0px)+3.5rem)] pb-[env(safe-area-inset-bottom)] overflow-y-auto"
             >
               <nav className="py-4 px-3 sm:px-4 flex flex-col gap-0.5" aria-label="Mobile">
               {!isAuthenticated && navLinks.map((link) => {
@@ -194,9 +206,9 @@ export default function Navbar() {
               </div>
             </nav>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
