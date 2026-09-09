@@ -186,9 +186,9 @@ export const authOptions: NextAuthOptions = {
           });
           if (!res.ok) return "/get-started?error=OAuthGoogleFailed";
           const data = await res.json();
-          (user as any).accessToken = data.access_token;
-          (user as any).refreshToken = data.refresh_token;
-          (user as any).isVerified = data.user.is_verified;
+          user.accessToken = data.access_token;
+          user.refreshToken = data.refresh_token;
+          user.isVerified = data.user.is_verified;
           user.id = String(data.user.id);
           user.name = data.user.full_name;
           user.email = data.user.email;
@@ -210,9 +210,9 @@ export const authOptions: NextAuthOptions = {
         token.userId = user.id;
         token.email = user.email;
         token.name = user.name;
-        token.accessToken = (user as any).accessToken;
-        token.refreshToken = (user as any).refreshToken;
-        token.isVerified = (user as any).isVerified ?? false;
+        token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
+        token.isVerified = user.isVerified ?? false;
         return token;
       }
 
@@ -243,12 +243,12 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       session.user = {
         ...session.user,
-        id: token.userId as string,
-        email: token.email as string,
-        name: token.name as string,
-        isVerified: token.isVerified as boolean,
-      } as any;
-      (session as any).accessToken = token.accessToken as string;
+        id: token.userId,
+        email: token.email,
+        name: token.name,
+        isVerified: token.isVerified,
+      };
+      session.accessToken = token.accessToken;
       return session;
     },
   },

@@ -7,7 +7,6 @@ import { useTracksStore } from "@/store/useTracksStore";
 import {
   Music,
   Search,
-  Headphones,
   Trash2,
   RefreshCw,
   ShieldCheck,
@@ -31,27 +30,6 @@ import AudioPlayer from "@/components/AudioPlayer";
 import { CardSpotlight } from "@/components/ui/card-spotlight";
 import { deleteTrack, audioSrc, type Track } from "@/lib/api";
 import { downloadLyricsPdf } from "@/lib/pdf";
-
-// ── Genre → gradient mapping ──────────────────────────────────────────────
-const GENRE_GRADIENTS: Record<string, string> = {
-  bollywood: "from-purple-600 to-pink-500",
-  rock: "from-slate-700 to-red-600",
-  pop: "from-teal-500 to-blue-500",
-  classical: "from-teal-400 to-teal-600",
-  jazz: "from-indigo-700 to-violet-500",
-  hiphop: "from-zinc-700 to-orange-500",
-  "hip-hop": "from-zinc-700 to-orange-500",
-  folk: "from-green-700 to-emerald-400",
-  edm: "from-cyan-500 to-fuchsia-500",
-  rb: "from-rose-700 to-pink-400",
-  "r&b": "from-rose-700 to-pink-400",
-  default: "from-teal-600 to-indigo-600",
-};
-
-function genreGradient(genre: string) {
-  const key = genre.toLowerCase().trim();
-  return GENRE_GRADIENTS[key] ?? GENRE_GRADIENTS.default;
-}
 
 function statusIcon(status: Track["status"]) {
   switch (status) {

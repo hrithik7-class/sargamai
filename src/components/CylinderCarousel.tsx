@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, Suspense, useMemo } from "react";
+import { useRef, useState, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { 
   useTexture, 
@@ -45,8 +45,9 @@ function ImageCard({
   const meshRef = useRef<THREE.Mesh>(null);
   
   // Load texture with memoization
-  const texture = useTexture(data.image);
-  texture.colorSpace = THREE.SRGBColorSpace;
+  const texture = useTexture(data.image, (t) => {
+    t.colorSpace = THREE.SRGBColorSpace;
+  });
   
   // Calculate position using polar coordinates
   const angle = (index / total) * Math.PI * 2;

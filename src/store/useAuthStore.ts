@@ -31,17 +31,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const isAuthenticated = status === "authenticated";
     const isLoading = status === "loading";
 
+    const sessionUser = session?.user;
+
     const user: AuthUser | null =
-      isAuthenticated && session?.user
+      isAuthenticated && sessionUser
         ? {
-            id: (session.user as any).id ?? "",
-            email: session.user.email ?? "",
-            name: session.user.name ?? "",
-            isVerified: (session.user as any).isVerified ?? false,
+            id: sessionUser.id ?? "",
+            email: sessionUser.email ?? "",
+            name: sessionUser.name ?? "",
+            isVerified: sessionUser.isVerified ?? false,
           }
         : null;
 
-    const accessToken: string | null = (session as any)?.accessToken ?? null;
+    const accessToken: string | null = session?.accessToken ?? null;
 
     set({ user, accessToken, isAuthenticated, isLoading });
   },

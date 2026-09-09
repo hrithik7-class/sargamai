@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 
 export const INTRO_SEEN_KEY = "sargam-intro-seen";
 
@@ -12,15 +12,11 @@ type IntroContextValue = {
 const IntroContext = createContext<IntroContextValue | null>(null);
 
 export function IntroProvider({ children }: { children: ReactNode }) {
-  const [isIntroVisible, setIntroVisible] = useState(true);
+  const [isIntroVisible, setIntroVisible] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return !localStorage.getItem(INTRO_SEEN_KEY);
+  });
   const setter = useCallback((visible: boolean) => setIntroVisible(visible), []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (localStorage.getItem(INTRO_SEEN_KEY)) {
-      setIntroVisible(false);
-    }
-  }, []);
 
   return (
     <IntroContext.Provider value={{ isIntroVisible, setIntroVisible: setter }}>

@@ -133,8 +133,6 @@ function IconContainer({
     return val - bounds.x - bounds.width / 2;
   });
 
-  const widthTransform = useTransform(distance, [-150, 0, 150], [40, 80, 40]);
-  const heightTransform = useTransform(distance, [-150, 0, 150], [40, 80, 40]);
   const widthIconTransform = useTransform(distance, [-150, 0, 150], [20, 40, 20]);
   const heightIconTransform = useTransform(
     distance,
@@ -142,16 +140,6 @@ function IconContainer({
     [20, 40, 20],
   );
 
-  const width = useSpring(widthTransform, {
-    mass: 0.1,
-    stiffness: 150,
-    damping: 12,
-  });
-  const height = useSpring(heightTransform, {
-    mass: 0.1,
-    stiffness: 150,
-    damping: 12,
-  });
   const widthIcon = useSpring(widthIconTransform, {
     mass: 0.1,
     stiffness: 150,

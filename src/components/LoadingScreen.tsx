@@ -1,37 +1,40 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useIntro, setIntroSeen, INTRO_SEEN_KEY } from "@/components/IntroContext";
 
 export default function LoadingScreen() {
-  const [isLoading, setIsLoading] = useState(true);
+  return (
+    <Suspense fallback={null}>
+      <LoadingScreenInner />
+    </Suspense>
+  );
+}
+
+function LoadingScreenInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { setIntroVisible } = useIntro();
   const forceIntro = searchParams.get("intro") === "1";
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return forceIntro || !localStorage.getItem(INTRO_SEEN_KEY);
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!forceIntro && localStorage.getItem(INTRO_SEEN_KEY)) {
-      setIsLoading(false);
-      setIntroVisible(false);
-      return;
-    }
-    if (pathname.startsWith("/dashboard") && !forceIntro) {
-      setIntroSeen();
-      setIsLoading(false);
-      setIntroVisible(false);
-      return;
-    }
+    if (!isLoading) return;
+    if (!forceIntro && localStorage.getItem(INTRO_SEEN_KEY)) return;
+    const skipToDashboard = pathname.startsWith("/dashboard") && !forceIntro;
     const timer = setTimeout(() => {
       if (!forceIntro) setIntroSeen();
       setIsLoading(false);
       setIntroVisible(false);
-    }, 1800);
+    }, skipToDashboard ? 0 : 1800);
     return () => clearTimeout(timer);
-  }, [setIntroVisible, pathname, forceIntro]);
+  }, [setIntroVisible, pathname, forceIntro, isLoading]);
 
   return (
     <AnimatePresence>

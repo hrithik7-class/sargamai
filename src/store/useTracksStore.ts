@@ -15,7 +15,7 @@ interface TracksState {
   upsertTrack: (track: Track) => void;
 }
 
-export const useTracksStore = create<TracksState>((set, get) => ({
+export const useTracksStore = create<TracksState>((set) => ({
   tracks: [],
   loading: false,
   error: null,
@@ -25,8 +25,9 @@ export const useTracksStore = create<TracksState>((set, get) => ({
     try {
       const res = await fetchTracks(token);
       set({ tracks: res.tracks, loading: false });
-    } catch (err: any) {
-      set({ error: err?.message ?? "Failed to load tracks", loading: false });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to load tracks";
+      set({ error: message, loading: false });
     }
   },
 

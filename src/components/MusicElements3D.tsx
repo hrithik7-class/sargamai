@@ -3,6 +3,13 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
+type AnimatedMesh = THREE.Mesh & {
+  rotationSpeed: { x: number; y: number; z: number };
+  floatSpeed: number;
+  floatOffset: number;
+  originalY: number;
+};
+
 export default function MusicElements3D() {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<{
@@ -14,28 +21,29 @@ export default function MusicElements3D() {
   } | null>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
     // Scene setup
     const scene = new THREE.Scene();
-    
+
     // Camera setup
     const camera = new THREE.PerspectiveCamera(
       75,
-      containerRef.current.clientWidth / containerRef.current.clientHeight,
+      container.clientWidth / container.clientHeight,
       0.1,
       1000
     );
     camera.position.z = 5;
 
     // Renderer setup
-    const renderer = new THREE.WebGLRenderer({ 
-      alpha: true, 
-      antialias: true 
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true
     });
-    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+    renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    containerRef.current.appendChild(renderer.domElement);
+    container.appendChild(renderer.domElement);
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -77,21 +85,21 @@ export default function MusicElements3D() {
         opacity: 0.9,
       });
 
-      const mesh = new THREE.Mesh(geometry, material);
+      const mesh = new THREE.Mesh(geometry, material) as unknown as AnimatedMesh;
       mesh.position.set(x, y, 0);
       mesh.scale.setScalar(scale);
-      
+
       // Add random rotation properties
-      (mesh as any).rotationSpeed = {
+      mesh.rotationSpeed = {
         x: (Math.random() - 0.5) * 0.02,
         y: (Math.random() - 0.5) * 0.02,
         z: (Math.random() - 0.5) * 0.02,
       };
-      
-      (mesh as any).floatSpeed = Math.random() * 0.01 + 0.005;
-      (mesh as any).floatOffset = Math.random() * Math.PI * 2;
-      (mesh as any).originalY = y;
-      
+
+      mesh.floatSpeed = Math.random() * 0.01 + 0.005;
+      mesh.floatOffset = Math.random() * Math.PI * 2;
+      mesh.originalY = y;
+
       return mesh;
     };
 
@@ -144,15 +152,16 @@ export default function MusicElements3D() {
       const time = Date.now() * 0.001;
 
       // Rotate and float each element
-      ref.elements.children.forEach((child: any) => {
-        if (child.rotationSpeed) {
-          child.rotation.x += child.rotationSpeed.x;
-          child.rotation.y += child.rotationSpeed.y;
-          child.rotation.z += child.rotationSpeed.z;
+      ref.elements.children.forEach((child) => {
+        const mesh = child as AnimatedMesh;
+        if (mesh.rotationSpeed) {
+          mesh.rotation.x += mesh.rotationSpeed.x;
+          mesh.rotation.y += mesh.rotationSpeed.y;
+          mesh.rotation.z += mesh.rotationSpeed.z;
         }
-        
-        if (child.floatSpeed !== undefined) {
-          child.position.y = child.originalY + Math.sin(time * 2 + child.floatOffset) * 0.3;
+
+        if (mesh.floatSpeed !== undefined) {
+          mesh.position.y = mesh.originalY + Math.sin(time * 2 + mesh.floatOffset) * 0.3;
         }
       });
 
@@ -167,10 +176,10 @@ export default function MusicElements3D() {
 
     // Handle resize
     const handleResize = () => {
-      if (!containerRef.current || !sceneRef.current) return;
-      
-      const width = containerRef.current.clientWidth;
-      const height = containerRef.current.clientHeight;
+      if (!sceneRef.current) return;
+
+      const width = container.clientWidth;
+      const height = container.clientHeight;
       
       sceneRef.current.camera.aspect = width / height;
       sceneRef.current.camera.updateProjectionMatrix();
@@ -185,9 +194,7 @@ export default function MusicElements3D() {
       if (sceneRef.current) {
         cancelAnimationFrame(sceneRef.current.animationId);
         sceneRef.current.renderer.dispose();
-        if (containerRef.current) {
-          containerRef.current.removeChild(sceneRef.current.renderer.domElement);
-        }
+        container.removeChild(sceneRef.current.renderer.domElement);
       }
     };
   }, []);

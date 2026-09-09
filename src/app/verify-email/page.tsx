@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -11,6 +11,14 @@ import { signIn } from "next-auth/react";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={null}>
+      <VerifyEmailPageInner />
+    </Suspense>
+  );
+}
+
+function VerifyEmailPageInner() {
   const searchParams = useSearchParams();
   const emailFromUrl = searchParams.get("email") ?? "";
   const [email, setEmail] = useState(emailFromUrl);
@@ -79,7 +87,7 @@ export default function VerifyEmailPage() {
       }
 
       router.push("/dashboard");
-    } catch (err) {
+    } catch {
       setError("Network error. Ensure the backend is running.");
     } finally {
       setIsLoading(false);

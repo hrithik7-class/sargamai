@@ -448,7 +448,7 @@ export default function DashboardPreview() {
               </CardHeader>
               <CardContent className="px-5 pb-5">
                 <p className="text-jet-black-600 text-sm leading-relaxed mb-4">
-                  "A hopeful love song about finding light after a dark season…"
+                  &ldquo;A hopeful love song about finding light after a dark season…&rdquo;
                 </p>
                 <div className="flex items-center gap-2 flex-wrap">
                   {["Pop", "Hopeful", "4/4 time", "Verse + Chorus"].map((tag) => (

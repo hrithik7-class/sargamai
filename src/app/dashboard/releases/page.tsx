@@ -64,6 +64,47 @@ const GENRE_GRADIENTS: Record<string, string> = {
 const genreGradient = (genre: string) =>
   GENRE_GRADIENTS[genre.toLowerCase().trim()] ?? GENRE_GRADIENTS.default;
 
+function Field({
+  label,
+  value,
+  id,
+  multiline,
+  copied,
+  onCopy,
+}: {
+  label: string;
+  value: string;
+  id: string;
+  multiline?: boolean;
+  copied: string | null;
+  onCopy: (text: string, key: string) => void;
+}) {
+  return (
+    <div className="mb-4">
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">{label}</span>
+        <button
+          type="button"
+          onClick={() => onCopy(value, id)}
+          className="flex items-center gap-1 text-xs text-teal hover:text-teal-600 transition-colors"
+        >
+          {copied === id ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+          {copied === id ? "Copied!" : "Copy"}
+        </button>
+      </div>
+      {multiline ? (
+        <pre className="text-xs text-jet-black bg-lavender-800/60 border border-lavender-600/40 rounded-lg p-3 whitespace-pre-wrap font-sans leading-relaxed max-h-36 overflow-y-auto">
+          {value}
+        </pre>
+      ) : (
+        <div className="text-sm text-jet-black bg-lavender-800/60 border border-lavender-600/40 rounded-lg px-3 py-2">
+          {value}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Distribute Modal ──────────────────────────────────────────────────────
 function DistributeModal({
   track,
@@ -99,41 +140,6 @@ Genre: ${track.genre}
 Language: ${track.language}
 Label: Self-Released`;
 
-  const Field = ({
-    label,
-    value,
-    id,
-    multiline,
-  }: {
-    label: string;
-    value: string;
-    id: string;
-    multiline?: boolean;
-  }) => (
-    <div className="mb-4">
-      <div className="flex items-center justify-between mb-1.5">
-        <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">{label}</span>
-        <button
-          type="button"
-          onClick={() => copy(value, id)}
-          className="flex items-center gap-1 text-xs text-teal hover:text-teal-600 transition-colors"
-        >
-          {copied === id ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-          {copied === id ? "Copied!" : "Copy"}
-        </button>
-      </div>
-      {multiline ? (
-        <pre className="text-xs text-jet-black bg-lavender-800/60 border border-lavender-600/40 rounded-lg p-3 whitespace-pre-wrap font-sans leading-relaxed max-h-36 overflow-y-auto">
-          {value}
-        </pre>
-      ) : (
-        <div className="text-sm text-jet-black bg-lavender-800/60 border border-lavender-600/40 rounded-lg px-3 py-2">
-          {value}
-        </div>
-      )}
-    </div>
-  );
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="w-full max-w-lg bg-[var(--page-bg)] rounded-2xl border border-lavender-600/40 shadow-2xl overflow-hidden">
@@ -162,9 +168,9 @@ Label: Self-Released`;
         <div className="p-5 overflow-y-auto max-h-[70vh]">
           {platform === "youtube" ? (
             <>
-              <Field label="Title" value={track.title} id="yt-title" />
-              <Field label="Description" value={youtubeDescription} id="yt-desc" multiline />
-              <Field label="Tags" value={youtubeTags} id="yt-tags" />
+              <Field label="Title" value={track.title} id="yt-title" copied={copied} onCopy={copy} />
+              <Field label="Description" value={youtubeDescription} id="yt-desc" multiline copied={copied} onCopy={copy} />
+              <Field label="Tags" value={youtubeTags} id="yt-tags" copied={copied} onCopy={copy} />
               {track.cover_image_url && (
                 <div className="mb-4">
                   <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider block mb-1.5">Thumbnail</span>
@@ -193,9 +199,9 @@ Label: Self-Released`;
             </>
           ) : (
             <>
-              <Field label="Track Metadata" value={spotifyMetadata} id="sp-meta" multiline />
+              <Field label="Track Metadata" value={spotifyMetadata} id="sp-meta" multiline copied={copied} onCopy={copy} />
               <p className="text-xs text-neutral-400 mb-4 leading-relaxed">
-                Spotify doesn't allow direct artist uploads. Use a music distributor to get your track on Spotify for free or a small fee.
+                Spotify doesn&apos;t allow direct artist uploads. Use a music distributor to get your track on Spotify for free or a small fee.
               </p>
               <div className="space-y-2.5 mb-4">
                 {[

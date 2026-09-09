@@ -28,7 +28,6 @@ import {
   LineChart,
   Line,
   CartesianGrid,
-  Legend,
 } from "recharts";
 import { fetchAnalytics, type AnalyticsResponse, ApiError } from "@/lib/api";
 import { CardSpotlight } from "@/components/ui/card-spotlight";
@@ -105,7 +104,7 @@ function StatCard({
 
 export default function AnalyticsPage() {
   const { data: session } = useSession();
-  const accessToken = (session as any)?.accessToken as string | undefined;
+  const accessToken = session?.accessToken;
 
   const [data, setData] = useState<AnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(false);

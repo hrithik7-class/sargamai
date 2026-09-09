@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
@@ -178,15 +178,14 @@ function PricingContent() {
   const [checkoutPlan, setCheckoutPlan] = useState<Plan | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
-  const [banner, setBanner] = useState<"success" | "cancelled" | null>(null);
-  const { data: session, status } = useSession();
   const searchParams = useSearchParams();
+  const [banner, setBanner] = useState<"success" | "cancelled" | null>(() => {
+    if (searchParams.get("success")) return "success";
+    if (searchParams.get("cancelled")) return "cancelled";
+    return null;
+  });
+  const { data: session, status } = useSession();
   const accessToken = (session as { accessToken?: string } | null)?.accessToken ?? null;
-
-  useEffect(() => {
-    if (searchParams.get("success")) setBanner("success");
-    else if (searchParams.get("cancelled")) setBanner("cancelled");
-  }, [searchParams]);
 
   const openCheckout = useCallback((plan: Plan) => {
     if (!plan.planSlug) return;
@@ -211,7 +210,7 @@ function PricingContent() {
       setCheckoutLoading(null);
       setCheckoutError(e instanceof ApiError ? e.message : "Failed to create checkout");
     }
-  }, [checkoutPlan?.planSlug, accessToken]);
+  }, [checkoutPlan, accessToken]);
 
   const handleRazorpay = useCallback(async () => {
     if (!checkoutPlan?.planSlug || !accessToken) return;
@@ -322,7 +321,7 @@ function PricingContent() {
             <span className="text-teal">Unlimited creativity.</span>
           </h1>
           <p className="text-jet-black-600 text-base sm:text-lg max-w-xl mx-auto leading-relaxed mb-10">
-            Start free, upgrade when you're ready. No hidden fees, no lock-ins.
+            Start free, upgrade when you&apos;re ready. No hidden fees, no lock-ins.
           </p>
 
           {/* Toggle */}

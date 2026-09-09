@@ -18,7 +18,6 @@ import {
   ArrowRight,
   Tag,
   Languages,
-  FileText,
   Download,
   Mic2,
 } from "lucide-react";
@@ -120,24 +119,22 @@ function LyricsDisplay({ lyrics }: { lyrics: string }) {
 
 function StreamingLyricsDisplay({
   lyrics,
-  onComplete,
   speed = 12,
 }: {
   lyrics: string;
-  onComplete?: () => void;
   speed?: number;
 }) {
   const [displayedLength, setDisplayedLength] = useState(0);
-  const [done, setDone] = useState(false);
   const fullLen = lyrics.length;
+  const done = displayedLength >= fullLen;
 
   useEffect(() => {
-    if (displayedLength >= fullLen) { setDone(true); onComplete?.(); return; }
+    if (displayedLength >= fullLen) return;
     const timer = setInterval(() => {
       setDisplayedLength((prev) => Math.min(prev + speed, fullLen));
     }, 20);
     return () => clearInterval(timer);
-  }, [displayedLength, fullLen, speed, onComplete]);
+  }, [displayedLength, fullLen, speed]);
 
   return (
     <>
@@ -228,7 +225,7 @@ function StepBreadcrumb({ step }: { step: Step }) {
 
 export default function CreateMusicCard() {
   const { data: session, update: updateSession } = useSession();
-  const accessToken = (session as any)?.accessToken as string | undefined;
+  const accessToken = session?.accessToken;
 
   const [step, setStep] = useState<Step>("input");
   const [prompt, setPrompt] = useState("");
@@ -236,12 +233,10 @@ export default function CreateMusicCard() {
   const [language, setLanguage] = useState("english");
 
   const [lyricsResult, setLyricsResult] = useState<LyricsGenerateResponse | null>(null);
-  const [streamingComplete, setStreamingComplete] = useState(false);
   const [copyrightResult, setCopyrightResult] = useState<CopyrightCheckResponse | null>(null);
   const [track, setTrack] = useState<Track | null>(null);
 
   const [lyricsLoading, setLyricsLoading] = useState(false);
-  const [audioLoading, setAudioLoading] = useState(false);
   const [copyrightLoading, setCopyrightLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [audioUnavailable, setAudioUnavailable] = useState(false);
@@ -264,7 +259,6 @@ export default function CreateMusicCard() {
       setGenre(draft.genre);
       setLanguage(draft.language);
       setLyricsResult(draft.lyricsResult);
-      setStreamingComplete(true);
       setStep("lyrics");
     }
     setHasHydrated(true);
@@ -285,7 +279,6 @@ export default function CreateMusicCard() {
         setTrack(updated);
         if (updated.status === "completed" || updated.status === "failed") {
           clearPoll();
-          setAudioLoading(false);
           setStep(updated.status === "completed" ? "done" : "lyrics");
           if (updated.status === "failed")
             setError(updated.error_message ?? "Audio generation failed. Please try again.");
@@ -304,16 +297,15 @@ export default function CreateMusicCard() {
     try {
       const result = await generateLyrics({ input_prompt: prompt, language, genre }, accessToken);
       setLyricsResult(result);
-      setStreamingComplete(false);
       setStep("lyrics");
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) {
         try {
           const refreshed = await updateSession();
-          const newToken = (refreshed as any)?.accessToken;
+          const newToken = refreshed?.accessToken;
           if (newToken) {
             const result = await generateLyrics({ input_prompt: prompt, language, genre }, newToken);
-            setLyricsResult(result); setStreamingComplete(false); setStep("lyrics"); return;
+            setLyricsResult(result); setStep("lyrics"); return;
           }
         } catch { /* fall through */ }
         setError("Session expired. Please sign in again.");
@@ -335,7 +327,7 @@ export default function CreateMusicCard() {
       if (e instanceof ApiError && e.status === 401) {
         try {
           const refreshed = await updateSession();
-          const newToken = (refreshed as any)?.accessToken;
+          const newToken = refreshed?.accessToken;
           if (newToken) {
             const result = await checkCopyright({ lyrics: lyricsResult.lyrics, title: lyricsResult.title }, newToken);
             setCopyrightResult(result); return;
@@ -350,7 +342,6 @@ export default function CreateMusicCard() {
 
   const handleGenerateAudio = async () => {
     if (!lyricsResult || !accessToken) return;
-    setAudioLoading(true);
     setError(null);
     setStep("generating");
     const doGenerate = async (t: string) => {
@@ -364,21 +355,19 @@ export default function CreateMusicCard() {
     try {
       const { res, initialTrack } = await doGenerate(accessToken);
       setTrack(initialTrack);
-      if (initialTrack.status === "completed") { setStep("done"); setAudioLoading(false); }
+      if (initialTrack.status === "completed") setStep("done");
       else startPoll(res.track_id);
     } catch (e) {
-      setAudioLoading(false);
       setStep("lyrics");
       if (e instanceof ApiError && e.status === 401) {
         try {
           const refreshed = await updateSession();
-          const newToken = (refreshed as any)?.accessToken;
+          const newToken = refreshed?.accessToken;
           if (newToken) {
             setStep("generating");
-            setAudioLoading(true);
             const { res, initialTrack } = await doGenerate(newToken);
             setTrack(initialTrack);
-            if (initialTrack.status === "completed") { setStep("done"); setAudioLoading(false); }
+            if (initialTrack.status === "completed") setStep("done");
             else startPoll(res.track_id, newToken);
             return;
           }
@@ -401,7 +390,7 @@ export default function CreateMusicCard() {
     clearPoll(); clearDraft();
     setStep("input"); setPrompt(""); setLyricsResult(null);
     setCopyrightResult(null); setTrack(null); setError(null);
-    setAudioLoading(false); setStreamingComplete(false); setAudioUnavailable(false);
+    setAudioUnavailable(false);
   };
 
   const hasLyrics = !!lyricsResult;
@@ -449,7 +438,7 @@ export default function CreateMusicCard() {
             {/* Textarea */}
             <div className="mb-7">
               <label className="block text-sm font-semibold text-jet-black mb-2.5">
-                What's your song about?
+                What&apos;s your song about?
               </label>
               <div className="relative">
                 <textarea
@@ -564,7 +553,7 @@ export default function CreateMusicCard() {
                   <span className="text-xs font-semibold text-jet-black flex-1 uppercase tracking-wide">Your Prompt</span>
                   <button
                     type="button"
-                    onClick={() => { setStep("input"); setLyricsResult(null); setStreamingComplete(false); }}
+                    onClick={() => { setStep("input"); setLyricsResult(null); }}
                     className="text-xs text-neutral-400 hover:text-teal transition-colors"
                   >
                     Edit
@@ -663,7 +652,6 @@ export default function CreateMusicCard() {
                   <div className="flex-1 overflow-y-auto px-8 py-6 sm:px-10 sm:py-8">
                     <StreamingLyricsDisplay
                       lyrics={lyricsResult.lyrics}
-                      onComplete={() => setStreamingComplete(true)}
                       speed={16}
                     />
                   </div>

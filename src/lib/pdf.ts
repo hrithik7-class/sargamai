@@ -62,7 +62,7 @@ export async function downloadLyricsPdf(track: Track): Promise<void> {
   };
 
   const drawFooter = () => {
-    const pageCount = (doc.internal as any).getNumberOfPages?.() ?? 1;
+    const pageCount = doc.getNumberOfPages();
     doc.setFont("helvetica", "italic");
     doc.setFontSize(8);
     doc.setTextColor(160, 160, 160);

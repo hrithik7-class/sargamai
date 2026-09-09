@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import {
   SlidersHorizontal,
   Mic2,
@@ -46,7 +46,6 @@ export default function StudioPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordSeconds, setRecordSeconds] = useState(0);
   const [recordingError, setRecordingError] = useState<string | null>(null);
-  const [voicePreviewUrl, setVoicePreviewUrl] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -107,6 +106,9 @@ export default function StudioPage() {
             type: blob.type,
           });
           setVoiceFile(file);
+          setIsPlayingVoice(false);
+          setVoiceCurrentTime(0);
+          setVoiceDuration(0);
         }
       };
 
@@ -140,24 +142,22 @@ export default function StudioPage() {
     if (f && f.type.startsWith("audio/")) {
       setVoiceFile(f);
       setRecordingError(null);
-    }
-  };
-
-  useEffect(() => {
-    if (!voiceFile) {
-      setVoicePreviewUrl(null);
       setIsPlayingVoice(false);
       setVoiceCurrentTime(0);
       setVoiceDuration(0);
-      return;
     }
-    const url = URL.createObjectURL(voiceFile);
-    setVoicePreviewUrl(url);
-    setIsPlayingVoice(false);
-    setVoiceCurrentTime(0);
-    setVoiceDuration(0);
-    return () => URL.revokeObjectURL(url);
-  }, [voiceFile]);
+  };
+
+  const voicePreviewUrl = useMemo(
+    () => (voiceFile ? URL.createObjectURL(voiceFile) : null),
+    [voiceFile],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (voicePreviewUrl) URL.revokeObjectURL(voicePreviewUrl);
+    };
+  }, [voicePreviewUrl]);
 
   const handleRemoveVoice = useCallback(() => {
     setVoiceFile(null);

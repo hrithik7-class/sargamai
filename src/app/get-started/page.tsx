@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -55,6 +55,14 @@ const GENERIC_ERROR_FRIENDLY =
   "Sign-in failed. Ensure the backend is running. For signup: configure SMTP in backend .env, or set DEBUG=true to skip email verification.";
 
 export default function GetStartedPage() {
+  return (
+    <Suspense fallback={null}>
+      <GetStartedPageInner />
+    </Suspense>
+  );
+}
+
+function GetStartedPageInner() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
