@@ -99,7 +99,7 @@ export default function HomePage() {
           <video
             ref={videoRef}
             autoPlay
-            muted
+            muted={isMuted}
             loop
             playsInline
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-90 object-cover w-[max(100cqw,100cqh)] h-[max(100cqw,100cqh)] min-w-[max(100cqw,100cqh)] min-h-[max(100cqw,100cqh)]"
@@ -245,17 +245,19 @@ export default function HomePage() {
                   </Link>
                 </motion.div>
                 
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
-                  <Link
-                    href="/logic"
-                    className="group w-full sm:w-auto inline-flex justify-center items-center px-6 sm:px-10 py-4 sm:py-5 rounded-2xl bg-neutral-500 border-2 border-pale-sky-400 text-teal font-bold text-base sm:text-lg hover:border-teal hover:shadow-lg transition-all duration-300 gap-2"
-                  >
-                    <span className="w-8 h-8 rounded-full bg-teal flex items-center justify-center">
-                      <Play className="w-4 h-4 text-white" />
-                    </span>
-                    Try Demo
-                  </Link>
-                </motion.div>
+                {!isAuthenticated && (
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
+                    <Link
+                      href="/logic"
+                      className="group w-full sm:w-auto inline-flex justify-center items-center px-6 sm:px-10 py-4 sm:py-5 rounded-2xl bg-neutral-500 border-2 border-pale-sky-400 text-teal font-bold text-base sm:text-lg hover:border-teal hover:shadow-lg transition-all duration-300 gap-2"
+                    >
+                      <span className="w-8 h-8 rounded-full bg-teal flex items-center justify-center">
+                        <Play className="w-4 h-4 text-white" />
+                      </span>
+                      Try Demo
+                    </Link>
+                  </motion.div>
+                )}
               </motion.div>
 
               {/* Stats - social proof, clear separation from CTAs */}

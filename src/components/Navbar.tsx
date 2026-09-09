@@ -156,8 +156,18 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              className="md:hidden fixed top-0 right-0 z-[70] h-full w-[min(80vw,20rem)] bg-neutral-500 backdrop-blur-md border-l border-lavender-600 shadow-xl pt-[calc(env(safe-area-inset-top,0px)+3.5rem)] pb-[env(safe-area-inset-bottom)] overflow-y-auto"
+              className="md:hidden fixed top-0 right-0 z-[70] h-full w-[min(80vw,20rem)] bg-neutral-500 backdrop-blur-md border-l border-lavender-600 shadow-xl pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom)] overflow-y-auto"
             >
+              <div className="flex justify-end px-3 sm:px-4 pt-3">
+                <button
+                  type="button"
+                  className="flex items-center justify-center w-11 h-11 rounded-lg text-jet-black hover:bg-lavender-700/50 active:bg-lavender-700 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
               <nav className="py-4 px-3 sm:px-4 flex flex-col gap-0.5" aria-label="Mobile">
               {!isAuthenticated && navLinks.map((link) => {
                 const isActive =
