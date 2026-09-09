@@ -17,6 +17,7 @@ export default function HomePage() {
   const { isAuthenticated } = useAuth();
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
+  const [heroInView, setHeroInView] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const userHasUnmutedRef = useRef(false);
@@ -37,6 +38,7 @@ export default function HomePage() {
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
+        setHeroInView(entry.isIntersecting);
         if (!entry.isIntersecting) {
           video.pause();
           video.muted = true;
@@ -109,15 +111,20 @@ export default function HomePage() {
         </div>
 
         {/* Mute/unmute control - browsers block autoplay-with-sound, so this is the
-            explicit gesture that turns hero video audio on */}
-        <button
-          type="button"
-          onClick={toggleMute}
-          aria-label={isMuted ? "Unmute background video" : "Mute background video"}
-          className="absolute bottom-6 right-6 z-20 w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-black/60 transition-colors"
-        >
-          {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-        </button>
+            explicit gesture that turns hero video audio on. Pinned with `fixed`
+            (not `absolute`) because the hero <section> can be taller than one
+            viewport on narrow screens, which would push an absolutely-positioned
+            bottom-anchored button below the fold and out of reach. */}
+        {heroInView && (
+          <button
+            type="button"
+            onClick={toggleMute}
+            aria-label={isMuted ? "Unmute background video" : "Mute background video"}
+            className="fixed bottom-6 right-6 z-20 w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+          >
+            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </button>
+        )}
 
         {/* Floating musical symbols - fill left/right corners, do not affect text */}
         <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden" aria-hidden="true">
