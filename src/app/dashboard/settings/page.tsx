@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
 import { User, Bell, Palette, LogOut, Shield } from "lucide-react";
 import { CardSpotlight } from "@/components/ui/card-spotlight";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -40,10 +41,12 @@ export default function SettingsPage() {
           Appearance
         </h2>
         <CardSpotlight color="#00d4ff">
-        <div className="rounded-xl bg-neutral-500/50 p-4">
-          <p className="text-sm text-neutral-300">
-            Use the theme toggle (sun/moon icon) in the top-right of the screen to switch between dark and light mode.
-          </p>
+        <div className="rounded-xl bg-neutral-500/50 p-4 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-jet-black">Theme</p>
+            <p className="text-xs text-neutral-400 mt-0.5">Switch between dark and light mode.</p>
+          </div>
+          <ThemeToggle />
         </div>
         </CardSpotlight>
       </section>

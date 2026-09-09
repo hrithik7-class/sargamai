@@ -126,7 +126,7 @@ export default function DashboardLayout({
               <button
                 type="button"
                 onClick={() => setNotificationsOpen((o) => !o)}
-                className="relative flex items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 rounded-lg border border-lavender-600 bg-lavender-700 text-jet-black hover:bg-lavender-600 active:bg-lavender-600 transition-colors hover:border-teal/40"
+                className="relative flex items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 text-jet-black transition-colors sm:rounded-lg sm:border sm:border-lavender-600 sm:bg-lavender-700 sm:hover:bg-lavender-600 sm:active:bg-lavender-600 sm:hover:border-teal/40"
                 aria-label="Notifications"
                 aria-expanded={notificationsOpen}
               >
@@ -186,14 +186,14 @@ export default function DashboardLayout({
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-center min-w-[44px] min-h-[44px] shrink-0" aria-label="Theme">
-              <ThemeToggle className="scale-[0.85] min-[360px]:scale-90 min-[400px]:scale-100 sm:scale-100" />
+            <div className="hidden sm:flex items-center justify-center min-w-[44px] min-h-[44px] shrink-0" aria-label="Theme">
+              <ThemeToggle />
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 min-w-0">
+            <div className="flex items-center gap-2 shrink-0 min-w-0">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-teal flex items-center justify-center text-white text-sm font-bold shrink-0">
                 {session?.user?.name?.charAt(0).toUpperCase() ?? "U"}
               </div>
-              <span className="text-sm font-medium text-jet-black truncate max-w-[70px] min-[400px]:max-w-[120px] sm:max-w-[180px]">
+              <span className="hidden sm:inline text-sm font-medium text-jet-black truncate sm:max-w-[180px]">
                 {session?.user?.name ?? "User"}
               </span>
             </div>
