@@ -261,7 +261,7 @@ export default function StudioPage() {
                     Record
                   </button>
                 ) : (
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/20 text-red-400 border border-red-500/40">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-danger-soft text-danger-ink border border-danger-line">
                     <span className="relative flex h-3 w-3">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
@@ -271,7 +271,7 @@ export default function StudioPage() {
                     <button
                       type="button"
                       onClick={handleStopRecording}
-                      className="inline-flex items-center gap-1.5 ml-2 pl-2 border-l border-red-500/40 text-red-400 hover:text-red-300 font-medium"
+                      className="inline-flex items-center gap-1.5 ml-2 pl-2 border-l border-danger-line text-danger-ink hover:opacity-80 font-medium"
                       aria-label="Stop recording"
                     >
                       <Square className="w-3.5 h-3.5 fill-current" />
@@ -281,7 +281,7 @@ export default function StudioPage() {
                 )}
               </div>
               {recordingError && (
-                <p className="text-xs text-red-400">{recordingError}</p>
+                <p className="text-xs text-danger-ink">{recordingError}</p>
               )}
             </div>
             <div className="flex items-center gap-3 shrink-0">
@@ -309,7 +309,7 @@ export default function StudioPage() {
                   <button
                     type="button"
                     onClick={handleRemoveVoice}
-                    className="text-xs text-neutral-400 hover:text-red-400 transition-colors"
+                    className="text-xs text-neutral-400 hover:text-danger-ink transition-colors"
                   >
                     Remove
                   </button>

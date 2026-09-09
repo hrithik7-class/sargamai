@@ -27,7 +27,7 @@ import { CardSpotlight } from "@/components/ui/card-spotlight";
 function statusIcon(status: Track["status"]) {
   switch (status) {
     case "completed": return <CheckCircle2 className="w-3.5 h-3.5 text-teal" />;
-    case "failed": return <XCircle className="w-3.5 h-3.5 text-red-400" />;
+    case "failed": return <XCircle className="w-3.5 h-3.5 text-danger" />;
     case "generating_audio":
     case "pending": return <Loader2 className="w-3.5 h-3.5 text-teal animate-spin" />;
     default: return <Clock className="w-3.5 h-3.5 text-neutral-300" />;
@@ -156,9 +156,9 @@ export default function OverviewPage() {
         </div>
 
         {error && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg bg-red-950/40 border border-red-800 px-3 py-2.5">
-            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-            <p className="text-xs text-red-400">{error}</p>
+          <div className="mb-4 flex items-center gap-2 rounded-lg bg-danger-soft border border-danger-line px-3 py-2.5">
+            <AlertCircle className="w-4 h-4 text-danger-ink shrink-0" />
+            <p className="text-xs text-danger-ink">{error}</p>
           </div>
         )}
 

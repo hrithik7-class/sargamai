@@ -285,7 +285,7 @@ function PricingContent() {
                 </div>
               ) : (
                 <>
-                  {checkoutError && <p className="text-red-400 text-sm mb-4 p-3 rounded-lg bg-red-400/10 border border-red-400/20">{checkoutError}</p>}
+                  {checkoutError && <p className="text-danger-ink text-sm mb-4 p-3 rounded-lg bg-danger-soft border border-danger-line">{checkoutError}</p>}
                   <div className="flex flex-col gap-3">
                     <button type="button" onClick={handleLemonSqueezy} disabled={!!checkoutLoading}
                       className="w-full py-3.5 px-5 rounded-xl bg-teal text-lavender-900 font-semibold hover:bg-teal-600 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">

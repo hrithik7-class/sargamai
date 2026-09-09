@@ -9,13 +9,14 @@ import HowItWorks from "@/components/HowItWorks";
 import CompanyTicker from "@/components/CompanyTicker";
 import Testimonials from "@/components/Testimonials";
 import { useAuth } from "@/components/AuthContext";
-import { Zap, Settings, RefreshCw, ArrowRight, Play, Music } from "lucide-react";
+import { Zap, Settings, RefreshCw, ArrowRight, Play, Music, Volume2, VolumeX } from "lucide-react";
 
 const rotatingWords = ["lyrics", "music", "singing", "composing", "playing"];
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth();
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const userHasUnmutedRef = useRef(false);
@@ -39,9 +40,13 @@ export default function HomePage() {
         if (!entry.isIntersecting) {
           video.pause();
           video.muted = true;
+          setIsMuted(true);
         } else {
           video.play().catch(() => {});
-          if (userHasUnmutedRef.current) video.muted = false;
+          if (userHasUnmutedRef.current) {
+            video.muted = false;
+            setIsMuted(false);
+          }
         }
       },
       { threshold: 0.25, rootMargin: "0px" }
@@ -50,28 +55,18 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, []);
 
-  // Enable video audio on first user interaction (browsers block autoplay with sound)
-  useEffect(() => {
-    const enableVideoAudio = () => {
-      const video = videoRef.current;
-      if (video) {
-        userHasUnmutedRef.current = true;
-        video.muted = false;
-        video.play().catch(() => {});
-      }
-      document.removeEventListener("click", enableVideoAudio);
-      document.removeEventListener("touchstart", enableVideoAudio);
-      document.removeEventListener("keydown", enableVideoAudio);
-    };
-    document.addEventListener("click", enableVideoAudio, { once: true });
-    document.addEventListener("touchstart", enableVideoAudio, { once: true });
-    document.addEventListener("keydown", enableVideoAudio, { once: true });
-    return () => {
-      document.removeEventListener("click", enableVideoAudio);
-      document.removeEventListener("touchstart", enableVideoAudio);
-      document.removeEventListener("keydown", enableVideoAudio);
-    };
-  }, []);
+  // Browsers block autoplay-with-sound until a real user gesture — the mute
+  // button below is that gesture. Toggling it also flips video.muted directly
+  // (rather than trusting only React state) so the DOM and UI never drift apart.
+  const toggleMute = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const next = !video.muted;
+    video.muted = next;
+    setIsMuted(next);
+    userHasUnmutedRef.current = !next;
+    if (!next) video.play().catch(() => {});
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -100,18 +95,29 @@ export default function HomePage() {
         className="relative min-h-screen min-h-[100dvh] flex items-center overflow-hidden pb-24 -mt-[env(safe-area-inset-top,0px)] pt-[calc(5rem+env(safe-area-inset-top,0px))]"
       >
         {/* Full-viewport video layer - always dark (theme-independent) so navbar stays transparent over hero */}
-        <div className="absolute inset-0 z-0 overflow-hidden bg-[#0a0f1a] top-[calc(-1*env(safe-area-inset-top,0px))] h-[calc(100%+env(safe-area-inset-top,0px))]" aria-hidden="true">
+        <div className="absolute inset-0 z-0 overflow-hidden bg-[#0a0f1a] top-[calc(-1*env(safe-area-inset-top,0px))] h-[calc(100%+env(safe-area-inset-top,0px))] [container-type:size]" aria-hidden="true">
           <video
             ref={videoRef}
             autoPlay
             muted
             loop
             playsInline
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-90 object-cover w-[max(100vw,100vh)] h-[max(100vw,100vh)] min-w-[max(100vw,100vh)] min-h-[max(100vw,100vh)]"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-90 object-cover w-[max(100cqw,100cqh)] h-[max(100cqw,100cqh)] min-w-[max(100cqw,100cqh)] min-h-[max(100cqw,100cqh)]"
           >
             <source src="/hero.mp4" type="video/mp4" />
           </video>
         </div>
+
+        {/* Mute/unmute control - browsers block autoplay-with-sound, so this is the
+            explicit gesture that turns hero video audio on */}
+        <button
+          type="button"
+          onClick={toggleMute}
+          aria-label={isMuted ? "Unmute background video" : "Mute background video"}
+          className="absolute bottom-6 right-6 z-20 w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+        >
+          {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+        </button>
 
         {/* Floating musical symbols - fill left/right corners, do not affect text */}
         <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden" aria-hidden="true">

@@ -85,6 +85,12 @@
   --color-input:              #1e293b;
   --color-ring:               #00d4ff;
   --color-destructive:        #ef4444;
+
+  /* danger → error banners/text (theme-aware; overridden in html.light) */
+  --color-danger:      #f87171; /* icon/accent */
+  --color-danger-soft: rgba(127, 29, 29, 0.4); /* banner background */
+  --color-danger-line: #991b1b; /* banner border */
+  --color-danger-ink:  #f87171; /* readable error text */
 }
 
 html {
@@ -189,6 +195,12 @@ html.light {
   --color-border:             #e2e8f0;
   --color-input:              #e2e8f0;
   --color-ring:               #0891b2;
+
+  /* danger → error banners/text (light: strong red on soft tint for contrast) */
+  --color-danger:      #dc2626;
+  --color-danger-soft: #fef2f2;
+  --color-danger-line: #fecaca;
+  --color-danger-ink:  #b91c1c;
 }
 
 .font-heading {

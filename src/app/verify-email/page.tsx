@@ -245,7 +245,7 @@ function VerifyEmailPageInner() {
             </div>
 
             {error && (
-              <p className="text-sm text-red-500">{error}</p>
+              <p className="text-sm text-danger-ink">{error}</p>
             )}
 
             {resendSuccess && (

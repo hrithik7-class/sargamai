@@ -34,7 +34,7 @@ import { downloadLyricsPdf } from "@/lib/pdf";
 function statusIcon(status: Track["status"]) {
   switch (status) {
     case "completed": return <CheckCircle2 className="w-3.5 h-3.5 text-teal" />;
-    case "failed": return <XCircle className="w-3.5 h-3.5 text-red-400" />;
+    case "failed": return <XCircle className="w-3.5 h-3.5 text-danger" />;
     case "generating_audio":
     case "pending": return <Loader2 className="w-3.5 h-3.5 text-teal animate-spin" />;
     default: return <Clock className="w-3.5 h-3.5 text-neutral-300" />;
@@ -54,7 +54,7 @@ function statusLabel(status: Track["status"]) {
 function statusColor(status: Track["status"]) {
   switch (status) {
     case "completed": return "text-teal bg-teal/10 border-teal/20";
-    case "failed": return "text-red-400 bg-red-400/10 border-red-400/20";
+    case "failed": return "text-danger-ink bg-danger-soft border-danger-line";
     default: return "text-teal bg-teal/10 border-teal-600/50";
   }
 }
@@ -164,9 +164,9 @@ function GridCard({
         {track.status === "completed" && track.audio_url ? (
           <AudioPlayer src={audioSrc(track.audio_url)} title={track.title} genre={track.genre} language={track.language} />
         ) : track.status === "failed" ? (
-          <div className="flex items-center gap-2 rounded-lg bg-red-950/40 border border-red-800 px-3 py-2.5">
-            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-            <p className="text-xs text-red-400 truncate">{track.error_message ?? "Audio generation failed"}</p>
+          <div className="flex items-center gap-2 rounded-lg bg-danger-soft border border-danger-line px-3 py-2.5">
+            <AlertCircle className="w-4 h-4 text-danger-ink shrink-0" />
+            <p className="text-xs text-danger-ink truncate">{track.error_message ?? "Audio generation failed"}</p>
           </div>
         ) : (
           <div className="flex items-center gap-2 rounded-lg bg-lavender-800 border border-lavender-600 px-3 py-2.5">
@@ -192,7 +192,7 @@ function GridCard({
               {lyricsOpen ? "Hide" : "Lyrics"}
             </button>
           )}
-          <button type="button" onClick={handleDelete} disabled={deleting} aria-label="Delete track" className={`p-1.5 rounded-lg text-neutral-300 hover:text-red-400 hover:bg-red-950/40 transition-colors disabled:opacity-40 ${track.generated_lyrics ? "" : "ml-auto"}`}>
+          <button type="button" onClick={handleDelete} disabled={deleting} aria-label="Delete track" className={`p-1.5 rounded-lg text-neutral-300 hover:text-danger-ink hover:bg-danger-soft transition-colors disabled:opacity-40 ${track.generated_lyrics ? "" : "ml-auto"}`}>
             {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
           </button>
         </div>
@@ -277,7 +277,7 @@ function ListRow({
               {lyricsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
           )}
-          <button type="button" onClick={handleDelete} disabled={deleting} aria-label="Delete" className="p-1.5 rounded-lg text-neutral-300 hover:text-red-400 hover:bg-red-950/40 transition-colors disabled:opacity-40">
+          <button type="button" onClick={handleDelete} disabled={deleting} aria-label="Delete" className="p-1.5 rounded-lg text-neutral-300 hover:text-danger-ink hover:bg-danger-soft transition-colors disabled:opacity-40">
             {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
           </button>
         </div>
@@ -423,10 +423,10 @@ export default function LibraryPage() {
       </div>
 
       {error && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg bg-red-950/40 border border-red-800 px-3 py-2.5">
-          <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-          <p className="text-xs text-red-400">{error}</p>
-          <button type="button" onClick={() => accessToken && fetchTracks(accessToken)} className="ml-auto text-xs font-medium text-red-400 underline">Retry</button>
+        <div className="mb-4 flex items-center gap-2 rounded-lg bg-danger-soft border border-danger-line px-3 py-2.5">
+          <AlertCircle className="w-4 h-4 text-danger-ink shrink-0" />
+          <p className="text-xs text-danger-ink">{error}</p>
+          <button type="button" onClick={() => accessToken && fetchTracks(accessToken)} className="ml-auto text-xs font-medium text-danger-ink underline">Retry</button>
         </div>
       )}
 

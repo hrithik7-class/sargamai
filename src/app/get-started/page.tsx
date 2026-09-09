@@ -329,7 +329,7 @@ function GetStartedPageInner() {
 
           {/* Error message */}
           {displayError && (
-            <div className="mb-4 px-4 py-3 rounded-lg bg-red-950/40 border border-red-800 text-red-400 text-sm">
+            <div className="mb-4 px-4 py-3 rounded-lg bg-danger-soft border border-danger-line text-danger-ink text-sm">
               {displayError}
             </div>
           )}

@@ -207,7 +207,7 @@ export default function AudioPlayer({ src, title, genre, language }: AudioPlayer
         </div>
 
         {error && (
-          <p className="text-xs text-red-500 mt-1 text-center">
+          <p className="text-xs text-danger-ink mt-1 text-center">
             Could not load audio. Try downloading instead.
           </p>
         )}

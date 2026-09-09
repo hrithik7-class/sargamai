@@ -168,10 +168,10 @@ export default function AnalyticsPage() {
       </div>
 
       {error && (
-        <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-950/40 border border-red-800 px-3 py-2.5">
-          <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-          <p className="text-xs text-red-400">{error}</p>
-          <button type="button" onClick={load} className="ml-auto text-xs font-medium text-red-400 underline">
+        <div className="mb-6 flex items-center gap-2 rounded-lg bg-danger-soft border border-danger-line px-3 py-2.5">
+          <AlertCircle className="w-4 h-4 text-danger-ink shrink-0" />
+          <p className="text-xs text-danger-ink">{error}</p>
+          <button type="button" onClick={load} className="ml-auto text-xs font-medium text-danger-ink underline">
             Retry
           </button>
         </div>
@@ -188,7 +188,7 @@ export default function AnalyticsPage() {
             <StatCard label="Total Tracks" value={data.total} icon={Music} color="text-teal" />
             <StatCard label="Completed" value={data.completed} sub={`${completionRate}% completion`} icon={Headphones} color="text-green-500" />
             <StatCard label="In Progress" value={data.in_progress} icon={Loader2} color="text-teal" />
-            <StatCard label="Failed" value={data.failed} icon={XCircle} color="text-red-400" />
+            <StatCard label="Failed" value={data.failed} icon={XCircle} color="text-danger-ink" />
             <StatCard label="Copyright Safe" value={data.copyright_safe_count} sub={safeRate !== null ? `${safeRate}% of checked` : undefined} icon={ShieldCheck} color="text-teal" />
             <StatCard label="Avg Similarity" value={data.avg_copyright_score !== null ? `${data.avg_copyright_score}%` : "—"} sub="lower is safer" icon={ShieldAlert} color="text-teal" />
           </div>
@@ -342,7 +342,7 @@ export default function AnalyticsPage() {
                   {[
                     { label: "Completed", value: data.completed, color: "bg-teal", textColor: "text-teal" },
                     { label: "In Progress", value: data.in_progress, color: "bg-teal", textColor: "text-teal" },
-                    { label: "Failed", value: data.failed, color: "bg-red-400", textColor: "text-red-400" },
+                    { label: "Failed", value: data.failed, color: "bg-danger", textColor: "text-danger-ink" },
                     { label: "Copyright Safe", value: data.copyright_safe_count, color: "bg-green-400", textColor: "text-green-500" },
                     { label: "Copyright Review", value: data.copyright_unsafe_count, color: "bg-orange-400", textColor: "text-orange-500" },
                   ].map((row) => (

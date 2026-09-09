@@ -387,7 +387,7 @@ function ReleaseCard({
               }
             </button>
             {coverError && (
-              <p className="text-xs text-red-400 flex items-center gap-1">
+              <p className="text-xs text-danger-ink flex items-center gap-1">
                 <AlertCircle className="w-3 h-3 shrink-0" /> {coverError}
               </p>
             )}
@@ -500,10 +500,10 @@ export default function ReleasesPage() {
       </div>
 
       {error && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg bg-red-950/40 border border-red-800 px-3 py-2.5">
-          <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-          <p className="text-xs text-red-400">{error}</p>
-          <button type="button" onClick={() => accessToken && fetchTracks(accessToken)} className="ml-auto text-xs font-medium text-red-400 underline">Retry</button>
+        <div className="mb-4 flex items-center gap-2 rounded-lg bg-danger-soft border border-danger-line px-3 py-2.5">
+          <AlertCircle className="w-4 h-4 text-danger-ink shrink-0" />
+          <p className="text-xs text-danger-ink">{error}</p>
+          <button type="button" onClick={() => accessToken && fetchTracks(accessToken)} className="ml-auto text-xs font-medium text-danger-ink underline">Retry</button>
         </div>
       )}
 

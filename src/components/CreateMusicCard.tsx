@@ -501,10 +501,10 @@ export default function CreateMusicCard() {
               <motion.div
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-2"
+                className="mb-5 p-3.5 rounded-xl bg-danger-soft border border-danger-line flex items-center gap-2"
               >
-                <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-                <p className="text-sm text-red-400">{error}</p>
+                <AlertCircle className="w-4 h-4 text-danger-ink shrink-0" />
+                <p className="text-sm text-danger-ink">{error}</p>
               </motion.div>
             )}
 
@@ -659,7 +659,7 @@ export default function CreateMusicCard() {
                   {/* — Generate song footer — */}
                   <div className="px-6 py-4 border-t border-lavender-600/30 shrink-0 bg-lavender-800/20">
                     {error && (
-                      <p className="mb-3 text-xs text-red-400 flex items-center gap-1.5">
+                      <p className="mb-3 text-xs text-danger-ink flex items-center gap-1.5">
                         <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {error}
                       </p>
                     )}
